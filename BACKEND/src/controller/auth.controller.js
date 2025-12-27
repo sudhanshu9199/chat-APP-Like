@@ -2,15 +2,13 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const imageKitClient = require("../services/imagekit.service");
+const imageKit = require("../services/imagekit.service");
 
 async function registerUser(req, res) {
   const { email, name, password } = req.body;
 
   try {
-    const existingUser = await userModel.findOne({
-      email,
-    });
+    const existingUser = await userModel.findOne({ email });
 
     if (existingUser) {
       return res.status(409).json({
@@ -19,12 +17,20 @@ async function registerUser(req, res) {
     }
     let avatarUrl = "";
     if (req.file) {
-      const uploadResponse = await imageKitClient.upload({
-        file: req.file.buffer,
-        fileName: `user-${Date.now()}`,
-        folder: "/ChatAvatars",
-      });
-      avatarUrl = uploadResponse.url;
+      try {
+        const uploadResponse = await imageKit.upload({
+          file: req.file.buffer.toString('base64'),
+          fileName: `user-${Date.now()}`,
+          folder: "ChatAvatars",
+        });
+        avatarUrl = uploadResponse.url;
+      } catch (uploadError) {
+        console.error("ImageKit Error:", uploadError);
+        // Optional: return error or continue with empty avatar
+      }
+    }
+    else {
+        console.log("No file received in req.file. Check Postman 'avatar' key.");
     }
 
     const user = await userModel.create({
@@ -79,6 +85,10 @@ async function loginUser(req, res) {
       });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    user.isOnline = true;
+    user.lastSeen = new Date();
+    await user.save(); // This line saves the updated user document back to the database, ensuring that the changes to isOnline and lastSeen are persisted.
 
     if (!isPasswordValid) {
       return res.status(401).json({

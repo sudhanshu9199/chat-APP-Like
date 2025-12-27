@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         unique: true,
-        required: true
+        required: true,
+        trim: true,
     },
     name: {
         type: String,
@@ -26,9 +27,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "Hey there! I am using ConnectX.",
         trim: true,
+    },
+
+    isOnline: {
+        type: Boolean,
+        default: false,
+    },
+    lastSeen: {
+        type: Date,
+        default: Date.now,
     }
-    
-})
+}, { timestamps: true });
 
 const userModel = mongoose.model('users', userSchema);
 
