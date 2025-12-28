@@ -1,4 +1,5 @@
 import style from "./LoginPage.module.scss";
+import { Link } from 'react-router';
 
 const LoginPage = () => {
   return (
@@ -16,6 +17,9 @@ const LoginPage = () => {
           <input type="password" placeholder="Password" />
         </div>
         <button type="submit">Login</button>
+        <div className={style.redirect}>
+          <p>New to ConnectX? <Link to='/register'>Start connecting</Link></p>
+        </div>
       </form>
     </div>
   );

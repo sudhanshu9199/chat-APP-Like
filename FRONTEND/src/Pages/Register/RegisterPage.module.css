@@ -96,4 +96,21 @@
 }
 .registerPage form button:active {
   transform: scale(0.93);
+}
+.registerPage form .redirect {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+.registerPage form .redirect p {
+  font-size: 0.95rem;
+  color: rgb(100, 100, 100);
+}
+.registerPage form .redirect p a {
+  text-decoration: none;
+  color: green;
+  font-weight: 700;
+  margin-left: 5px;
+}
+.registerPage form .redirect p a:hover {
+  text-decoration: underline;
 }/*# sourceMappingURL=RegisterPage.module.css.map */

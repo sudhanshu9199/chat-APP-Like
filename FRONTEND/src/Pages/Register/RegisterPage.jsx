@@ -1,5 +1,5 @@
 import style from "./RegisterPage.module.scss";
-
+import { Link } from 'react-router';
 
 const RegisterPage = () => {
   return (
@@ -28,6 +28,9 @@ const RegisterPage = () => {
           <input type="password" placeholder="Password" />
         </div>
         <button type="submit">Register</button>
+        <div className={style.redirect}>
+          <p>Already connected? <Link to="/login">Back to Login</Link></p>
+        </div>
       </form>
     </div>
   );

@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
+import ProtectedRoute from "./ProtectedRoute";
 
 const UserList = lazy(() => import("../Pages/UserList/UserList"));
 const LoginPage = lazy(() => import("../Pages/Login/LoginPage"));
@@ -8,12 +9,22 @@ const ChatRoomPage = lazy(() => import("../Pages/ChatRoom/ChatRoomPage"));
 
 const MainRoute = () => {
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <Routes>
-      <Route path="/" element={<UserList />} />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <UserList />
+        </ProtectedRoute>
+      } />
+      <Route path="/chatroom/:id" element={
+        <ProtectedRoute>
+          <ChatRoomPage />
+        </ProtectedRoute>
+      } />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/chatroom/:id" element={<ChatRoomPage />} />
     </Routes>
+    </Suspense>
   );
 };
 

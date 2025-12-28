@@ -26,8 +26,8 @@
   align-items: center;
   filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.601));
   border-radius: 1rem;
-  height: 30%;
-  padding: 2.5rem 1rem 0.5rem 1rem;
+  height: auto;
+  padding: 2.5rem 1rem 2rem 1rem;
 }
 .loginPage form .inputBox {
   border: 2px solid rgb(156, 156, 156);
@@ -39,6 +39,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
+  gap: 0.4rem;
 }
 .loginPage form .inputBox .icon {
   color: gray;
@@ -50,7 +51,7 @@
   height: 100%;
   border: none;
   outline: none;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 .loginPage form button {
   margin-top: 0.5rem;
@@ -65,4 +66,22 @@
 }
 .loginPage form button:active {
   transform: scale(0.9);
+}
+.loginPage form .redirect {
+  margin-top: 1.5rem;
+}
+.loginPage form .redirect p {
+  font-size: 0.9rem;
+  color: gray;
+}
+.loginPage form .redirect p a {
+  text-decoration: none;
+  color: green;
+  font-weight: 700;
+  margin-left: 5px;
+  transition: all 0.2s ease;
+}
+.loginPage form .redirect p a:hover {
+  text-decoration: underline;
+  color: rgb(1, 152, 1);
 }/*# sourceMappingURL=LoginPage.module.css.map */
