@@ -7,10 +7,12 @@ const LoginPage = () => {
         <h1>Login</h1>
       </div>
       <form>
-        <div className="inputBox">
+        <div className={style.inputBox}>
+          <i className={`ri-mail-fill ${style.icon}`}></i>
           <input type="email" placeholder="Email" />
         </div>
-        <div className="inputBox">
+        <div className={style.inputBox}>
+          <i className={`ri-lock-2-fill ${style.icon}`}></i>
           <input type="password" placeholder="Password" />
         </div>
         <button type="submit">Login</button>

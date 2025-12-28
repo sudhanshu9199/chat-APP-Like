@@ -1,0 +1,109 @@
+.registerPage {
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f5f5f5;
+
+  .upper {
+    background: rgb(15, 198, 15);
+    color: whitesmoke;
+    font-size: 1.2rem;
+    width: 100%;
+    height: 30%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 2rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -15%;
+    width: 80%;
+
+    .pic {
+      background: white;
+      width: 7.5rem;
+      height: 7.5rem;
+      border-radius: 50%;
+      padding: 0.5rem;
+      filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.749));
+      margin-bottom: 2rem;
+
+      .picInner {
+        border: 2px solid rgba(84, 94, 104, 0.508);
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #b5bdc47d;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .icon {
+          color: gray;
+          font-size: 2rem;
+        }
+        p {
+          font-size: 0.9rem;
+          color: rgb(90, 90, 90);
+        }
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .inputBox {
+        border: 2px solid rgb(148, 148, 148);
+        background: whitesmoke;
+        width: 100%;
+        height: 3rem;
+        margin-bottom: 1rem;
+        border-radius: 1rem;
+        padding-left: 0.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        filter: drop-shadow(0px 2px 4px rgba(128, 128, 128, 0.836));
+
+        .icon {
+            font-size: 1.5rem;
+            color: gray;
+        }
+
+        input {
+            width: 88%;
+            height: 100%;
+            background: transparent;
+            outline: none;
+            border: none;
+            font-size: 1.2rem;
+        }
+    }
+
+    button {
+        margin-top: 1rem;
+        width: 100%;
+        height: 3rem;
+        border: none;
+        border-radius: 0.8rem;
+        font-size: 1.2rem;
+        filter: drop-shadow(0px 2px 4px rgba(0, 128, 0, 0.459));
+        background: green;
+        color: white;
+
+        &:active {
+            transform: scale(0.93);
+        }
+    }
+  }
+}
