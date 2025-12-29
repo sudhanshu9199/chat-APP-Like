@@ -53,6 +53,10 @@
   outline: none;
   font-size: 1.2rem;
 }
+.loginPage form .errors {
+  color: red;
+  font-size: 0.8rem;
+}
 .loginPage form button {
   margin-top: 0.5rem;
   width: 90%;
