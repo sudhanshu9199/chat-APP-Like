@@ -1,9 +1,13 @@
-import MainRoute from "./router/MainRoute"
+import { ToastContainer, toast } from "react-toastify";
+import MainRoute from "./router/MainRoute";
 
 const App = () => {
   return (
-    <MainRoute />
-  )
-}
+    <>
+      <MainRoute />
+      <ToastContainer />
+    </>
+  );
+};
 
-export default App
+export default App;
