@@ -30,9 +30,23 @@ export const loginUser = createAsyncThunk(
     }
 );
 
+export const logoutUser = createAsyncThunk(
+    'auth/logoutUser',
+    async (_, { dispatch }) => {
+        try {
+            await api.post('/auth/logout');
+        } catch (err) {
+            console.error("Logout API failed", err)
+        }
+        finally {
+            dispatch(logout());
+            toast.info('Logged out successfully');
+        }
+    }
+);
+
 const initialState = {
     user: JSON.parse(localStorage.getItem('user')) || null,
-    token: localStorage.getItem('token') || null,
     loading: false,
     error: null,
 };
@@ -43,10 +57,7 @@ const authSlice = createSlice({
     reducers: {
         logout: (state) => {
             state.user = null;
-            state.token = null;
-            localStorage.removeItem('token');
             localStorage.removeItem('user');
-            toast.info('Logged out successfully');
         },
     },
     extraReducers: (builder) => {
@@ -72,11 +83,8 @@ const authSlice = createSlice({
         state.loading = false;
         // Adjust these paths based on your actual backend response structure
         // Example: backend returns { data: { accessToken: "...", user: {...} } }
-        const { user } = action.payload; 
-        
-        state.token = user.token;
+        const { user } = action.payload;         
         state.user = user;
-        localStorage.setItem('token', user.token);
         localStorage.setItem('user', JSON.stringify(user));
         toast.success('Login successful!');
       })
