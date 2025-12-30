@@ -31,7 +31,8 @@ const LoginPage = () => {
         {errors.email && <span className={style.errors}>{errors.email.message}</span>}
         <div className={style.inputBox}>
           <i className={`ri-lock-2-fill ${style.icon}`}></i>
-          <input type="password" placeholder="Password" />
+          <input type="password" placeholder="Password"
+          {...register('password', { required: 'Password is required' })} />
         </div>
         {errors.password && <span className={style.errors}>{errors.password.message}</span>}
         <button type="submit" disabled={loading}>

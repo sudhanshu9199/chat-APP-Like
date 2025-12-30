@@ -1,10 +1,12 @@
+// authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
+import api from '../../services/api';
 
 
 export const registerUser = createAsyncThunk(
     'auth/register',
-    async (userFData, { rejectWithValue }) => {
+    async (userData, { rejectWithValue }) => {
         try {
             const response = await api.post('/auth/register', userData, {
                 headers: { 'Content-Type': 'multipart/form-data'}
@@ -29,7 +31,7 @@ export const loginUser = createAsyncThunk(
 );
 
 const initialState = {
-    user: null,
+    user: JSON.parse(localStorage.getItem('user')) || null,
     token: localStorage.getItem('token') || null,
     loading: false,
     error: null,
@@ -43,6 +45,7 @@ const authSlice = createSlice({
             state.user = null;
             state.token = null;
             localStorage.removeItem('token');
+            localStorage.removeItem('user');
             toast.info('Logged out successfully');
         },
     },
@@ -69,11 +72,12 @@ const authSlice = createSlice({
         state.loading = false;
         // Adjust these paths based on your actual backend response structure
         // Example: backend returns { data: { accessToken: "...", user: {...} } }
-        const { accessToken, user } = action.payload.data; 
+        const { user } = action.payload; 
         
-        state.token = accessToken;
+        state.token = user.token;
         state.user = user;
-        localStorage.setItem('token', accessToken);
+        localStorage.setItem('token', user.token);
+        localStorage.setItem('user', JSON.stringify(user));
         toast.success('Login successful!');
       })
       .addCase(loginUser.rejected, (state, action) => {

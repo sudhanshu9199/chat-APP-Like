@@ -14,7 +14,7 @@ const RegisterPage = () => {
 
   const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append('fullName', data.fullName);
+    formData.append('name', data.fullName);
     formData.append('email', data.email);
     formData.append('password', data.password);
     if (data.avatar && data.avatar[0]) {
