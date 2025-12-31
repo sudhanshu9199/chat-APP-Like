@@ -78,6 +78,11 @@
   height: calc(100dvh - 8.5rem);
   overflow-y: auto;
 }
+.userListPage .participantList .loaderContainer {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
 .userListPage .participantList .participantOverview {
   border: 2px solid purple;
   width: 100%;

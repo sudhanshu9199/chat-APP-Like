@@ -1,9 +1,10 @@
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router';
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
+  const { user } = useSelector(state => state.auth);
 
-  if (!token) return <Navigate to='/login' replace />
+  if (!user) return <Navigate to='/login' replace />
   return children;
 }
 

@@ -85,10 +85,15 @@
 
     .participantList {
         margin-top: 1rem;
-        // border: 2px solid orange;
         width: 100%;
         height: calc(100dvh - 8.5rem);
         overflow-y: auto;
+
+        .loaderContainer {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
         
         .participantOverview {
             border: 2px solid purple;
