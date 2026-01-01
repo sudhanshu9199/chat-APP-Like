@@ -4,6 +4,7 @@ const app = require("./src/app");
 const connectDB = require("./src/db/db");
 const http = require("http");
 const { Server } = require("socket.io");
+const User = require('./src/models/user.model');
 
 const server = http.createServer(app);
 
@@ -22,22 +23,29 @@ const userSocketMap = {};
 //   return userSocketMap[receiverId];
 // };
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log("A user connected:", socket.id);
 
   const userId = socket.handshake.query.userId;
 
   if (userId && userId !== "undefined") {
     userSocketMap[userId] = socket.id;
+
+    await User.findByIdAndUpdate(userId, { isOnline: true });
   }
 
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     console.log("User disconnected:", socket.id);
     if (userId && userSocketMap[userId] === socket.id) {
       delete userSocketMap[userId];
       io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+      await User.findByIdAndUpdate(userId, {
+        isOnline: false,
+        lastSeen: new Date()
+      });
     }
   });
 });
