@@ -19,10 +19,6 @@ global.io = io;
 
 const userSocketMap = {};
 
-// const getReceiverSocketId = (receiverId) => {
-//   return userSocketMap[receiverId];
-// };
-
 io.on("connection", async (socket) => {
   console.log("A user connected:", socket.id);
 

@@ -16,12 +16,14 @@ export const SocketContextProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user && user._id) {
+    const userId = user?._id || user?.id;
+
+    if (user && userId) {
       const socketInstance = io(
         import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3000",
         {
           query: {
-            userId: user._id, // Ensure this matches your User Model ID field
+            userId: userId, // Ensure this matches your User Model ID field
           },
         }
       );
