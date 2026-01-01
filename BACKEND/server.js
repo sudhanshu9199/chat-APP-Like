@@ -33,11 +33,10 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-    if (userId) {
+    if (userId && userSocketMap[userId] === socket.id) {
       delete userSocketMap[userId];
+      io.emit('getOnlineUsers', Object.keys(userSocketMap));
     }
-
-    io.emit('getOnlineUsers', Object.keys(userSocketMap));
   });
 });
 
