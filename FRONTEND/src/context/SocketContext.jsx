@@ -18,22 +18,22 @@ export const SocketContextProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       const socketInstance = io(
-        import.meta.env.VITE_API_URL?.replace("/api", "") ||
-          "http://localhost:3000",
+        import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3000",
         {
           query: {
-            userId: user._id,
+            userId: user._id, // Ensure this matches your User Model ID field
           },
         }
       );
 
       setsocket(socketInstance);
 
-      //   Listen for online users update
+      // Listen for online users update
       socketInstance.on("getOnlineUsers", (users) => {
         dispatch(setonlineUsers(users));
       });
 
+      // Cleanup on unmount or user change
       return () => {
         socketInstance.close();
         setsocket(null);
@@ -50,7 +50,6 @@ export const SocketContextProvider = ({ children }) => {
     <SocketContext.Provider value={{ socket }}>
         {children}
     </SocketContext.Provider>
-
   );
 };
 

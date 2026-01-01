@@ -10,8 +10,7 @@ const UserList = () => {
   const [error, seterror] = useState(null);
   const [searchTerm, setsearchTerm] = useState("");
 
-  const socketState = useSelector((state) => state.socket);
-  const onlineUsers = socketState?.onlineUsers || [];
+  const { onlineUsers } = useSelector((state) => state.socket);
 
   // OPTIMIZATION: Create a Set for O(1) lookup
   const onlineUserSet = useMemo(() => new Set(onlineUsers), [onlineUsers]);
