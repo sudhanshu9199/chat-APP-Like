@@ -3,14 +3,17 @@ import dpImg from "../../assets/dp_demo_img/doctor.jpg";
 import { EllipsisVertical, Loader2, Search } from "lucide-react";
 import api from "../../services/api";
 import { useState, useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import Dropdown from "./Dropdown/Dropdown";
 const UserList = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [users, setusers] = useState([]);
   const [loading, setloading] = useState(true);
   const [error, seterror] = useState(null);
   const [searchTerm, setsearchTerm] = useState("");
+  const [showDropdown, setshowDropdown] = useState(false);
 
   const { onlineUsers } = useSelector((state) => state.socket);
 
@@ -55,6 +58,25 @@ const UserList = () => {
     // Convert to string to ensure type matching (e.g. ObjectId vs String)
     return onlineUserSet.has(String(userId));
   };
+
+  const toggleDropdown = (e) => {
+    e.stopPropagation();
+    setshowDropdown(!showDropdown);
+  };
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    setshowDropdown(false);
+    navigate('/login');
+  }
+
+  useEffect(() => {
+    const closeMenu = () => setshowDropdown(false);
+    if (showDropdown) {
+      window.addEventListener('click', closeMenu);
+    }
+    return () => window.removeEventListener('click', closeMenu);
+  }, [showDropdown]);
   return (
     <div className={style.userListPage}>
       <div className={style.header}>
@@ -66,7 +88,8 @@ const UserList = () => {
           <div className={style.profilePic}>
             <img src={dpImg} alt="Owner" />
           </div>
-          <EllipsisVertical />
+          <EllipsisVertical onClick={toggleDropdown}/>
+          { showDropdown && <Dropdown onLogout={handleLogout}/>}
         </div>
       </div>
       <div className={style.searchSession}>
