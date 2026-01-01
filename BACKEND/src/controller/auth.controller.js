@@ -19,7 +19,7 @@ async function registerUser(req, res) {
     if (req.file) {
       try {
         const uploadResponse = await imageKit.upload({
-          file: req.file.buffer.toString('base64'),
+          file: req.file.buffer.toString("base64"),
           fileName: `user-${Date.now()}`,
           folder: "ChatAvatars",
         });
@@ -28,9 +28,8 @@ async function registerUser(req, res) {
         console.error("ImageKit Error:", uploadError);
         // Optional: return error or continue with empty avatar
       }
-    }
-    else {
-        console.log("No file received in req.file. Check Postman 'avatar' key.");
+    } else {
+      console.log("No file received in req.file. Check Postman 'avatar' key.");
     }
 
     const user = await userModel.create({
@@ -128,7 +127,23 @@ async function loginUser(req, res) {
   }
 }
 
+async function logoutUser(req, res) {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Error logging out:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
+  logoutUser,
 };

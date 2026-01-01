@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import Dropdown from "./Dropdown/Dropdown";
+import { logoutUser } from "../../Redux/slices/authSlice";
 const UserList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -64,8 +65,8 @@ const UserList = () => {
     setshowDropdown(!showDropdown);
   };
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
     setshowDropdown(false);
     navigate('/login');
   }
