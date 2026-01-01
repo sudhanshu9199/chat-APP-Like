@@ -1,18 +1,81 @@
 import style from "./ChatRoomPage.module.scss";
-import { ArrowLeft, Video, Phone, Info, Send, Image } from "lucide-react";
+import { ArrowLeft, Video, Phone, Info, Send, Image, Loader2 } from "lucide-react";
 import userImg from "../../assets/dp_demo_img/doctor.jpg";
+import { useEffect, useState, useRef } from "react";
+import { useParams, useLocation, useNavigate } from "react-router";
+import { useSocketContext } from "../../context/SocketContext"; 
+import api from "../../services/api";
+import { useSelector } from "react-redux";
 
 const ChatRoomPage = () => {
+  const { id: receiverId } = useParams();
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const { socket } = useSocketContext();
+  const { user: currentUser } = useSelector((state) => state.auth);
+
+  const [messages, setmessages] = useState([]);
+  const [newMessage, setnewMessage] = useState("");
+  const [loading, setloading] = useState(false);
+
+  const selectedUser = state?.selectedUser || { name: "User", avatar: "" };
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    socket?.on("newMessage", (newMessage) => {
+      // Only add if it belongs to this chat
+      if (newMessage.sender === receiverId) {
+        setmessages((prev) => [...prev, newMessage]);
+      }
+    });
+
+    return () => socket?.off("newMessage");
+  }, [socket, receiverId]);
+
+  useEffect(() => {
+    const getMessages = async () => {
+      setloading(true);
+      try {
+        // You need to create this route in backend
+        const res = await api.get(`/messages/${receiverId}`);
+        setmessages(res.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setloading(false);
+      }
+    };
+    if (receiverId) getMessages();
+  }, [receiverId]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
+    try {
+      // Optimistic UI update (optional)
+      const res = await api.post(`/messages/send/${receiverId}`, { text: newMessage });
+      setmessages([...messages, res.data]);
+      setnewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
   return (
     <div className={style.chatRoomPage}>
       <div className={style.header}>
-        <ArrowLeft />
+        <ArrowLeft onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
         <div className={style.participantDp}>
-          <img src={userImg} alt="userDP" />
+          <img src={ selectedUser.avatar || userImg} alt="userDP" />
         </div>
         <div className={style.texts}>
-          <p className={style.participantName}>User Name</p>
-          <p className={style.status}>Online</p>
+          <p className={style.participantName}>{selectedUser.name}</p>
+          <p className={style.status}>{selectedUser.isOnline ? 'Online' : "Offline"}</p>
         </div>
         <div className={style.userAction}>
           <Video className={style.icon} />
@@ -21,19 +84,28 @@ const ChatRoomPage = () => {
         </div>
       </div>
       <div className={style.fullMessage}>
-        <div className={style.participantMsg}>
-          <p className={style.message}>Hello there!</p>
-          <div className={style.timeline}>11:49 PM</div>
-        </div>
-        <div className={style.yourMsg}>
-          <p className={style.message}>Hello there!</p>
-          <div className={style.timeline}>2:18 PM</div>
-        </div>
+        {loading ? (
+           <Loader2 className="animate-spin mx-auto mt-10" />
+        ) : (
+          messages.map((msg, idx) => (
+            <div key={idx} className={msg.sender === currentUser._id ? style.yourMsg : style.participantMsg}>
+              <p className={style.message}>{msg.text}</p>
+              <div className={style.timeline}>
+                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          ))
+        )}
+        <div ref={messagesEndRef} />
       </div>
-      <form>
+      <form onSubmit={handleSendMessage}>
         <div className={style.inputBox}>
-          <Image className={style.icon} />
-          <input type="text" placeholder="Type a message" />
+          <input 
+            type="text" 
+            placeholder="Type a message" 
+            value={newMessage}
+            onChange={(e) => setnewMessage(e.target.value)}
+          />
         </div>
         <button type="submit" className="send">
           <Send className={style.icon} />

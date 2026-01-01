@@ -4,7 +4,9 @@ import { EllipsisVertical, Loader2, Search } from "lucide-react";
 import api from "../../services/api";
 import { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 const UserList = () => {
+  const navigate = useNavigate();
   const [users, setusers] = useState([]);
   const [loading, setloading] = useState(true);
   const [error, seterror] = useState(null);
@@ -95,7 +97,16 @@ const UserList = () => {
           filteredUsers.map((user) => {
             const userId = getUserId(user);
             return (
-              <div key={userId} className={style.participantOverview}>
+              <div
+                key={userId}
+                className={style.participantOverview}
+                onClick={() =>
+                  navigate(`/chatroom/${userId}`, {
+                    state: { selectedUser: user },
+                  })
+                }
+                style={{ cursor: "pointer" }}
+              >
                 <div className={style.profilePic}>
                   <img src={user.avatar || dpImg} alt={user.name} />
                   {isUserOnline(userId) && (

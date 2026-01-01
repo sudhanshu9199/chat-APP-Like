@@ -16,6 +16,7 @@ const io = new Server(server, {
 });
 
 const userSocketMap = {};
+// global.io.userSocketMap = userSocketMap;
 
 const getReceiverSocketId = (receiverId) => {
   return userSocketMap[receiverId];
