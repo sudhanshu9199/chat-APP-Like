@@ -26,7 +26,7 @@ async function getParticipants(req, res) {
           about: user.about,
           isOnline: user.isOnline,
           lastSeen: user.lastSeen,
-          lastMassage: lastMsg ? lastMsg.text : "Start a conversation",
+          lastMessage: lastMsg ? lastMsg.text : "Start a conversation",
           lastMessageAt: lastMsg ? lastMsg.createdAt : null,
         };
       })

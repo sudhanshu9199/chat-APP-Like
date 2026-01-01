@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./Redux/store.js";
+import { SocketContextProvider } from "./context/SocketContext.jsx";
 import api from './services/api.js'
 import { logout } from './Redux/slices/authSlice.js';
 import { toast } from "react-toastify";
@@ -22,7 +23,9 @@ api.interceptors.response.use(
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <BrowserRouter>
+    <SocketContextProvider>
       <App />
+    </SocketContextProvider>
     </BrowserRouter>
   </Provider>
 );
