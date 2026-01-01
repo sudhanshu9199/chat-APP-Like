@@ -16,7 +16,7 @@ export const SocketContextProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user) {
+    if (user && user._id) {
       const socketInstance = io(
         import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3000",
         {

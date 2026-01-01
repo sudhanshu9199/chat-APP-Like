@@ -14,12 +14,13 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+global.io = io;
 
 const userSocketMap = {};
 
-const getReceiverSocketId = (receiverId) => {
-  return userSocketMap[receiverId];
-};
+// const getReceiverSocketId = (receiverId) => {
+//   return userSocketMap[receiverId];
+// };
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -41,7 +42,6 @@ io.on("connection", (socket) => {
   });
 });
 
-global.io = io;
 
 connectDB()
   .then(() => {

@@ -1,10 +1,8 @@
+// message.controller.js
 const Message = require("../models/message.model");
 const User = require("../models/user.model");
 
-// NOTE: You need to export getReceiverSocketId from your socket setup or server.js 
-// to use it here for real-time emitting.
-
-export const sendMessage = async (req, res) => {
+exports.sendMessage = async (req, res) => {
   try {
     const { text } = req.body;
     const { id: receiverId } = req.params;
@@ -24,11 +22,12 @@ export const sendMessage = async (req, res) => {
 
     res.status(201).json(message);
   } catch (error) {
+    console.log("Error in sendMessage controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
-export const getMessages = async (req, res) => {
+exports.getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const senderId = req.user._id;
@@ -42,6 +41,7 @@ export const getMessages = async (req, res) => {
 
     res.status(200).json(messages);
   } catch (error) {
+    console.log("Error in getMessages controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
