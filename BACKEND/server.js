@@ -17,7 +17,7 @@ const io = new Server(server, {
 });
 global.io = io;
 
-const userSocketMap = {};
+io.userSocketMap = {};
 
 io.on("connection", async (socket) => {
   console.log("A user connected:", socket.id);
@@ -25,18 +25,18 @@ io.on("connection", async (socket) => {
   const userId = socket.handshake.query.userId;
 
   if (userId && userId !== "undefined") {
-    userSocketMap[userId] = socket.id;
+    io.userSocketMap[userId] = socket.id;
 
     await User.findByIdAndUpdate(userId, { isOnline: true });
   }
 
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  io.emit("getOnlineUsers", Object.keys(io.userSocketMap));
 
   socket.on("disconnect", async () => {
     console.log("User disconnected:", socket.id);
-    if (userId && userSocketMap[userId] === socket.id) {
-      delete userSocketMap[userId];
-      io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    if (userId && io.userSocketMap[userId] === socket.id) {
+      delete io.userSocketMap[userId];
+      io.emit("getOnlineUsers", Object.keys(io.userSocketMap));
 
       await User.findByIdAndUpdate(userId, {
         isOnline: false,
