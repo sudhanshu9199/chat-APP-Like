@@ -68,6 +68,8 @@
   background: rgb(50, 71, 176);
   width: -moz-fit-content;
   width: fit-content;
+  max-width: 80%;
+  word-wrap: break-word;
   padding: 0.45rem;
   border-radius: 0.7rem;
   border-top-left-radius: 0;
@@ -83,6 +85,10 @@
 }
 .chatRoomPage .fullMessage .yourMsg {
   background: rgb(220, 19, 167);
+  align-self: flex-end;
+  width: -moz-fit-content;
+  width: fit-content;
+  word-wrap: break-word;
   padding: 0.3rem;
   border-radius: 0.7rem;
   border-bottom-right-radius: 0;

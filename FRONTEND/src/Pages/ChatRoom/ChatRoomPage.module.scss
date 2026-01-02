@@ -79,6 +79,8 @@
       // border: 2px solid pink;
       background: rgb(50, 71, 176);
       width: fit-content;
+      max-width: 80%;
+      word-wrap: break-word;
       padding: 0.45rem;
       border-radius: 0.7rem;
       border-top-left-radius: 0;
@@ -95,6 +97,9 @@
     }
     .yourMsg {
       background: rgb(220, 19, 167);
+      align-self: flex-end;
+      width: fit-content;
+      word-wrap: break-word;
       padding: 0.3rem;
       border-radius: 0.7rem;
       border-bottom-right-radius: 0;
