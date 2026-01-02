@@ -12,10 +12,12 @@ const VoiceCall = ({
   acceptCall,
 }) => {
   const remoteAudioRef = useRef();
+  const localAudioRef = useRef();
 
   useEffect(() => {
     if (remoteStream && remoteAudioRef.current) {
       remoteAudioRef.current.srcObject = remoteStream;
+      remoteAudioRef.current.play().catch(err => console.error("Remote audio play error:", err))
     }
   }, [remoteStream]);
 
@@ -25,7 +27,9 @@ const VoiceCall = ({
       <div className={style.callBox}>
         <div className={style.avatarContainer}>
           <img src={userImg} alt="User" className={style.avatar} />
-          <div className={style.pulse}></div>
+          {(callStatus === 'CALLING' || callStatus === 'INCOMING') && (
+             <div className={style.pulse}></div>
+          )}
         </div>
 
         <h3 className={style.callerName}>
@@ -36,7 +40,8 @@ const VoiceCall = ({
             : "Connected"}
         </h3>
 
-        <audio ref={remoteAudioRef} autoPlay />
+        <audio ref={remoteAudioRef} autoPlay playsInline /> 
+        <audio ref={localAudioRef} autoPlay playsInline muted />
 
         <div className={style.controls}>
           {callStatus === "INCOMING" ? (

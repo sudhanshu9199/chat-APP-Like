@@ -1,73 +1,96 @@
 .callOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
 
-    .callBox {
-        background: #1f2c34;
-        padding: 40px;
-        border-radius: 20px;
-        text-align: center;
-        color: white;
-        width: 300px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  .callBox {
+    background: #1f2c34;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    width: 300px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 
-        .avatarContainer {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 20px;
+    .avatarContainer {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
 
-            .avatar {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                object-fit: cover;
-                border: 3px solid #00a884;
-            }
-        }
+      .avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #00a884;
+      }
 
-        .callerName {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-
-            .btn {
-                border: none;
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                color: white;
-                transition: transform 0.2s;
-
-                &:active {
-                    transform: scale(0.95);
-                }
-            }
-            .accept {
-                background: #00a884;
-            }
-            .reject {
-                background: #ef4444;
-            }
-        }
+      .pulse {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 168, 132, 0.4);
+        border-radius: 50%;
+        z-index: 1;
+        animation: ripple 1.5s infinite ease-out;
+      }
     }
+
+    .callerName {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      font-weight: 500;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+
+      .btn {
+        border: none;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: white;
+        transition: transform 0.2s;
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+      .accept {
+        background: #00a884;
+      }
+      .reject {
+        background: #ef4444;
+      }
+    }
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
 }

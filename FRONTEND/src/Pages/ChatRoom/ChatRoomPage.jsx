@@ -89,6 +89,7 @@ const ChatRoomPage = () => {
   const [callSignal, setcallSignal] = useState(null);
   const [incomingCaller, setincomingCaller] = useState(null);
 
+  const iceCandidatesQueue = useRef([]);
   const peerConnection = useRef(null);
 
   const servers = {
@@ -146,6 +147,14 @@ const ChatRoomPage = () => {
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
+    // Process queue here too just in case
+    while (iceCandidatesQueue.current.length > 0) {
+        const candidate = iceCandidatesQueue.current.shift();
+        try {
+           await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (e) { console.error("Error adding queued candidate", e); }
+    }
+
     socket.emit('answerCall', { signal: answer, to: incomingCaller });
   };
 
@@ -178,6 +187,31 @@ const ChatRoomPage = () => {
       setcallStatus('CONNECTED');
       if (peerConnection.current) {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal));
+
+        while (iceCandidatesQueue.current.length > 0) {
+          const candidate = iceCandidatesQueue.current.shift();
+          try {
+            const candidate = iceCandidatesQueue.current.shift();
+          } catch (err) {
+            console.error('Error adding queued candidate', err);
+          }
+        }
+      }
+    });
+
+    socket.on('receiverIceCandidate', async (candidate) => {
+      const pc = peerConnection.current;
+      if (pc) {
+        if (pc.setRemoteDescription) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+          } catch (err) {
+            console.error('Error adding candidate', err);
+          }
+        }
+        else {
+          iceCandidatesQueue.current.push(candidate);
+        }
       }
     });
 
