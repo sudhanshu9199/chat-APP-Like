@@ -39,6 +39,11 @@ exports.getMessages = async (req, res) => {
       ],
     }).sort({ createdAt: 1 }); // Sort by oldest first
 
+    await Message.updateMany(
+      { sender: userToChatId, receiver: sendId, seen: false },
+      { $set: { seen: true }}
+    );
+
     res.status(200).json(messages);
   } catch (error) {
     console.log("Error in getMessages controller: ", error.message);

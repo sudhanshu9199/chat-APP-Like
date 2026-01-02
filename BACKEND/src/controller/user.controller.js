@@ -19,6 +19,12 @@ async function getParticipants(req, res) {
           })
           .sort({ createdAt: -1 });
 
+          const unreadCount = await messageModel.countDocuments({
+            sender: user._id,
+            receiver: currentUserId,
+            seen: false
+          });
+
         return {
           id: user._id,
           name: user.name,
@@ -28,6 +34,7 @@ async function getParticipants(req, res) {
           lastSeen: user.lastSeen,
           lastMessage: lastMsg ? lastMsg.text : "Start a conversation",
           lastMessageAt: lastMsg ? lastMsg.createdAt : null,
+          unreadCount: unreadCount,
         };
       })
     );

@@ -1,197 +1,197 @@
 .userListPage {
-    width: 100%;
-    height: 100dvh;
-    padding: 0.5rem 0.5rem 0 0.5rem;
-    background: #202020;
-    color: rgb(237, 237, 237);
+  width: 100%;
+  height: 100dvh;
+  padding: 0.5rem 0.5rem 0 0.5rem;
+  background: #202020;
+  color: rgb(237, 237, 237);
 
-    .header {
-        width: 100%;
-        height: 3rem;
-        // border: 2px solid red;
+  .header {
+    width: 100%;
+    height: 3rem;
+    // border: 2px solid red;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .logo {
+      // border: 2px solid blue;
+      height: 100%;
+      width: 43%;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+
+      img {
+        object-fit: cover;
+        height: 80%;
+      }
+      p {
+        font-size: 1.45rem;
+        font-family: "Comfortaa", sans-serif;
+        font-weight: 900;
+      }
+    }
+
+    .ownerActivity {
+      // border: 2px solid greenyellow;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+
+      .profilePic {
+        // border: 2px solid pink;
+        width: 2.7rem;
+        height: 2.7rem;
+        border-radius: 50%;
+        overflow: hidden;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+    }
+  }
+
+  .searchSession {
+    margin-top: 0.6rem;
+    width: 100%;
+    height: 2.8rem;
+    background: rgba(81, 81, 81, 0.653);
+    border-radius: 10rem;
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    gap: 0.5rem;
+
+    .icon {
+      opacity: 0.7;
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+
+    input {
+      width: 85%;
+      height: 70%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: rgb(237, 237, 237);
+      font-size: 1rem;
+      letter-spacing: 0.08rem;
+    }
+  }
+
+  .participantList {
+    margin-top: 1rem;
+    width: 100%;
+    height: calc(100dvh - 8.5rem);
+    overflow-y: auto;
+
+    .loaderContainer {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .participantOverview {
+      border: 2px solid purple;
+      width: 100%;
+      height: 4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+
+      .profilePic {
+        // border: 2px solid pink;
+        width: 3.4rem;
+        height: 3.4rem;
+        border-radius: 50%;
+        position: relative;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+        }
+        .statusIndicator {
+          border-radius: 50%;
+          width: 1rem;
+          height: 1rem;
+          background: rgb(3, 172, 3);
+          position: absolute;
+          bottom: 0;
+          right: 0;
+        }
+      }
+
+      .right {
+        // border: 2px solid lime;
+        width: 80%;
+        height: 100%;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: space-between;
 
-        .logo {
-            // border: 2px solid blue;
+        .upper {
+          // border: 2px solid yellow;
+          width: 100%;
+          height: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .participantName {
+            // border: 2px solid rgb(243, 208, 208);
             height: 100%;
-            width: 43%;
+            width: 75%;
+          }
+
+          .DateStamp {
+            color: rgb(2, 176, 2);
+            font-size: 0.8rem;
+            font-weight: 600;
+          }
+        }
+        .down {
+          // border: 2px solid magenta;
+          width: 100%;
+          height: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .lastMessage {
+            // border: 2px solid red;
+            width: 92%;
+            height: 100%;
+            overflow: hidden;
+            color: rgb(181, 181, 181);
+          }
+
+          .unreadCount {
+            border-radius: 50%;
+            background: rgb(35, 176, 3);
+            border-radius: 50%;
+            width: 1.3rem;
+            height: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 0.2rem;
-
-            img {
-                object-fit: cover;
-                height: 80%;
-            }
-            p {
-                font-size: 1.45rem;
-                font-family: "Comfortaa", sans-serif;
-                font-weight: 900;
-            }
-        }
-
-        .ownerActivity {
-            // border: 2px solid greenyellow;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-
-            .profilePic {
-                // border: 2px solid pink;
-                 width: 2.7rem;
-                 height: 2.7rem;
-                    border-radius: 50%;
-                    overflow: hidden;
-                    img {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-
-                    }
-            }
-        }
-    }
-
-    .searchSession {
-        margin-top: 0.6rem;
-        width: 100%;
-        height: 2.8rem;
-        background: rgba(81, 81, 81, 0.653);
-        border-radius: 10rem;
-        display: flex;
-        align-items: center;
-        padding-left: 1rem;
-        gap: 0.5rem;
-
-        .icon {
-            opacity: 0.7;
-            width: 1.4rem;
-            height: 1.4rem;
-        }
-
-        input {
-            width: 85%;
-            height: 70%;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: rgb(237, 237, 237);
-            font-size: 1rem;
-            letter-spacing: 0.08rem;
-        }
-    }
-
-    .participantList {
-        margin-top: 1rem;
-        width: 100%;
-        height: calc(100dvh - 8.5rem);
-        overflow-y: auto;
-
-        .loaderContainer {
-            display: flex;
             justify-content: center;
-            padding: 20px;
+            font-size: 0.7rem;
+            color: black;
+          }
         }
-        
-        .participantOverview {
-            border: 2px solid purple;
-            width: 100%;
-            height: 4rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+      }
 
-            .profilePic {
-                // border: 2px solid pink;
-                width: 3.4rem;
-                height: 3.4rem;
-                border-radius: 50%;
-                position: relative;
-
-                img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    border-radius: 50%;
-                }
-                .statusIndicator {
-                    border-radius: 50%;
-                    width: 1rem;
-                    height: 1rem;
-                    background: rgb(3, 172, 3);
-                    position: absolute;
-                    bottom: 0;
-                    right: 0;
-                }
-            }
-
-            .right {
-                // border: 2px solid lime;
-                width: 80%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: space-between;
-
-                .upper {
-                    // border: 2px solid yellow;
-                    width: 100%;
-                    height: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-
-                    .participantName {
-                        // border: 2px solid rgb(243, 208, 208);
-                        height: 100%;
-                        width: 75%;
-                    }
-
-                    .DateStamp {
-                        color: rgb(2, 176, 2);
-                        font-size: 0.8rem;
-                        font-weight: 600;
-                    }
-                }
-                .down {
-                    // border: 2px solid magenta;
-                    width: 100%;
-                    height: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-
-                    .lastMessage {
-                        // border: 2px solid red;
-                        width: 92%;
-                        height: 100%;
-                        overflow: hidden;
-                    }
-
-                    .unreadCount {
-                        border-radius: 50%;
-                        background: rgb(35, 176, 3);
-                        border-radius: 50%;
-                        width: 1.3rem;
-                        height: 1.3rem;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 0.7rem;
-                        color: black;
-                    }
-                }
-            }
-
-            .texts {
-                border: 2px solid cyan;
-                width: 60%;
-                height: 78%;
-            }
-        }
+      .texts {
+        border: 2px solid cyan;
+        width: 60%;
+        height: 78%;
+      }
     }
+  }
 }

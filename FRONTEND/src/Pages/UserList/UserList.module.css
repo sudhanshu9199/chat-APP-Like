@@ -149,6 +149,7 @@
   width: 92%;
   height: 100%;
   overflow: hidden;
+  color: rgb(181, 181, 181);
 }
 .userListPage .participantList .participantOverview .right .down .unreadCount {
   border-radius: 50%;

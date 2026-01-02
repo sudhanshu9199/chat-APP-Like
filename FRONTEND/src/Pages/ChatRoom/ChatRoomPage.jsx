@@ -31,7 +31,7 @@ const ChatRoomPage = () => {
   const messagesEndRef = useRef(null);
 
   const isOnline = useMemo(() => {
-    return onlineUsers.includes(receiverId); 
+    return onlineUsers.includes(receiverId);
   }, [onlineUsers, receiverId]);
 
   useEffect(() => {
@@ -93,9 +93,7 @@ const ChatRoomPage = () => {
         </div>
         <div className={style.texts}>
           <p className={style.participantName}>{selectedUser.name}</p>
-          <p className={style.status}>
-            {isOnline ? "Online" : "Offline"}
-          </p>
+          <p className={style.status}>{isOnline ? "Online" : "Offline"}</p>
         </div>
         <div className={style.userAction}>
           <Video className={style.icon} />
@@ -130,7 +128,7 @@ const ChatRoomPage = () => {
       </div>
       <form onSubmit={handleSendMessage}>
         <div className={style.inputBox}>
-        <Image className={style.icon} />
+          <Image className={style.icon} />
           <input
             type="text"
             placeholder="Type a message"

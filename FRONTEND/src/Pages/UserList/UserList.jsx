@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import Dropdown from "./Dropdown/Dropdown";
 import { logoutUser } from "../../Redux/slices/authSlice";
+import { useSocketContext } from "../../context/SocketContext";
 const UserList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const UserList = () => {
   const [searchTerm, setsearchTerm] = useState("");
   const [showDropdown, setshowDropdown] = useState(false);
 
+  const { socket } = useSocketContext();
   const { onlineUsers } = useSelector((state) => state.socket);
 
   // OPTIMIZATION: Create a Set for O(1) lookup
@@ -36,6 +38,39 @@ const UserList = () => {
     };
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    socket?.on("newMessage", (newMessage) => {
+      setusers((prevUsers) => {
+        return prevUsers.map((user) => {
+          const userId = user._id || user.id;
+
+          // If the message is FROM this user, update text AND increment count
+          if (userId === newMessage.sender) {
+            return {
+              ...user,
+              lastMessage: newMessage.text,
+              lastMessageAt: newMessage.createdAt,
+              unreadCount: (user.unreadCount || 0) + 1, // INCREMENT HERE
+            };
+          }
+          
+          // If I sent the message, just update the text (no count change)
+          if (userId === newMessage.receiver) {
+             return {
+              ...user,
+              lastMessage: newMessage.text,
+              lastMessageAt: newMessage.createdAt,
+            };
+          }
+          return user;
+        });
+      });
+    });
+    return () => {
+      socket?.off("newMessage");
+    };
+  }, [socket]);
 
   const filteredUsers = useMemo(() => {
     if (!searchTerm.trim()) return users;
@@ -68,15 +103,15 @@ const UserList = () => {
   const handleLogout = async () => {
     await dispatch(logoutUser());
     setshowDropdown(false);
-    navigate('/login');
-  }
+    navigate("/login");
+  };
 
   useEffect(() => {
     const closeMenu = () => setshowDropdown(false);
     if (showDropdown) {
-      window.addEventListener('click', closeMenu);
+      window.addEventListener("click", closeMenu);
     }
-    return () => window.removeEventListener('click', closeMenu);
+    return () => window.removeEventListener("click", closeMenu);
   }, [showDropdown]);
   return (
     <div className={style.userListPage}>
@@ -89,8 +124,8 @@ const UserList = () => {
           <div className={style.profilePic}>
             <img src={dpImg} alt="Owner" />
           </div>
-          <EllipsisVertical onClick={toggleDropdown}/>
-          { showDropdown && <Dropdown onLogout={handleLogout}/>}
+          <EllipsisVertical onClick={toggleDropdown} />
+          {showDropdown && <Dropdown onLogout={handleLogout} />}
         </div>
       </div>
       <div className={style.searchSession}>
@@ -149,7 +184,7 @@ const UserList = () => {
                       {user.lastMessage?.slice(0, 30) || "Start a conversation"}
                       {user.lastMessage?.length > 30 ? "..." : ""}
                     </p>
-                    <div className={style.unreadCount}>1</div>
+                    {user.unreadCount > 0 && (<div className={style.unreadCount}>{user.unreadCount}</div>)}
                   </div>
                 </div>
               </div>
