@@ -111,7 +111,7 @@ const ChatRoomPage = () => {
             <div
               key={idx}
               className={
-                msg.sender === currentUser._id
+                msg.sender === currentUser.id
                   ? style.yourMsg
                   : style.participantMsg
               }
@@ -130,6 +130,7 @@ const ChatRoomPage = () => {
       </div>
       <form onSubmit={handleSendMessage}>
         <div className={style.inputBox}>
+        <Image className={style.icon} />
           <input
             type="text"
             placeholder="Type a message"
