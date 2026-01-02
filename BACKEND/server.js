@@ -32,6 +32,34 @@ io.on("connection", async (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(io.userSocketMap));
 
+  socket.on('callUser', ({ userToCall, signalData, from, name}) => {
+    const socketId = io.userSocketMap[userToCall];
+    if (socketId) {
+      io.to(socketId).emit('incomingCall', { signal: signalData, from, name });
+    }
+  });
+
+  socket.on('answerCall', data => {
+    const socketId = io.userSocketMap[data.to];
+    if (socketId) {
+      io.to(socketId).emit('callAccepted', data.signal);
+    }
+  });
+
+  socket.on('sendIceCandidate', ({ to, candidate }) => {
+    const socketId = io.userSocketMap[to];
+    if (socketId) {
+      io.to(socketId).emit('receiveIceCandidate', candidate);
+    }
+  });
+
+  socket.on('endCall', ({ to }) => {
+    const socketId = io.userSocketMap[to];
+    if (socketId) {
+      io.to(socketId).emit('callEnded');
+    }
+  })
+
   socket.on("disconnect", async () => {
     console.log("User disconnected:", socket.id);
     if (userId && io.userSocketMap[userId] === socket.id) {

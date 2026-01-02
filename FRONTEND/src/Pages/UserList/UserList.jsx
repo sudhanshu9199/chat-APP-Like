@@ -1,5 +1,5 @@
 import style from "./UserList.module.scss";
-import dpImg from "../../assets/dp_demo_img/doctor.jpg";
+import dpImg from "../../assets/DefaultUserPic.png";
 import { EllipsisVertical, Loader2, Search } from "lucide-react";
 import api from "../../services/api";
 import { useState, useEffect, useMemo } from "react";

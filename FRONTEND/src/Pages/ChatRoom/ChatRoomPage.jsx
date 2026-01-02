@@ -8,12 +8,13 @@ import {
   Image,
   Loader2,
 } from "lucide-react";
-import userImg from "../../assets/dp_demo_img/doctor.jpg";
+import userImg from "../../assets/DefaultUserPic.png";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { useSocketContext } from "../../context/SocketContext";
 import api from "../../services/api";
 import { useSelector } from "react-redux";
+import VoiceCall from "./VoiceCalling/VoiceCall";
 
 const ChatRoomPage = () => {
   const { id: receiverId } = useParams();
@@ -81,8 +82,126 @@ const ChatRoomPage = () => {
     }
   };
 
+  // voice Call status
+  const [callStatus, setcallStatus] = useState('IDLE');
+  const [localStream, setlocalStream] = useState(null);
+  const [remoteStream, setremoteStream] = useState(null);
+  const [callSignal, setcallSignal] = useState(null);
+  const [incomingCaller, setincomingCaller] = useState(null);
+
+  const peerConnection = useRef(null);
+
+  const servers = {
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+  };
+
+  const createPeerConnection = async () => {
+    const pc = new RTCPeerConnection(servers);
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit('sendIceCandidate', {
+          to: callStatus === 'INCOMING' ? incomingCaller : receiverId,
+          candidate: event.candidate
+        });
+      }
+    };
+
+    pc.ontrack = (event) => {
+      setremoteStream(event.streams[0]);
+    };
+    return pc;
+  };
+
+  const startCall = async () => {
+    setcallStatus('CALLING');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    setlocalStream(stream);
+
+    const pc = await createPeerConnection();
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+    peerConnection.current = pc;
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    socket.emit('callUser', {
+      userToCall: receiverId,
+      signalData: offer,
+      from: currentUser.id,
+      name: currentUser.name
+    });
+  };
+
+  const acceptCall = async () => {
+    setcallSignal('CONNECTED');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    setlocalStream(stream);
+
+    const pc = await createPeerConnection();
+    stream.getTracks().forEach(track => pc.addTrack(track, stream));
+    peerConnection.current = pc;
+
+    await pc.setRemoteDescription(new RTCSessionDescription(callSignal));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    socket.emit('answerCall', { signal: answer, to: incomingCaller });
+  };
+
+  const endCall = () => {
+    socket.emit('endCall', { to: incomingCaller || receiverId });
+    cleanupCall();
+  };
+
+  const cleanupCall = () => {
+    setcallStatus('IDLE');
+    if(localStream) localStream.getTracks().forEach(track => track.stop());
+    if (peerConnection.current) peerConnection.current.close();
+    setlocalStream(null);
+    setremoteStream(null);
+    peerConnection.current = null;
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('incomingCall', ({ from, signal, name }) => {
+      if (callStatus === 'IDLE') {
+        setcallStatus('INCOMING');
+        setcallSignal(signal);
+        setincomingCaller(from);
+      }
+    });
+
+    socket.on('callAccepted', async (signal) => {
+      setcallStatus('CONNECTED');
+      if (peerConnection.current) {
+        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal));
+      }
+    });
+
+    socket.on('callEnded', () => {
+      cleanupCall();
+    });
+
+    return () => {
+      socket.off('incomingCall');
+      socket.off('callAccepted');
+      socket.off('receiverIceCandidate');
+      socket.off('callEnded');
+    }
+  }, [socket, callStatus]);
+
   return (
     <div className={style.chatRoomPage}>
+      <VoiceCall 
+       callStatus={callStatus}
+       localStream={localStream}
+       remoteStream={remoteStream}
+       callerName={selectedUser.name}
+       endCall={endCall}
+       acceptCall={acceptCall} />
       <div className={style.header}>
         <ArrowLeft
           onClick={() => navigate("/")}
@@ -97,7 +216,7 @@ const ChatRoomPage = () => {
         </div>
         <div className={style.userAction}>
           <Video className={style.icon} />
-          <Phone className={style.icon} />
+          <Phone className={style.icon} onClick={startCall} />
           <Info className={style.icon} />
         </div>
       </div>
