@@ -83,7 +83,7 @@ const ChatRoomPage = () => {
   };
 
   // voice Call status
-  const [callStatus, setcallStatus] = useState('IDLE');
+  const [callStatus, setcallStatus] = useState("IDLE");
   const [localStream, setlocalStream] = useState(null);
   const [remoteStream, setremoteStream] = useState(null);
   const [callSignal, setcallSignal] = useState(null);
@@ -93,7 +93,7 @@ const ChatRoomPage = () => {
   const peerConnection = useRef(null);
 
   const servers = {
-    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
   };
 
   const createPeerConnection = async () => {
@@ -101,9 +101,9 @@ const ChatRoomPage = () => {
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        socket.emit('sendIceCandidate', {
-          to: callStatus === 'INCOMING' ? incomingCaller : receiverId,
-          candidate: event.candidate
+        socket.emit("sendIceCandidate", {
+          to: callStatus === "INCOMING" ? incomingCaller : receiverId,
+          candidate: event.candidate,
         });
       }
     };
@@ -115,127 +115,150 @@ const ChatRoomPage = () => {
   };
 
   const startCall = async () => {
-    setcallStatus('CALLING');
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    setlocalStream(stream);
+    setcallStatus("CALLING");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false,
+      });
+      setlocalStream(stream);
 
-    const pc = await createPeerConnection();
-    stream.getTracks().forEach(track => pc.addTrack(track, stream));
-    peerConnection.current = pc;
+      const pc = await createPeerConnection();
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+      peerConnection.current = pc;
 
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
 
-    socket.emit('callUser', {
-      userToCall: receiverId,
-      signalData: offer,
-      from: currentUser.id,
-      name: currentUser.name
-    });
+      socket.emit("callUser", {
+        userToCall: receiverId,
+        signalData: offer,
+        from: currentUser.id || currentUser._id,
+        name: currentUser.name,
+      });
+    } catch (err) {
+      console.error("Error starting call:", err);
+      setcallStatus("IDLE");
+    }
   };
 
   const acceptCall = async () => {
-    setcallSignal('CONNECTED');
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    setlocalStream(stream);
+    setcallStatus("CONNECTED");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false,
+      });
+      setlocalStream(stream);
 
-    const pc = await createPeerConnection();
-    stream.getTracks().forEach(track => pc.addTrack(track, stream));
-    peerConnection.current = pc;
+      const pc = await createPeerConnection();
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+      peerConnection.current = pc;
 
-    await pc.setRemoteDescription(new RTCSessionDescription(callSignal));
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
+      await pc.setRemoteDescription(new RTCSessionDescription(callSignal));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
 
-    // Process queue here too just in case
-    while (iceCandidatesQueue.current.length > 0) {
+      while (iceCandidatesQueue.current.length > 0) {
         const candidate = iceCandidatesQueue.current.shift();
         try {
-           await pc.addIceCandidate(new RTCIceCandidate(candidate));
-        } catch (e) { console.error("Error adding queued candidate", e); }
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (e) {
+          console.error("Error adding queued candidate", e);
+        }
+      }
+      socket.emit("answerCall", { signal: answer, to: incomingCaller });
+    } catch (err) {
+      console.error("Error accepting call:", err);
+      cleanupCall();
     }
-
-    socket.emit('answerCall', { signal: answer, to: incomingCaller });
   };
 
   const endCall = () => {
-    socket.emit('endCall', { to: incomingCaller || receiverId });
+    socket.emit("endCall", { to: incomingCaller || receiverId });
     cleanupCall();
   };
 
   const cleanupCall = () => {
-    setcallStatus('IDLE');
-    if(localStream) localStream.getTracks().forEach(track => track.stop());
+    setcallStatus("IDLE");
+    if (localStream) localStream.getTracks().forEach((track) => track.stop());
     if (peerConnection.current) peerConnection.current.close();
     setlocalStream(null);
     setremoteStream(null);
     peerConnection.current = null;
+    iceCandidatesQueue.current = [];
   };
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('incomingCall', ({ from, signal, name }) => {
-      if (callStatus === 'IDLE') {
-        setcallStatus('INCOMING');
+    socket.on("incomingCall", ({ from, signal, name }) => {
+      if (callStatus === "IDLE") {
+        setcallStatus("INCOMING");
         setcallSignal(signal);
         setincomingCaller(from);
       }
     });
 
-    socket.on('callAccepted', async (signal) => {
-      setcallStatus('CONNECTED');
+    socket.on("callAccepted", async (signal) => {
+      setcallStatus("CONNECTED");
       if (peerConnection.current) {
-        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(signal));
+        try {
+          await peerConnection.current.setRemoteDescription(
+          new RTCSessionDescription(signal)
+        );
 
         while (iceCandidatesQueue.current.length > 0) {
           const candidate = iceCandidatesQueue.current.shift();
           try {
-            const candidate = iceCandidatesQueue.current.shift();
+            await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
           } catch (err) {
-            console.error('Error adding queued candidate', err);
+            console.error("Error adding queued candidate", err);
           }
+        }
+        } catch (err) {
+          console.error('Error setting remote description', err);
         }
       }
     });
 
-    socket.on('receiverIceCandidate', async (candidate) => {
+    socket.on("receiveIceCandidate", async (candidate) => {
       const pc = peerConnection.current;
       if (pc) {
         if (pc.setRemoteDescription) {
           try {
             await pc.addIceCandidate(new RTCIceCandidate(candidate));
           } catch (err) {
-            console.error('Error adding candidate', err);
+            console.error("Error adding candidate", err);
           }
-        }
-        else {
+        } else {
           iceCandidatesQueue.current.push(candidate);
         }
       }
     });
 
-    socket.on('callEnded', () => {
+    socket.on("callEnded", () => {
       cleanupCall();
     });
 
     return () => {
-      socket.off('incomingCall');
-      socket.off('callAccepted');
-      socket.off('receiverIceCandidate');
-      socket.off('callEnded');
-    }
-  }, [socket, callStatus]);
+      socket.off("incomingCall");
+      socket.off("callAccepted");
+      socket.off("receiveIceCandidate");
+      socket.off("callEnded");
+    };
+  }, [socket, callStatus, incomingCaller]);
 
   return (
     <div className={style.chatRoomPage}>
-      <VoiceCall 
-       callStatus={callStatus}
-       localStream={localStream}
-       remoteStream={remoteStream}
-       callerName={selectedUser.name}
-       endCall={endCall}
-       acceptCall={acceptCall} />
+      <VoiceCall
+        callStatus={callStatus}
+        localStream={localStream}
+        remoteStream={remoteStream}
+        callerName={selectedUser.name}
+        endCall={endCall}
+        acceptCall={acceptCall}
+      />
       <div className={style.header}>
         <ArrowLeft
           onClick={() => navigate("/")}
