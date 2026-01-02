@@ -40,7 +40,7 @@ exports.getMessages = async (req, res) => {
     }).sort({ createdAt: 1 }); // Sort by oldest first
 
     await Message.updateMany(
-      { sender: userToChatId, receiver: sendId, seen: false },
+      { sender: userToChatId, receiver: senderId, seen: false },
       { $set: { seen: true }}
     );
 
