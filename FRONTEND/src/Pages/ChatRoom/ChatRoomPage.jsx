@@ -16,6 +16,7 @@ import api from "../../services/api";
 import { useSelector } from "react-redux";
 import VoiceCall from "./VoiceCalling/VoiceCall";
 import VideoCall from "./VideoCalling/VideoCall";
+import UserInfoPopup from "./UserInfo/UserInfoPopup";
 
 const ChatRoomPage = () => {
   const { id: receiverId } = useParams();
@@ -28,6 +29,7 @@ const ChatRoomPage = () => {
   const [messages, setmessages] = useState([]);
   const [newMessage, setnewMessage] = useState("");
   const [loading, setloading] = useState(false);
+  const [showInfo, setshowInfo] = useState(false);
 
   const selectedUser = state?.selectedUser || { name: "User", avatar: "" };
   const messagesEndRef = useRef(null);
@@ -264,6 +266,10 @@ const ChatRoomPage = () => {
 
   return (
     <div className={style.chatRoomPage}>
+      {showInfo && (
+        <UserInfoPopup 
+        user={selectedUser} onClose={() => setshowInfo(false)}/>
+      )}
       { callType === 'video' ? (
         <VideoCall
         callStatus={callStatus}
@@ -298,7 +304,7 @@ const ChatRoomPage = () => {
         <div className={style.userAction}>
           <Video className={style.icon} onClick={() => startCall('video')} />
           <Phone className={style.icon} onClick={() => startCall('audio')} />
-          <Info className={style.icon} />
+          <Info className={style.icon} onClick={() => setshowInfo(true)} />
         </div>
       </div>
       <div className={style.fullMessage}>
