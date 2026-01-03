@@ -181,6 +181,9 @@ const ChatRoomPage = () => {
     } catch (err) {
       console.error("Error accepting call:", err);
       cleanupCall();
+      if (err.name === "NotReadableError") {
+         alert("Camera/Mic is already in use by another app (or tab).");
+      }
     }
   };
 
@@ -236,8 +239,7 @@ const ChatRoomPage = () => {
 
     socket.on("receiveIceCandidate", async (candidate) => {
       const pc = peerConnection.current;
-      if (pc) {
-        if (pc.setRemoteDescription) {
+        if (pc && pc.remoteDescription) {
           try {
             await pc.addIceCandidate(new RTCIceCandidate(candidate));
           } catch (err) {
@@ -246,7 +248,6 @@ const ChatRoomPage = () => {
         } else {
           iceCandidatesQueue.current.push(candidate);
         }
-      }
     });
 
     socket.on("callEnded", () => {
