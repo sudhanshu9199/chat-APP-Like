@@ -8,18 +8,23 @@ import { useNavigate } from "react-router";
 import Dropdown from "./Dropdown/Dropdown";
 import { logoutUser } from "../../Redux/slices/authSlice";
 import { useSocketContext } from "../../context/SocketContext";
+
 const UserList = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  
   const [users, setusers] = useState([]);
   const [loading, setloading] = useState(true);
   const [error, seterror] = useState(null);
   const [searchTerm, setsearchTerm] = useState("");
   const [showDropdown, setshowDropdown] = useState(false);
-
+  
   const { socket } = useSocketContext();
   const { onlineUsers } = useSelector((state) => state.socket);
-
+  
+  const { user: currentUser } = useSelector(state => state.auth);
+  
   // OPTIMIZATION: Create a Set for O(1) lookup
   const onlineUserSet = useMemo(() => new Set(onlineUsers), [onlineUsers]);
 
@@ -117,12 +122,11 @@ const UserList = () => {
     <div className={style.userListPage}>
       <div className={style.header}>
         <div className={style.logo}>
-          {/* <img src={AppIcon} alt="App Logo" /> */}
           <p>ConnectX</p>
         </div>
         <div className={style.ownerActivity}>
-          <div className={style.profilePic}>
-            <img src={dpImg} alt="Owner" />
+          <div className={style.profilePic} onClick={() => navigate('/profile')} title="update Profile">
+            <img src={currentUser?.avatar || dpImg} alt="Owner" />
           </div>
           <EllipsisVertical onClick={toggleDropdown} />
           {showDropdown && <Dropdown onLogout={handleLogout} />}

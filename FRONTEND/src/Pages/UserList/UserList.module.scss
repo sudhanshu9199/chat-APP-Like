@@ -8,13 +8,11 @@
   .header {
     width: 100%;
     height: 3rem;
-    // border: 2px solid red;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     .logo {
-      // border: 2px solid blue;
       height: 100%;
       width: 43%;
       display: flex;
@@ -33,17 +31,16 @@
     }
 
     .ownerActivity {
-      // border: 2px solid greenyellow;
       display: flex;
       align-items: center;
       gap: 0.6rem;
 
       .profilePic {
-        // border: 2px solid pink;
         width: 2.7rem;
         height: 2.7rem;
         border-radius: 50%;
         overflow: hidden;
+        cursor: pointer;
         img {
           width: 100%;
           height: 100%;
@@ -95,16 +92,20 @@
     }
 
     .participantOverview {
-      border: 2px solid purple;
+      // border: 2px solid purple;
       width: 100%;
       height: 4rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
       margin-bottom: 1rem;
+      transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
+
+      &:hover {
+        background: #c7f2ff16;
+      }
 
       .profilePic {
-        // border: 2px solid pink;
         width: 3.4rem;
         height: 3.4rem;
         border-radius: 50%;

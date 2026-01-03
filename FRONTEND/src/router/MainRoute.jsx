@@ -7,6 +7,8 @@ const LoginPage = lazy(() => import("../Pages/Login/LoginPage"));
 const RegisterPage = lazy(() => import("../Pages/Register/RegisterPage"));
 const ChatRoomPage = lazy(() => import("../Pages/ChatRoom/ChatRoomPage"));
 
+const ProfileUpdatePage = lazy(() => import('../Pages/ProfileUpdate/ProfileUpdatePage'));
+
 const MainRoute = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -14,6 +16,11 @@ const MainRoute = () => {
       <Route path="/" element={
         <ProtectedRoute>
           <UserList />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <ProfileUpdatePage />
         </ProtectedRoute>
       } />
       <Route path="/chatroom/:id" element={
