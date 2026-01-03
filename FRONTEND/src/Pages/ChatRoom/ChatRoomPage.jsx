@@ -15,6 +15,7 @@ import { useSocketContext } from "../../context/SocketContext";
 import api from "../../services/api";
 import { useSelector } from "react-redux";
 import VoiceCall from "./VoiceCalling/VoiceCall";
+import VideoCall from "./VideoCalling/VideoCall";
 
 const ChatRoomPage = () => {
   const { id: receiverId } = useParams();
@@ -84,6 +85,7 @@ const ChatRoomPage = () => {
 
   // voice Call status
   const [callStatus, setcallStatus] = useState("IDLE");
+  const [callType, setcallType] = useState(null);
   const [localStream, setlocalStream] = useState(null);
   const [remoteStream, setremoteStream] = useState(null);
   const [callSignal, setcallSignal] = useState(null);
@@ -114,13 +116,17 @@ const ChatRoomPage = () => {
     return pc;
   };
 
-  const startCall = async () => {
+  const startCall = async (type) => {
     setcallStatus("CALLING");
+    setcallType(type);
+
+    const constraints = {
+      audio: true,
+      video: type === 'video' ? true : false
+    };
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false,
-      });
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       setlocalStream(stream);
 
       const pc = await createPeerConnection();
@@ -135,6 +141,7 @@ const ChatRoomPage = () => {
         signalData: offer,
         from: currentUser.id || currentUser._id,
         name: currentUser.name,
+        callType: type
       });
     } catch (err) {
       console.error("Error starting call:", err);
@@ -144,11 +151,14 @@ const ChatRoomPage = () => {
 
   const acceptCall = async () => {
     setcallStatus("CONNECTED");
+
+    const constraints = {
+      audio: true,
+      video: callType === 'video' ? true : false
+    };
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: false,
-      });
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       setlocalStream(stream);
 
       const pc = await createPeerConnection();
@@ -187,16 +197,18 @@ const ChatRoomPage = () => {
     setremoteStream(null);
     peerConnection.current = null;
     iceCandidatesQueue.current = [];
+    setcallType(null);
   };
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("incomingCall", ({ from, signal, name }) => {
+    socket.on("incomingCall", ({ from, signal, name, callType: type }) => {
       if (callStatus === "IDLE") {
         setcallStatus("INCOMING");
         setcallSignal(signal);
         setincomingCaller(from);
+        setcallType(type || 'audio');
       }
     });
 
@@ -251,7 +263,8 @@ const ChatRoomPage = () => {
 
   return (
     <div className={style.chatRoomPage}>
-      <VoiceCall
+      { callType === 'video' ? (
+        <VideoCall
         callStatus={callStatus}
         localStream={localStream}
         remoteStream={remoteStream}
@@ -259,6 +272,16 @@ const ChatRoomPage = () => {
         endCall={endCall}
         acceptCall={acceptCall}
       />
+      ) : (
+        <VoiceCall 
+         callStatus={callStatus}
+        localStream={localStream}
+        remoteStream={remoteStream}
+        callerName={selectedUser.name}
+        endCall={endCall}
+        acceptCall={acceptCall} />
+      )}
+      
       <div className={style.header}>
         <ArrowLeft
           onClick={() => navigate("/")}
@@ -272,8 +295,8 @@ const ChatRoomPage = () => {
           <p className={style.status}>{isOnline ? "Online" : "Offline"}</p>
         </div>
         <div className={style.userAction}>
-          <Video className={style.icon} />
-          <Phone className={style.icon} onClick={startCall} />
+          <Video className={style.icon} onClick={() => startCall('video')} />
+          <Phone className={style.icon} onClick={() => startCall('audio')} />
           <Info className={style.icon} />
         </div>
       </div>

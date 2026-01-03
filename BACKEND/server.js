@@ -32,10 +32,10 @@ io.on("connection", async (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(io.userSocketMap));
 
-  socket.on('callUser', ({ userToCall, signalData, from, name}) => {
+  socket.on('callUser', ({ userToCall, signalData, from, name, callType }) => {
     const socketId = io.userSocketMap[userToCall];
     if (socketId) {
-      io.to(socketId).emit('incomingCall', { signal: signalData, from, name });
+      io.to(socketId).emit('incomingCall', { signal: signalData, from, name, callType });
     }
   });
 
