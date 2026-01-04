@@ -35,7 +35,7 @@ const GlobalCallHandler = () => {
           <div className={style.toastCall__content}>
             <p className={style.toastCall__name}>{data.name}</p>
             <p className={style.toastCall_status}>Incoming {data.callType || "voice"} call...</p>
-            {/* <p className={style.toastCall__action}>Click to Answer</p> */}
+            <p className={style.toastCall__action}>Come in the chatroom</p>
           </div>
         </div>,
         {
