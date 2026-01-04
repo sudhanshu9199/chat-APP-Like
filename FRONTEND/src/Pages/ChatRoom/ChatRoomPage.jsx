@@ -42,6 +42,12 @@ const ChatRoomPage = () => {
   }, [onlineUsers, receiverId]);
 
   useEffect(() => {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  useEffect(() => {
     socket?.on("newMessage", (newMessage) => {
       // Only add if it belongs to this chat
       if (newMessage.sender === receiverId) {
@@ -96,6 +102,7 @@ const ChatRoomPage = () => {
   const [callSignal, setcallSignal] = useState(null);
   const [incomingCaller, setincomingCaller] = useState(null);
 
+  // handle ringtone on call status
   useEffect(() => {
     const audio = audioRef.current;
     if (callStatus === 'INCOMING') {
@@ -236,6 +243,25 @@ const ChatRoomPage = () => {
         setcallSignal(signal);
         setincomingCaller(from);
         setcallType(type || 'audio');
+
+        if (Notification.permission === 'granted' && document.hidden) {
+          try {
+            const notif = new Notification('Incoming Call', {
+            body: `${name} is requesting a ${type || 'voice'} call.`,
+            icon: userImg,
+            silent: true,
+            tag: 'call_notification',
+            vibrate: [200, 100, 200]
+          });
+
+          notif.onClick = () => {
+            window.focus();
+            notif.close();
+          }
+          } catch (err) {
+            console.error('Notification API error (common on some mobile browsers):', err)
+          }
+        }
       }
     });
 
