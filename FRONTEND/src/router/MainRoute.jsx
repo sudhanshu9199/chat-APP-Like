@@ -1,5 +1,6 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router";
 import { lazy, Suspense } from "react";
+import { useSelector } from "react-redux";
 import ProtectedRoute from "./ProtectedRoute";
 import GlobalCallHandler from "../components/GlobalCallHandler/GlobalCallHandler";
 
@@ -7,15 +8,13 @@ const UserList = lazy(() => import("../Pages/UserList/UserList"));
 const LoginPage = lazy(() => import("../Pages/Login/LoginPage"));
 const RegisterPage = lazy(() => import("../Pages/Register/RegisterPage"));
 const ChatRoomPage = lazy(() => import("../Pages/ChatRoom/ChatRoomPage"));
-
 const ProfileUpdatePage = lazy(() => import('../Pages/ProfileUpdate/ProfileUpdatePage'));
 
 const MainRoute = () => {
+  const { user } = useSelector(state => state.auth);
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ProtectedRoute>
-         <GlobalCallHandler />
-      </ProtectedRoute>
+         {user && <GlobalCallHandler />}
     <Routes>
       <Route path="/" element={
         <ProtectedRoute>

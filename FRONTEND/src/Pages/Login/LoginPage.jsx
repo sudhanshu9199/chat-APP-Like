@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import style from "./LoginPage.module.scss";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../Redux/slices/authSlice";
 
