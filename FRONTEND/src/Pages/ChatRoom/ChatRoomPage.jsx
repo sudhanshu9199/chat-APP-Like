@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import VoiceCall from "./VoiceCalling/VoiceCall";
 import VideoCall from "./VideoCalling/VideoCall";
 import UserInfoPopup from "./UserInfo/UserInfoPopup";
+import callMusic from '../../assets/callMusic/Zupiter_&_Jery_Brahma.mp3';
 
 const ChatRoomPage = () => {
   const { id: receiverId } = useParams();
@@ -30,6 +31,8 @@ const ChatRoomPage = () => {
   const [newMessage, setnewMessage] = useState("");
   const [loading, setloading] = useState(false);
   const [showInfo, setshowInfo] = useState(false);
+
+  const audioRef = useRef(new Audio(callMusic));
 
   const selectedUser = state?.selectedUser || { name: "User", avatar: "" };
   const messagesEndRef = useRef(null);
@@ -92,6 +95,25 @@ const ChatRoomPage = () => {
   const [remoteStream, setremoteStream] = useState(null);
   const [callSignal, setcallSignal] = useState(null);
   const [incomingCaller, setincomingCaller] = useState(null);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (callStatus === 'INCOMING') {
+      audio.loop = true;
+      audio.play().catch(err => {
+        console.log('Audio Play Error:', err);
+      })
+    }
+    else {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [callStatus]);
 
   const iceCandidatesQueue = useRef([]);
   const peerConnection = useRef(null);
