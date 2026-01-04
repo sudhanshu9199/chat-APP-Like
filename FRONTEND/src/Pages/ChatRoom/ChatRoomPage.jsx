@@ -244,7 +244,7 @@ const ChatRoomPage = () => {
         setincomingCaller(from);
         setcallType(type || 'audio');
 
-        if (Notification.permission === 'granted' && document.hidden) {
+        if (Notification.permission === 'granted') {
           try {
             const notif = new Notification('Incoming Call', {
             body: `${name} is requesting a ${type || 'voice'} call.`,
@@ -254,7 +254,7 @@ const ChatRoomPage = () => {
             vibrate: [200, 100, 200]
           });
 
-          notif.onClick = () => {
+          notif.onclick = () => {
             window.focus();
             notif.close();
           }
