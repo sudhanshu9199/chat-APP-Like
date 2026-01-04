@@ -246,12 +246,15 @@ const ChatRoomPage = () => {
 
         if (Notification.permission === 'granted') {
           try {
+
+            if (navigate.vibrate) {
+              navigate.vibrate([200, 100, 200]);
+            }
             const notif = new Notification('Incoming Call', {
             body: `${name} is requesting a ${type || 'voice'} call.`,
             icon: userImg,
             silent: true,
             tag: 'call_notification',
-            vibrate: [200, 100, 200]
           });
 
           notif.onclick = () => {
