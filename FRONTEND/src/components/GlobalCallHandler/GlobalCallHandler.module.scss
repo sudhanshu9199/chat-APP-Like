@@ -1,0 +1,31 @@
+.toastCall {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+
+    &__avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__name {
+        font-weight: 700;
+    }
+
+    &__status {
+        font-size: 0.875rem;
+    }
+
+    &__action {
+        font-size: 0.75rem;
+        color: #bfdbfe;
+    }
+}

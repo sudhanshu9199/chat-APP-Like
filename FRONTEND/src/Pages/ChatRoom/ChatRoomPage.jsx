@@ -42,6 +42,19 @@ const ChatRoomPage = () => {
   }, [onlineUsers, receiverId]);
 
   useEffect(() => {
+    if (state?.incomingCall) {
+      const { form, signal, name, callType } = state.incomingCall;
+
+      setcallStatus('INCOMING');
+      setcallSignal(signal);
+      setincomingCaller(form);
+      setcallType(callType || 'audio');
+
+      window.history.replaceState({}, document.title);
+    }
+  }, [state]);
+
+  useEffect(() => {
     if (Notification.permission === 'default') {
       Notification.requestPermission();
     }

@@ -1,0 +1,27 @@
+.toastCall {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.toastCall__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.toastCall__content {
+  display: flex;
+  flex-direction: column;
+}
+.toastCall__name {
+  font-weight: 700;
+}
+.toastCall__status {
+  font-size: 0.875rem;
+}
+.toastCall__action {
+  font-size: 0.75rem;
+  color: #bfdbfe;
+}/*# sourceMappingURL=GlobalCallHandler.module.css.map */

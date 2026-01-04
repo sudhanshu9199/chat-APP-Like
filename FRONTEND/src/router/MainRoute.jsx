@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 import { lazy, Suspense } from "react";
 import ProtectedRoute from "./ProtectedRoute";
+import GlobalCallHandler from "../components/GlobalCallHandler/GlobalCallHandler";
 
 const UserList = lazy(() => import("../Pages/UserList/UserList"));
 const LoginPage = lazy(() => import("../Pages/Login/LoginPage"));
@@ -12,6 +13,9 @@ const ProfileUpdatePage = lazy(() => import('../Pages/ProfileUpdate/ProfileUpdat
 const MainRoute = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
+      <ProtectedRoute>
+         <GlobalCallHandler />
+      </ProtectedRoute>
     <Routes>
       <Route path="/" element={
         <ProtectedRoute>
