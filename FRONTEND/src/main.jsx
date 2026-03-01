@@ -9,6 +9,9 @@ import api from './services/api.js'
 import { logout } from './Redux/slices/authSlice.js';
 import { toast } from "react-toastify";
 
+import { registerSW } from 'virtual:pwa-register'; // this line to register the PWA service worker
+registerSW({ immediate: true}) // register the service worker for automatic updates
+
 api.interceptors.response.use(
     response => response,
     err => {
