@@ -1,8 +1,6 @@
 import style from "./VideoCall.module.scss";
 import userImg from "../../../assets/DefaultUserPic.png";
-import { useRef } from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Mic, MicOff, PhoneOff, Video, VideoOff } from "lucide-react";
 
 const VideoCall = ({
@@ -17,6 +15,7 @@ const VideoCall = ({
   const localVideoRef = useRef();
   const [micOn, setmicOn] = useState(true);
   const [videoOn, setvideoOn] = useState(true);
+  const [videoQuality, setVideoQuality] = useState('720p'); // Default quality
 
   useEffect(() => {
     if (remoteStream && remoteVideoRef.current) {
@@ -47,6 +46,30 @@ const VideoCall = ({
       }
     }
   };
+
+  const changeVideoQuality = async (e) => {
+    const quality = e.target.value;
+    setVideoQuality(quality);
+
+    if(localStream) {
+      const videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack) {
+        const qualitySettings = {
+          "360p": { width: { ideal: 640 }, height: { ideal: 360 } },
+          "480p": { width: { ideal: 854 }, height: { ideal: 480 } },
+          "720p": { width: { ideal: 1280 }, height: { ideal: 720 } },
+          "1080p": { width: { ideal: 1920 }, height: { ideal: 1080 } },
+        };
+
+        try {
+          await videoTrack.applyConstraints(qualitySettings[quality]);
+        } catch (err) {
+          console.error('Failed to change video quality:', err);
+        }
+      }
+    }
+  };
+
   if (callStatus === "IDLE") return null;
 
   return (
@@ -103,6 +126,14 @@ const VideoCall = ({
           </>
         ) : (
           <>
+          <select className={style.qualitySelector}
+          value={videoQuality} onChange={changeVideoQuality} disabled={!videoOn}
+          >
+            <option value='360p'>360p (Data Saver)</option>
+            <option value='480p'>480p</option>
+            <option value='720p'>720p</option>
+            <option value='1080p'>1080p (High)</option>
+          </select>
             <button
               onClick={toggleVideo}
               className={`${style.btn} ${!videoOn ? style.off : ""}`}
