@@ -1,11 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import legacy from "@vitejs/plugin-legacy";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
+    legacy({
+      targets: ['defaults', 'not IE 11', 'Android >= 5'], // <-- Targets older devices
+    }),
     VitePWA({
       registerType: "autoUpdate", //Automatically updates the service worker in the bg
       includeAssets: [
