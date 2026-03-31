@@ -15,7 +15,7 @@ const VideoCall = ({
   const localVideoRef = useRef();
   const [micOn, setmicOn] = useState(true);
   const [videoOn, setvideoOn] = useState(true);
-  const [videoQuality, setVideoQuality] = useState('720p'); // Default quality
+  const [videoQuality, setVideoQuality] = useState('360p'); // Default quality
 
   useEffect(() => {
     if (remoteStream && remoteVideoRef.current) {
@@ -55,10 +55,10 @@ const VideoCall = ({
       const videoTrack = localStream.getVideoTracks()[0];
       if (videoTrack) {
         const qualitySettings = {
-          "360p": { width: { ideal: 640 }, height: { ideal: 360 } },
-          "480p": { width: { ideal: 854 }, height: { ideal: 480 } },
-          "720p": { width: { ideal: 1280 }, height: { ideal: 720 } },
-          "1080p": { width: { ideal: 1920 }, height: { ideal: 1080 } },
+          "360p": { width: { ideal: 640, max: 640 }, height: { ideal: 360, max: 360 }, frameRate: { ideal: 15, max: 20 } },
+    "480p": { width: { ideal: 854, max: 854 }, height: { ideal: 480, max: 480 }, frameRate: { ideal: 20, max: 24 } },
+    "720p": { width: { ideal: 1280, max: 1280 }, height: { ideal: 720, max: 720 }, frameRate: { ideal: 24, max: 30 } },
+    "1080p": { width: { ideal: 1920, max: 1920 }, height: { ideal: 1080, max: 1080 }, frameRate: { ideal: 30 } },
         };
 
         try {
