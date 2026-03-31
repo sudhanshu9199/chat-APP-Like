@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     react(),
     legacy({
-      targets: ['defaults', 'not IE 11', 'Android >= 5'], // <-- Targets older devices
+      targets: ["defaults", "not IE 11", "Android >= 5"], // <-- Targets older devices
     }),
     VitePWA({
       registerType: "autoUpdate", //Automatically updates the service worker in the bg
@@ -21,7 +21,7 @@ export default defineConfig({
         name: "connectX",
         short_name: "connectX",
         description: "connectX | chat with anyone",
-        theme_color: "#2579ff",
+        theme_color: "#1A1A1A",
         background_color: "#2579ff",
         display: "standalone",
         icons: [
@@ -81,10 +81,7 @@ export default defineConfig({
         // raise max file size to 5 MiB
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         // optionally ignore those specific large assets so they are not precached
-        globIgnores: [
-          "**/panda_right-*.png",
-          "**/Gemini_Generated_Image_*"
-        ],
+        globIgnores: ["**/panda_right-*.png", "**/Gemini_Generated_Image_*"],
         // Caches JS, CSS, HTML, and images for offline support
         globPatterns: [
           "**/*.{js,css,html,ico,png,svg,webmanifest,mp3,jpg,jpeg}",

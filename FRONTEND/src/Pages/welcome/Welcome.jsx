@@ -1,7 +1,10 @@
 import style from "./welcome.module.scss";
 import bgImage from "../../assets/Gemini_Generated_Image_nalmg4nalmg4nalm.jpeg";
+import { useNavigate } from "react-router";
 
 const Welcome = () => {
+  const navigate = useNavigate();
+
   return (
     <div
       className={style.welcome}
@@ -17,11 +20,13 @@ const Welcome = () => {
         <div className={style.welcome__actions}>
           <button
             className={`${style.welcome__btn} ${style["welcome__btn--glass"]}`}
+            onClick={() => navigate('/login')}
           >
             Sign in
           </button>
           <button
             className={`${style.welcome__btn} ${style["welcome__btn--ghost"]}`}
+            onClick={() => navigate('/register')}
           >
             Create an account
           </button>

@@ -46,7 +46,7 @@ const RegisterPage = () => {
       <img src={pandaImg} alt="panda" className={style.pandaImage} />
 
       <div className={style.header}>
-        <Link to="/login" className={style.backBtn}>
+        <Link to="/" className={style.backBtn}>
           <i className="ri-arrow-left-s-line"></i>
         </Link>
         <h1>Register</h1>
