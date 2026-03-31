@@ -78,6 +78,13 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // raise max file size to 5 MiB
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        // optionally ignore those specific large assets so they are not precached
+        globIgnores: [
+          "**/panda_right-*.png",
+          "**/Gemini_Generated_Image_*"
+        ],
         // Caches JS, CSS, HTML, and images for offline support
         globPatterns: [
           "**/*.{js,css,html,ico,png,svg,webmanifest,mp3,jpg,jpeg}",
