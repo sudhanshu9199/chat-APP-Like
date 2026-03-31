@@ -8,32 +8,45 @@ const UserList = lazy(() => import("../Pages/UserList/UserList"));
 const LoginPage = lazy(() => import("../Pages/Login/LoginPage"));
 const RegisterPage = lazy(() => import("../Pages/Register/RegisterPage"));
 const ChatRoomPage = lazy(() => import("../Pages/ChatRoom/ChatRoomPage"));
-const ProfileUpdatePage = lazy(() => import('../Pages/ProfileUpdate/ProfileUpdatePage'));
+const ProfileUpdatePage = lazy(
+  () => import("../Pages/ProfileUpdate/ProfileUpdatePage"),
+);
+const WelcomePage = lazy(() => import("../Pages/welcome/Welcome"));
 
 const MainRoute = () => {
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state) => state.auth);
   return (
     <Suspense fallback={<div>Loading...</div>}>
-         {user && <GlobalCallHandler />}
-    <Routes>
-      <Route path="/" element={
-        <ProtectedRoute>
-          <UserList />
-        </ProtectedRoute>
-      } />
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <ProfileUpdatePage />
-        </ProtectedRoute>
-      } />
-      <Route path="/chatroom/:id" element={
-        <ProtectedRoute>
-          <ChatRoomPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-    </Routes>
+      {user && <GlobalCallHandler />}
+      <Routes>
+        <Route path="/" element={<WelcomePage />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <UserList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileUpdatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chatroom/:id"
+          element={
+            <ProtectedRoute>
+              <ChatRoomPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
     </Suspense>
   );
 };

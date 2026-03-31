@@ -1,0 +1,96 @@
+.welcome {
+  position: relative;
+  min-height: 100dvh;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.welcome__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0 1.5rem 15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  height: 85dvh;
+}
+.welcome__heading {
+  font-family: "Lexend", sans-serif;
+  font-size: clamp(2.5rem, 6.5vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1.25;
+  color: #ffffff;
+  text-align: left;
+  max-width: 14ch;
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+.welcome__actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.welcome__btn {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.welcome__btn:active {
+  transform: scale(0.97);
+}
+.welcome__btn--glass {
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.115);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.welcome__btn--glass:hover {
+  background: rgba(255, 255, 255, 0.26);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.welcome__btn--ghost {
+  color: #ffffff;
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+@media (min-width: 480px) {
+  .welcome {
+    align-items: center;
+  }
+  .welcome__content {
+    padding: 2rem 2rem 4rem;
+    max-width: 420px;
+  }
+  .welcome__heading {
+    font-size: clamp(1.9rem, 4vw, 2.5rem);
+  }
+}
+@media (min-width: 768px) {
+  .welcome__content {
+    max-width: 460px;
+    padding-bottom: 5rem;
+  }
+  .welcome__btn {
+    padding: 1rem 2rem;
+    font-size: 1.05rem;
+    border-radius: 16px;
+  }
+}/*# sourceMappingURL=welcome.module.css.map */
