@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes, Navigate } from "react-router";
 import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./ProtectedRoute";
@@ -19,7 +19,10 @@ const MainRoute = () => {
     <Suspense fallback={<div>Loading...</div>}>
       {user && <GlobalCallHandler />}
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
+        <Route
+          path="/"
+          element={user ? <Navigate to="/home" replace /> : <WelcomePage />}
+        />
         <Route
           path="/home"
           element={

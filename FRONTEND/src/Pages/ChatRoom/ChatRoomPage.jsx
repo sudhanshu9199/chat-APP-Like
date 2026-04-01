@@ -17,7 +17,7 @@ import { useSelector } from "react-redux";
 import VoiceCall from "./VoiceCalling/VoiceCall";
 import VideoCall from "./VideoCalling/VideoCall";
 import UserInfoPopup from "./UserInfo/UserInfoPopup";
-import callMusic from '../../assets/callMusic/Zupiter_&_Jery_Brahma.mp3';
+import callMusic from "../../assets/callMusic/Zupiter_&_Jery_Brahma.mp3";
 
 const ChatRoomPage = () => {
   const { id: receiverId } = useParams();
@@ -45,17 +45,17 @@ const ChatRoomPage = () => {
     if (state?.incomingCall) {
       const { form, signal, name, callType } = state.incomingCall;
 
-      setcallStatus('INCOMING');
+      setcallStatus("INCOMING");
       setcallSignal(signal);
       setincomingCaller(form);
-      setcallType(callType || 'audio');
+      setcallType(callType || "audio");
 
       window.history.replaceState({}, document.title);
     }
   }, [state]);
 
   useEffect(() => {
-    if (Notification.permission === 'default') {
+    if (Notification.permission === "default") {
       Notification.requestPermission();
     }
   }, []);
@@ -118,13 +118,12 @@ const ChatRoomPage = () => {
   // handle ringtone on call status
   useEffect(() => {
     const audio = audioRef.current;
-    if (callStatus === 'INCOMING') {
+    if (callStatus === "INCOMING") {
       audio.loop = true;
-      audio.play().catch(err => {
-        console.log('Audio Play Error:', err);
-      })
-    }
-    else {
+      audio.play().catch((err) => {
+        console.log("Audio Play Error:", err);
+      });
+    } else {
       audio.pause();
       audio.currentTime = 0;
     }
@@ -166,7 +165,7 @@ const ChatRoomPage = () => {
 
     const constraints = {
       audio: true,
-      video: type === 'video' ? true : false
+      video: type === "video" ? true : false,
     };
 
     try {
@@ -185,7 +184,7 @@ const ChatRoomPage = () => {
         signalData: offer,
         from: currentUser.id || currentUser._id,
         name: currentUser.name,
-        callType: type
+        callType: type,
       });
     } catch (err) {
       console.error("Error starting call:", err);
@@ -198,7 +197,7 @@ const ChatRoomPage = () => {
 
     const constraints = {
       audio: true,
-      video: callType === 'video' ? true : false
+      video: callType === "video" ? true : false,
     };
 
     try {
@@ -226,7 +225,7 @@ const ChatRoomPage = () => {
       console.error("Error accepting call:", err);
       cleanupCall();
       if (err.name === "NotReadableError") {
-         alert("Camera/Mic is already in use by another app (or tab).");
+        alert("Camera/Mic is already in use by another app (or tab).");
       }
     }
   };
@@ -255,27 +254,29 @@ const ChatRoomPage = () => {
         setcallStatus("INCOMING");
         setcallSignal(signal);
         setincomingCaller(from);
-        setcallType(type || 'audio');
+        setcallType(type || "audio");
 
-        if (Notification.permission === 'granted') {
+        if (Notification.permission === "granted") {
           try {
-
             if (navigate.vibrate) {
               navigate.vibrate([200, 100, 200]);
             }
-            const notif = new Notification('Incoming Call', {
-            body: `${name} is requesting a ${type || 'voice'} call.`,
-            icon: userImg,
-            silent: true,
-            tag: 'call_notification',
-          });
+            const notif = new Notification("Incoming Call", {
+              body: `${name} is requesting a ${type || "voice"} call.`,
+              icon: userImg,
+              silent: true,
+              tag: "call_notification",
+            });
 
-          notif.onclick = () => {
-            window.focus();
-            notif.close();
-          }
+            notif.onclick = () => {
+              window.focus();
+              notif.close();
+            };
           } catch (err) {
-            console.error('Notification API error (common on some mobile browsers):', err)
+            console.error(
+              "Notification API error (common on some mobile browsers):",
+              err,
+            );
           }
         }
       }
@@ -286,34 +287,36 @@ const ChatRoomPage = () => {
       if (peerConnection.current) {
         try {
           await peerConnection.current.setRemoteDescription(
-          new RTCSessionDescription(signal)
-        );
+            new RTCSessionDescription(signal),
+          );
 
-        while (iceCandidatesQueue.current.length > 0) {
-          const candidate = iceCandidatesQueue.current.shift();
-          try {
-            await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-          } catch (err) {
-            console.error("Error adding queued candidate", err);
+          while (iceCandidatesQueue.current.length > 0) {
+            const candidate = iceCandidatesQueue.current.shift();
+            try {
+              await peerConnection.current.addIceCandidate(
+                new RTCIceCandidate(candidate),
+              );
+            } catch (err) {
+              console.error("Error adding queued candidate", err);
+            }
           }
-        }
         } catch (err) {
-          console.error('Error setting remote description', err);
+          console.error("Error setting remote description", err);
         }
       }
     });
 
     socket.on("receiveIceCandidate", async (candidate) => {
       const pc = peerConnection.current;
-        if (pc && pc.remoteDescription) {
-          try {
-            await pc.addIceCandidate(new RTCIceCandidate(candidate));
-          } catch (err) {
-            console.error("Error adding candidate", err);
-          }
-        } else {
-          iceCandidatesQueue.current.push(candidate);
+      if (pc && pc.remoteDescription) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+          console.error("Error adding candidate", err);
         }
+      } else {
+        iceCandidatesQueue.current.push(candidate);
+      }
     });
 
     socket.on("callEnded", () => {
@@ -331,31 +334,31 @@ const ChatRoomPage = () => {
   return (
     <div className={style.chatRoomPage}>
       {showInfo && (
-        <UserInfoPopup 
-        user={selectedUser} onClose={() => setshowInfo(false)}/>
+        <UserInfoPopup user={selectedUser} onClose={() => setshowInfo(false)} />
       )}
-      { callType === 'video' ? (
+      {callType === "video" ? (
         <VideoCall
-        callStatus={callStatus}
-        localStream={localStream}
-        remoteStream={remoteStream}
-        callerName={selectedUser.name}
-        endCall={endCall}
-        acceptCall={acceptCall}
-      />
+          callStatus={callStatus}
+          localStream={localStream}
+          remoteStream={remoteStream}
+          callerName={selectedUser.name}
+          endCall={endCall}
+          acceptCall={acceptCall}
+        />
       ) : (
-        <VoiceCall 
-         callStatus={callStatus}
-        localStream={localStream}
-        remoteStream={remoteStream}
-        callerName={selectedUser.name}
-        endCall={endCall}
-        acceptCall={acceptCall} />
+        <VoiceCall
+          callStatus={callStatus}
+          localStream={localStream}
+          remoteStream={remoteStream}
+          callerName={selectedUser.name}
+          endCall={endCall}
+          acceptCall={acceptCall}
+        />
       )}
-      
+
       <div className={style.header}>
         <ArrowLeft
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           style={{ cursor: "pointer" }}
         />
         <div className={style.participantDp}>
@@ -366,8 +369,8 @@ const ChatRoomPage = () => {
           <p className={style.status}>{isOnline ? "Online" : "Offline"}</p>
         </div>
         <div className={style.userAction}>
-          <Video className={style.icon} onClick={() => startCall('video')} />
-          <Phone className={style.icon} onClick={() => startCall('audio')} />
+          <Video className={style.icon} onClick={() => startCall("video")} />
+          <Phone className={style.icon} onClick={() => startCall("audio")} />
           <Info className={style.icon} onClick={() => setshowInfo(true)} />
         </div>
       </div>
