@@ -30,7 +30,7 @@ const RegisterPage = () => {
     const result = await dispatch(registerUser(formData));
 
     if (registerUser.fulfilled.match(result)) {
-      navigate("/");
+      navigate("/login", { replace: true });
     }
   };
 
@@ -121,7 +121,7 @@ const RegisterPage = () => {
         )}
 
         <button type="submit" disabled={loading}>
-          {loading ? "Registering..." : "Login"}
+          {loading ? "Registering..." : "Register"}
         </button>
 
         <div className={style.options}>

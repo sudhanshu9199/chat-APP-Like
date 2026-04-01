@@ -21,7 +21,7 @@ const LoginPage = () => {
     const result = await dispatch(loginUser(data));
 
     if (loginUser.fulfilled.match(result)) {
-      navigate("/");
+      navigate("/home", { replace: true });
     }
   };
 
