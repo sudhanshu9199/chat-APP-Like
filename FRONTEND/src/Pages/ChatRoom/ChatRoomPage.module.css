@@ -65,6 +65,25 @@
   flex-direction: column;
   gap: 1.3rem;
 }
+.chatRoomPage .fullMessage .dateSeparatorWrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 1rem 0;
+  position: sticky;
+  top: 10px;
+}
+.chatRoomPage .fullMessage .dateSeparatorWrapper .datePill {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 .chatRoomPage .fullMessage .participantMsg {
   background: rgb(50, 71, 176);
   width: -moz-fit-content;

@@ -9,7 +9,7 @@ import {
   Loader2,
 } from "lucide-react";
 import userImg from "../../assets/DefaultUserPic.png";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, Fragment } from "react";
 import { useParams, useLocation, useNavigate } from "react-router";
 import { useSocketContext } from "../../context/SocketContext";
 import api from "../../services/api";
@@ -18,6 +18,33 @@ import VoiceCall from "./VoiceCalling/VoiceCall";
 import VideoCall from "./VideoCalling/VideoCall";
 import UserInfoPopup from "./UserInfo/UserInfoPopup";
 import callMusic from "../../assets/callMusic/Zupiter_&_Jery_Brahma.mp3";
+
+const isNewDay = (currentMsg, prevMsg) => {
+  if (!prevMsg) return true;
+  const currentDate = new Date(currentMsg.createdAt);
+  const prevDate = new Date(prevMsg.createdAt);
+  return currentDate.toDateString() !== prevDate.toDateString();
+};
+
+const formatDateLabel = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === yesterday.toDateString()) {
+    return "Today";
+  } else if (date.toDateString() === today.toDateString()) {
+    return "Yesterday";
+  } else {
+    return date.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      year: date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
+    });
+  }
+};
 
 const ChatRoomPage = () => {
   const { id: receiverId } = useParams();
@@ -378,24 +405,38 @@ const ChatRoomPage = () => {
         {loading ? (
           <Loader2 className="animate-spin mx-auto mt-10" />
         ) : (
-          messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={
-                msg.sender === currentUser.id
-                  ? style.yourMsg
-                  : style.participantMsg
-              }
-            >
-              <p className={style.message}>{msg.text}</p>
-              <div className={style.timeline}>
-                {new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
-            </div>
-          ))
+          messages.map((msg, idx) => {
+            const showDateSeparator = isNewDay(msg, messages[idx - 1]);
+
+            return (
+              <Fragment key={msg._id || idx}>
+                {showDateSeparator && (
+                  <div className={style.dateSeparatorWrapper}>
+                    <span className={style.datePill}>
+                      {formatDateLabel(msg.createdAt)}
+                    </span>
+                  </div>
+                )}
+
+                <div
+                  key={idx}
+                  className={
+                    msg.sender === (currentUser.id || currentUser._id)
+                      ? style.yourMsg
+                      : style.participantMsg
+                  }
+                >
+                  <p className={style.message}>{msg.text}</p>
+                  <div className={style.timeline}>
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </div>
+              </Fragment>
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
