@@ -1,7 +1,7 @@
 import style from "./VideoCall.module.scss";
 import userImg from "../../../assets/DefaultUserPic.png";
 import { useRef, useEffect, useState } from "react";
-import { Mic, MicOff, PhoneOff, Video, VideoOff } from "lucide-react";
+import { Mic, MicOff, PhoneOff, Video, VideoOff, Settings } from "lucide-react";
 
 const VideoCall = ({
   callStatus,
@@ -15,7 +15,27 @@ const VideoCall = ({
   const localVideoRef = useRef();
   const [micOn, setmicOn] = useState(true);
   const [videoOn, setvideoOn] = useState(true);
-  const [videoQuality, setVideoQuality] = useState('360p'); // Default quality
+  const [videoQuality, setVideoQuality] = useState("360p");
+  const [showQualityMenu, setShowQualityMenu] = useState(false);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    let timer;
+    if (callStatus === "CONNECTED") {
+      timer = setInterval(() => {
+        setDuration((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setDuration(0);
+    }
+    return () => clearInterval(timer);
+  }, [callStatus]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   useEffect(() => {
     if (remoteStream && remoteVideoRef.current) {
@@ -47,24 +67,23 @@ const VideoCall = ({
     }
   };
 
-  const changeVideoQuality = async (e) => {
-    const quality = e.target.value;
+  const changeVideoQuality = async (quality) => {
     setVideoQuality(quality);
+    setShowQualityMenu(false);
 
-    if(localStream) {
+    if (localStream) {
       const videoTrack = localStream.getVideoTracks()[0];
       if (videoTrack) {
         const qualitySettings = {
-          "360p": { width: { ideal: 640, max: 640 }, height: { ideal: 360, max: 360 }, frameRate: { ideal: 15, max: 20 } },
-    "480p": { width: { ideal: 854, max: 854 }, height: { ideal: 480, max: 480 }, frameRate: { ideal: 20, max: 24 } },
-    "720p": { width: { ideal: 1280, max: 1280 }, height: { ideal: 720, max: 720 }, frameRate: { ideal: 24, max: 30 } },
-    "1080p": { width: { ideal: 1920, max: 1920 }, height: { ideal: 1080, max: 1080 }, frameRate: { ideal: 30 } },
+          "360p": { width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 15 } },
+          "480p": { width: { ideal: 854 }, height: { ideal: 480 }, frameRate: { ideal: 20 } },
+          "720p": { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 24 } },
         };
 
         try {
-          await videoTrack.applyConstraints(qualitySettings[quality]);
+          await videoTrack.applyConstraints(qualitySettings[quality] || qualitySettings["360p"]);
         } catch (err) {
-          console.error('Failed to change video quality:', err);
+          console.error("Failed to change video quality:", err);
         }
       }
     }
@@ -85,74 +104,83 @@ const VideoCall = ({
         ) : (
           <div className={style.placeholder}>
             <img src={userImg} alt="User" className={style.avatar} />
-            <h3 className={style.statusText}>
-              {callStatus === "INCOMING"
-                ? `${callerName} is requesting a video call...`
-                : callStatus === "CALLING"
-                ? "Calling..."
-                : "Connecting..."}
-            </h3>
           </div>
         )}
       </div>
+
+      <div className={style.topBar}>
+        <h2 className={style.callerName}>{callerName}</h2>
+        <p className={style.durationText}>
+          {callStatus === "CONNECTED" ? formatTime(duration) : callStatus === "INCOMING" ? "Incoming Call..." : "Calling..."}
+        </p>
+      </div>
+
       {(callStatus === "CONNECTED" || callStatus === "CALLING") &&
         localStream && (
-          <div className={style.localVideoContainer}>
-            <video
-              ref={localVideoRef}
-              autoPlay
-              playsInline
-              className={style.localVideo}
-            />
-            {!videoOn && <div className={style.videoOffOverlay}>Video off</div>}
+          <div className={style.localVideoWrapper}>
+            <div className={style.localVideoContainer}>
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                className={style.localVideo}
+              />
+              {!videoOn && <div className={style.videoOffOverlay}>Video paused</div>}
+            </div>
           </div>
         )}
 
-      <div className={style.controls}>
+      <div className={style.controlsArea}>
         {callStatus === "INCOMING" ? (
-          <>
-            <button
-              onClick={endCall}
-              className={`${style.btn} ${style.reject}`}
-            >
-              <PhoneOff />
+          <div className={style.controlsRow}>
+            <button onClick={endCall} className={`${style.controlBtn} ${style.rejectBtn}`}>
+              <PhoneOff className={style.icon} />
             </button>
-            <button
-              onClick={acceptCall}
-              className={`${style.btn} ${style.accept}`}
-            >
-              <Video />
+            <button onClick={acceptCall} className={`${style.controlBtn} ${style.acceptBtn}`}>
+              <Video className={style.icon} />
             </button>
-          </>
+          </div>
         ) : (
-          <>
-          <select className={style.qualitySelector}
-          value={videoQuality} onChange={changeVideoQuality} disabled={!videoOn}
-          >
-            <option value='360p'>360p (Data Saver)</option>
-            <option value='480p'>480p</option>
-            <option value='720p'>720p</option>
-            <option value='1080p'>1080p (High)</option>
-          </select>
+          <div className={style.controlsRow}>
             <button
               onClick={toggleVideo}
-              className={`${style.btn} ${!videoOn ? style.off : ""}`}
+              className={`${style.controlBtn} ${!videoOn ? style.offBtn : ""}`}
             >
-              {videoOn ? <Video /> : <VideoOff />}
+              {videoOn ? <Video className={style.icon} /> : <VideoOff className={style.icon} />}
             </button>
+            
+            <div className={style.qualityWrapper}>
+              <button
+                onClick={() => setShowQualityMenu(!showQualityMenu)}
+                className={`${style.controlBtn}`}
+              >
+                <Settings className={style.icon} />
+              </button>
+              {showQualityMenu && (
+                <div className={style.qualityMenu}>
+                  {["360p", "480p", "720p"].map(q => (
+                    <button 
+                      key={q} 
+                      className={`${style.qualityOption} ${videoQuality === q ? style.activeQuality : ""}`}
+                      onClick={() => changeVideoQuality(q)}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
               onClick={toggleMic}
-              className={`${style.btn} ${!micOn ? style.off : ""}`}
+              className={`${style.controlBtn} ${!micOn ? style.offBtn : ""}`}
             >
-              {micOn ? <Mic /> : <MicOff />}
+              {micOn ? <Mic className={style.icon} /> : <MicOff className={style.icon} />}
             </button>
-            <button
-              onClick={endCall}
-              className={`${style.btn} ${style.reject}`}
-            >
-              <PhoneOff />
+            <button onClick={endCall} className={`${style.controlBtn} ${style.rejectBtn}`}>
+              <PhoneOff className={style.icon} />
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>
