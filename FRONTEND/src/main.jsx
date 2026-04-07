@@ -5,30 +5,38 @@ import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./Redux/store.js";
 import { SocketContextProvider } from "./context/SocketContext.jsx";
-import api from './services/api.js'
-import { logout } from './Redux/slices/authSlice.js';
+import api from "./services/api.js";
+import { logout } from "./Redux/slices/authSlice.js";
 import { toast } from "react-toastify";
 
-import { registerSW } from 'virtual:pwa-register'; // this line to register the PWA service worker
-registerSW({ immediate: true}) // register the service worker for automatic updates
+import { registerSW } from "virtual:pwa-register"; // this line to register the PWA service worker
+registerSW({ immediate: true }); // register the service worker for automatic updates
 
 api.interceptors.response.use(
-    response => response,
-    err => {
-        if (err.response && err.response.status === 401 && !error.config.url.includes('/login')) {
-            store.dispatch(logout());
-            toast.info('Session expired. Please login again.');
-        }
-        return Promise.reject(err);
+  (response) => response,
+  (err) => {
+    if (
+      err.response &&
+      err.response.status === 401 &&
+      !err.config.url.includes("/login")
+    ) {
+      store.dispatch(logout());
+      toast.info("Session expired. Please login again.");
+
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
+    return Promise.reject(err);
+  },
 );
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <BrowserRouter>
-    <SocketContextProvider>
-      <App />
-    </SocketContextProvider>
+      <SocketContextProvider>
+        <App />
+      </SocketContextProvider>
     </BrowserRouter>
-  </Provider>
+  </Provider>,
 );

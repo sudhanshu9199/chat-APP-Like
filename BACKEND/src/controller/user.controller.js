@@ -1,54 +1,144 @@
 const userModel = require("../models/user.model");
 const messageModel = require("../models/message.model");
 const imageKit = require("../services/imagekit.service");
+const mongoose = require("mongoose");
+
+// async function getParticipants(req, res) {
+//   try {
+//     const currentUserId = req.user._id;
+//     const users = await userModel
+//       .find({ _id: { $ne: currentUserId } })
+//       .select("name avatar about isOnline lastSeen");
+
+//     const results = await Promise.all(
+//       users.map(async (user) => {
+//         const lastMsg = await messageModel
+//           .findOne({
+//             $or: [
+//               { sender: currentUserId, receiver: user._id },
+//               { sender: user._id, receiver: currentUserId },
+//             ],
+//           })
+//           .sort({ createdAt: -1 });
+
+//         const unreadCount = await messageModel.countDocuments({
+//           sender: user._id,
+//           receiver: currentUserId,
+//           seen: false,
+//         });
+
+//         return {
+//           id: user._id,
+//           name: user.name,
+//           avatar: user.avatar,
+//           about: user.about,
+//           isOnline: user.isOnline,
+//           lastSeen: user.lastSeen,
+//           lastMessage: lastMsg ? lastMsg.text : "Start a conversation",
+//           lastMessageAt: lastMsg ? lastMsg.createdAt : null,
+//           unreadCount: unreadCount,
+//         };
+//       }),
+//     );
+
+//     res.status(200).json({
+//       message: "Participants fetchhed successfully",
+//       participants: results,
+//     });
+//   } catch (err) {
+//     console.error("Error fetching participants:", err);
+//     res.status(500).json({
+//       message: "Failed to load participants",
+//     });
+//   }
+// }
 
 async function getParticipants(req, res) {
   try {
-    const currentUserId = req.user._id;
-    const users = await userModel
-      .find({ _id: { $ne: currentUserId } })
-      .select("name avatar about isOnline lastSeen");
+    const currentUserId = new mongoose.Types.ObjectId(req.user._id);
 
-    const results = await Promise.all(
-      users.map(async (user) => {
-        const lastMsg = await messageModel
-          .findOne({
-            $or: [
-              { sender: currentUserId, receiver: user._id },
-              { sender: user._id, receiver: currentUserId },
-            ],
-          })
-          .sort({ createdAt: -1 });
+    const result = await userModel.aggregate([
+      { $match: { _id: { $ne: currentUserId } } },
 
-        const unreadCount = await messageModel.countDocuments({
-          sender: user._id,
-          receiver: currentUserId,
-          seen: false,
-        });
+      {
+        $lookup: {
+          from: "messages",
+          let: { otherUserId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    {
+                      $and: [
+                        { $eq: ["$sender", currentUserId] },
+                        { $eq: ["$receiver", "$$otherUserId"] },
+                      ],
+                    },
+                    {
+                      $and: [
+                        { $eq: ["$sender", "$$otherUserId"] },
+                        { $eq: ["$receiver", currentUserId] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+            { $sort: { createdAt: -1 } },
+          ],
+          as: "chatHistory",
+        },
+      },
+      {
+        $project: {
+          id: "$_id",
+          name: 1,
+          avatar: 1,
+          about: 1,
+          isOnline: 1,
+          lastSeen: 1,
+          lastMessage: {
+            $cond: {
+              if: { $gt: [{ $size: "$chatHistory" }, 0] },
+              then: { $arrayElemAt: ["$chatHistory.text", 0] },
+              else: "Start a conversation",
+            },
+          },
+          lastMessageAt: {
+            $cond: {
+              if: { $gt: [{ $size: "$chatHistory" }, 0] },
+              then: { $arrayElemAt: ["$chatHistory.createdAt", 0] },
+              else: null,
+            },
+          },
 
-        return {
-          id: user._id,
-          name: user.name,
-          avatar: user.avatar,
-          about: user.about,
-          isOnline: user.isOnline,
-          lastSeen: user.lastSeen,
-          lastMessage: lastMsg ? lastMsg.text : "Start a conversation",
-          lastMessageAt: lastMsg ? lastMsg.createdAt : null,
-          unreadCount: unreadCount,
-        };
-      })
-    );
+          unreadCount: {
+            $size: {
+              $filter: {
+                input: "$chatHistory",
+                as: "msg",
+                cond: {
+                  $and: [
+                    { $eq: ["$$msg.receiver", currentUserId] },
+                    { $eq: ["$$msg.seen", false] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      { $sort: { lastMessageAt: -1 } },
+    ]);
 
     res.status(200).json({
-      message: "Participants fetchhed successfully",
-      participants: results,
+      message: "Participants fetched successfully",
+      participants: result,
     });
   } catch (err) {
     console.error("Error fetching participants:", err);
-    res.status(500).json({
-      message: "Failed to load participants",
-    });
+    res.status(500).json({ message: "Failed to load participants" });
   }
 }
 
@@ -78,28 +168,28 @@ async function updateProfile(req, res) {
       updateData.avatar = avatarUrl;
     }
 
-    if(Object.keys(updateData).length === 0) {
+    if (Object.keys(updateData).length === 0) {
       const user = await userModel.findById(userId);
       return res.status(200).json({
-        message: 'No changes made',
+        message: "No changes made",
         user: {
           id: user._id,
           email: user.email,
           name: user.name,
           avatar: user.avatar,
           about: user.about,
-        }
+        },
       });
     }
 
     const updatedUser = await userModel.findByIdAndUpdate(
       userId,
       { $set: updateData },
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json({
-      message: 'Profile updated successfully',
+      message: "Profile updated successfully",
       user: {
         id: updatedUser._id,
         email: updatedUser.email,
@@ -109,10 +199,10 @@ async function updateProfile(req, res) {
       },
     });
   } catch (err) {
-    console.error('Error updating profile:', err);
+    console.error("Error updating profile:", err);
     res.status(500).json({
-      message: 'Internal server error'
-    })
+      message: "Internal server error",
+    });
   }
 }
 
