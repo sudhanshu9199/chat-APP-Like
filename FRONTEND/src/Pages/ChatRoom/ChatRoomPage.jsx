@@ -3,10 +3,11 @@ import {
   ArrowLeft,
   Video,
   Phone,
-  Info,
   Send,
   Image,
   Loader2,
+  Mic,
+  Paperclip,
 } from "lucide-react";
 import userImg from "../../assets/DefaultUserPic.png";
 import { useEffect, useState, useRef, useMemo, Fragment } from "react";
@@ -383,22 +384,31 @@ const ChatRoomPage = () => {
         />
       )}
 
-      <div className={style.header}>
-        <ArrowLeft
-          onClick={() => navigate("/home")}
-          style={{ cursor: "pointer" }}
-        />
-        <div className={style.participantDp}>
-          <img src={selectedUser.avatar || userImg} alt="userDP" />
+      <div className={style.chatContainer}>
+        <div className={style.header}>
+          <div className={style.headerLeft}>
+          <ArrowLeft
+            onClick={() => navigate("/home")}
+            className={style.backBtn}
+          />
+          <div className={style.participantDp} onClick={() => setshowInfo(true)} style={{ cursor: "pointer" }}>
+            <img src={selectedUser.avatar || userImg} alt="userDP" />
+            {isOnline && <div className={style.onlineIndicator}></div>}
+          </div>
+          <div className={style.texts}>
+            <p className={style.participantName}>{selectedUser.name}</p>
+            <p className={style.status}>{isOnline ? "Online" : "Offline"}</p>
+          </div>
         </div>
-        <div className={style.texts}>
-          <p className={style.participantName}>{selectedUser.name}</p>
-          <p className={style.status}>{isOnline ? "Online" : "Offline"}</p>
-        </div>
-        <div className={style.userAction}>
-          <Video className={style.icon} onClick={() => startCall("video")} />
-          <Phone className={style.icon} onClick={() => startCall("audio")} />
-          <Info className={style.icon} onClick={() => setshowInfo(true)} />
+        <div className={style.headerRight}>
+          <div className={style.actionsContainer}>
+            <button type="button" className={style.callBtn} onClick={() => startCall("video")}>
+              <Video className={style.calIcon} />
+            </button>
+            <button type="button" className={style.callBtn} onClick={() => startCall("audio")}>
+              <Phone className={style.calIcon} />
+            </button>
+          </div>
         </div>
       </div>
       <div className={style.fullMessage}>
@@ -440,20 +450,23 @@ const ChatRoomPage = () => {
         )}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSendMessage}>
-        <div className={style.inputBox}>
-          <Image className={style.icon} />
-          <input
-            type="text"
-            placeholder="Type a message"
-            value={newMessage}
-            onChange={(e) => setnewMessage(e.target.value)}
-          />
-        </div>
-        <button type="submit" className="send">
-          <Send className={style.icon} />
-        </button>
-      </form>
+        <form onSubmit={handleSendMessage} className={style.messageForm}>
+          <div className={style.inputBox}>
+            <Mic className={style.micIcon} />
+            <div className={style.separator}></div>
+            <input
+              type="text"
+              placeholder="Ok. Let me check"
+              value={newMessage}
+              onChange={(e) => setnewMessage(e.target.value)}
+            />
+            <Paperclip className={style.attachIcon} />
+          </div>
+          <button type="submit" className={style.send}>
+            <Send className={style.sendIcon} />
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

@@ -1,177 +1,299 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap");
 .chatRoomPage {
   width: 100%;
   height: 100dvh;
-  background: url(../../assets/default_wallpaper.jpg);
-  background-repeat: none;
-  background-position: 20% 0%;
-  background-size: cover;
-  color: rgb(237, 237, 237);
+  background-color: #f2f3f7; /* Subtly off-white page background */
+  font-family: "Outfit", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.chatRoomPage .header {
+
+.chatContainer {
   width: 100%;
-  height: 3rem;
-  background: rgba(52, 52, 52, 0.8156862745);
+  height: 100%;
+  background-color: #5d55fa;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border-top-left-radius: 0rem;
+}
+@media (min-width: 768px) {
+  .chatContainer {
+    max-width: 450px;
+    max-height: 900px;
+    height: 95vh;
+    border-radius: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+.chatContainer .header {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  z-index: 10;
+}
+.chatContainer .header .headerLeft {
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-}
-.chatRoomPage .header .participantDp {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  margin: 0 0.5rem 0 0.7rem;
+  gap: 0.8rem;
+  padding: 1.5rem 1rem 1rem 1.5rem;
   overflow: hidden;
 }
-.chatRoomPage .header .participantDp img {
+.chatContainer .header .headerLeft .backBtn {
+  cursor: pointer;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.chatContainer .header .headerLeft .backBtn:hover {
+  opacity: 0.8;
+}
+.chatContainer .header .headerLeft .participantDp {
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+}
+.chatContainer .header .headerLeft .participantDp img {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   -o-object-fit: cover;
      object-fit: cover;
-  -o-object-position: center;
-     object-position: center;
 }
-.chatRoomPage .header .texts {
-  color: rgb(221, 221, 221);
-  height: 100%;
-  width: 45%;
-  margin-right: 0.3rem;
+.chatContainer .header .headerLeft .participantDp .onlineIndicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background: #4ade80;
+  border-radius: 50%;
+  border: 2px solid #5d55fa;
 }
-.chatRoomPage .header .texts .participantName {
-  padding: 0.2rem 0;
-  font-size: 0.9rem;
-  color: whitesmoke;
+.chatContainer .header .headerLeft .texts {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-.chatRoomPage .header .texts .status {
+.chatContainer .header .headerLeft .texts .participantName {
+  font-size: 1.15rem;
+  font-weight: 500;
+  margin: 0;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chatContainer .header .headerLeft .texts .status {
   font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
 }
-.chatRoomPage .header .userAction {
-  height: 100%;
+.chatContainer .header .headerRight {
+  display: flex;
+  flex-shrink: 0;
+}
+.chatContainer .header .headerRight .actionsContainer {
+  background-color: #ffffff; /* Exact match with page background to blend perfectly */
+  padding: 1rem 1.5rem 1.25rem 1.5rem;
+  border-bottom-left-radius: 3rem;
+  display: flex;
+  gap: 0.8rem;
+  position: relative;
+  /* If desktop limits this box, make sure top-right corner is rounded identically */
+}
+@media (min-width: 768px) {
+  .chatContainer .header .headerRight .actionsContainer {
+    border-top-right-radius: 2rem;
+  }
+}
+.chatContainer .header .headerRight .actionsContainer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: radial-gradient(circle at 0% 100%, transparent 2.5rem, #f2f3f7 2.5rem);
+}
+.chatContainer .header .headerRight .actionsContainer .callBtn {
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  border: 1.5px solid #2d2e2f;
+  background: white;
   display: flex;
   align-items: center;
-  width: 25%;
-  justify-content: space-between;
-}
-.chatRoomPage .header .icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  justify-content: center;
   cursor: pointer;
+  transition: all 0.2s;
 }
-.chatRoomPage .fullMessage {
+.chatContainer .header .headerRight .actionsContainer .callBtn:hover {
+  background: #f8fafc;
+}
+.chatContainer .header .headerRight .actionsContainer .callBtn .calIcon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: #64748b;
+}
+.chatContainer .fullMessage {
+  flex: 1;
   width: 100%;
-  height: calc(100% - 6.2rem);
-  padding: 0 0.5rem;
+  padding: 1rem 1.5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.3rem;
+  gap: 1.2rem;
 }
-.chatRoomPage .fullMessage .dateSeparatorWrapper {
+.chatContainer .fullMessage::-webkit-scrollbar {
+  width: 4px;
+}
+.chatContainer .fullMessage::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.chatContainer .fullMessage .dateSeparatorWrapper {
   display: flex;
   justify-content: center;
   width: 100%;
   margin: 1rem 0;
-  position: sticky;
-  top: 10px;
 }
-.chatRoomPage .fullMessage .dateSeparatorWrapper .datePill {
-  background-color: rgba(0, 0, 0, 0.4);
-  color: #ffffff;
+.chatContainer .fullMessage .dateSeparatorWrapper .datePill {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.75rem;
   font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  text-transform: uppercase;
+  padding: 5px 16px;
+  border-radius: 20px;
   letter-spacing: 0.5px;
 }
-.chatRoomPage .fullMessage .participantMsg {
-  background: rgb(50, 71, 176);
+.chatContainer .fullMessage .participantMsg {
+  background: rgba(255, 255, 255, 0.15);
+  align-self: flex-start;
   width: -moz-fit-content;
   width: fit-content;
-  max-width: 80%;
-  word-wrap: break-word;
-  padding: 0.45rem;
-  border-radius: 0.7rem;
-  border-top-left-radius: 0;
+  max-width: 75%;
+  padding: 0.8rem 1.2rem;
+  border-radius: 1.2rem;
+  border-top-left-radius: 0.3rem;
 }
-.chatRoomPage .fullMessage .participantMsg .message {
+.chatContainer .fullMessage .participantMsg .message {
   text-align: left;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+  color: white;
 }
-.chatRoomPage .fullMessage .participantMsg .timeline {
+.chatContainer .fullMessage .participantMsg .timeline {
   text-align: right;
-  font-size: 0.8rem;
-  color: rgb(201, 198, 198);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0.3rem;
 }
-.chatRoomPage .fullMessage .yourMsg {
-  background: rgb(220, 19, 167);
+.chatContainer .fullMessage .yourMsg {
+  background: white;
   align-self: flex-end;
   width: -moz-fit-content;
   width: fit-content;
-  word-wrap: break-word;
-  padding: 0.3rem;
-  border-radius: 0.7rem;
-  border-bottom-right-radius: 0;
+  max-width: 75%;
+  padding: 0.8rem 1.2rem;
+  border-radius: 1.2rem;
+  border-bottom-right-radius: 0.3rem;
 }
-.chatRoomPage .fullMessage .yourMsg .message {
+.chatContainer .fullMessage .yourMsg .message {
+  text-align: left;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+  color: #334155;
+}
+.chatContainer .fullMessage .yourMsg .timeline {
   text-align: right;
-  font-size: 1rem;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.3rem;
 }
-.chatRoomPage .fullMessage .yourMsg .timeline {
-  text-align: right;
-  font-size: 0.8rem;
-  color: rgb(201, 198, 198);
-}
-.chatRoomPage form {
+.chatContainer .messageForm {
   width: 100%;
-  height: 3rem;
-  padding: 0 0.2rem 0 0.3rem;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.0470588235);
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.8rem;
+  background: transparent;
 }
-.chatRoomPage form .inputBox {
-  height: 100%;
-  width: 85%;
-  border-radius: 5rem;
+.chatContainer .messageForm .inputBox {
+  flex: 1;
+  height: 3.5rem;
+  border-radius: 2rem;
+  background: white;
   display: flex;
   align-items: center;
-  padding-left: 0.35rem;
-  gap: 0.3rem;
-  background: rgba(255, 255, 255, 0.1450980392);
+  padding: 0 1.2rem;
+  gap: 0.8rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
-.chatRoomPage form .inputBox .icon {
-  opacity: 0.7;
+.chatContainer .messageForm .inputBox .micIcon {
+  color: #94a3b8;
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
 }
-.chatRoomPage form .inputBox input {
-  width: 88.3%;
+.chatContainer .messageForm .inputBox .separator {
+  width: 1px;
+  height: 1.5rem;
+  background: #e2e8f0;
+}
+.chatContainer .messageForm .inputBox input {
+  flex: 1;
   height: 100%;
   background: transparent;
   outline: none;
   border: none;
-  font-size: 1rem;
-  color: whitesmoke;
+  font-size: 0.95rem;
+  color: #334155;
 }
-.chatRoomPage form .inputBox input::-moz-placeholder {
-  color: aliceblue;
+.chatContainer .messageForm .inputBox input::-moz-placeholder {
+  color: #94a3b8;
+  font-weight: 400;
 }
-.chatRoomPage form .inputBox input::placeholder {
-  color: aliceblue;
+.chatContainer .messageForm .inputBox input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
 }
-.chatRoomPage form button {
-  border: none;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  background: rgb(57, 191, 57);
-}
-.chatRoomPage form button .icon {
+.chatContainer .messageForm .inputBox .attachIcon {
+  color: #94a3b8;
   width: 1.2rem;
   height: 1.2rem;
-  color: rgb(46, 53, 44);
+  cursor: pointer;
 }
-.chatRoomPage form button:active {
+.chatContainer .messageForm button.send {
+  border: none;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: #3b379c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+.chatContainer .messageForm button.send .sendIcon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: white;
+  margin-right: -2px;
+}
+.chatContainer .messageForm button.send:active {
   transform: scale(0.94);
 }/*# sourceMappingURL=ChatRoomPage.module.css.map */
