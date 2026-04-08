@@ -7,6 +7,7 @@ import { useState } from "react";
 import bgImage from "../../assets/Gemini_Generated_Image_nalmg4nalmg4nalm.jpeg";
 import { useGoogleLogin } from "@react-oauth/google";
 import { googleAuthenticate } from "../../Redux/slices/authSlice";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const {

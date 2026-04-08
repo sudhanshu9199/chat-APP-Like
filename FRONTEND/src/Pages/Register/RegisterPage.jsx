@@ -1,12 +1,12 @@
 import style from "./RegisterPage.module.scss";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "../../Redux/slices/authSlice";
+import { registerUser, googleAuthenticate } from "../../Redux/slices/authSlice";
 import { useState } from "react";
 import pandaImg from "../../assets/panda_right.png";
 import { useGoogleLogin } from "@react-oauth/google";
-import { googleAuthenticate } from "../../Redux/slices/authSlice";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
   const {
