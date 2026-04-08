@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../Redux/slices/authSlice";
 import { useState } from "react";
 import bgImage from "../../assets/Gemini_Generated_Image_nalmg4nalmg4nalm.jpeg";
+import { useGoogleLogin } from "@react-oauth/google";
+import { googleAuthenticate } from "../../Redux/slices/authSlice";
 
 const LoginPage = () => {
   const {
@@ -16,6 +18,18 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const result = await dispatch(
+        googleAuthenticate(tokenResponse.access_token),
+      );
+      if (googleAuthenticate.fulfilled.match(result)) {
+        navigate("/home", { replace: true });
+      }
+    },
+    onError: () => toast.error("Google Sign-In Failed"),
+  });
 
   const onSubmit = async (data) => {
     const result = await dispatch(loginUser(data));
@@ -97,7 +111,11 @@ const LoginPage = () => {
           </div>
 
           <div className={style.socialOptions}>
-            <div className={style.socialIcon}>
+            <div
+              className={style.socialIcon}
+              onClick={() => loginWithGoogle()}
+              style={{ cursor: "pointer" }}
+            >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
                 alt="Google"
@@ -115,5 +133,4 @@ const LoginPage = () => {
     </div>
   );
 };
-
 export default LoginPage;

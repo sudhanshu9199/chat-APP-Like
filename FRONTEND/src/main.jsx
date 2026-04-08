@@ -10,8 +10,10 @@ import { logout } from "./Redux/slices/authSlice.js";
 import { toast } from "react-toastify";
 
 import { registerSW } from "virtual:pwa-register"; // this line to register the PWA service worker
+import { GoogleOAuthProvider } from "@react-oauth/google";
 registerSW({ immediate: true }); // register the service worker for automatic updates
 
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 api.interceptors.response.use(
   (response) => response,
   (err) => {
@@ -32,11 +34,13 @@ api.interceptors.response.use(
 );
 
 createRoot(document.getElementById("root")).render(
-  <Provider store={store}>
-    <BrowserRouter>
-      <SocketContextProvider>
-        <App />
-      </SocketContextProvider>
-    </BrowserRouter>
-  </Provider>,
+  <GoogleOAuthProvider clientId={clientId}>
+    <Provider store={store}>
+      <BrowserRouter>
+        <SocketContextProvider>
+          <App />
+        </SocketContextProvider>
+      </BrowserRouter>
+    </Provider>
+  </GoogleOAuthProvider>,
 );

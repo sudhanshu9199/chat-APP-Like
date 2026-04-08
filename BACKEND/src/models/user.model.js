@@ -1,44 +1,52 @@
 // user.model.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     email: {
-        type: String,
-        unique: true,
-        required: true,
-        trim: true,
+      type: String,
+      unique: true,
+      required: true,
+      trim: true,
     },
     name: {
-        type: String,
-        trim: true, // meaning no spaces before and after
-        required: true,
+      type: String,
+      trim: true, // meaning no spaces before and after
+      required: true,
     },
     avatar: {
-        type: String,
-        default: "",
-        trim: true,
+      type: String,
+      default: "",
+      trim: true,
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows multiple users to have the same googleId (in case of error)
     },
     password: {
-        type: String,
-        minlength: 6,
-        required: true,
+      type: String,
+      minlength: 6,
+      required: false,
     },
     about: {
-        type: String,
-        default: "Hey there! I am using ConnectX.",
-        trim: true,
+      type: String,
+      default: "Hey there! I am using ConnectX.",
+      trim: true,
     },
 
     isOnline: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
     lastSeen: {
-        type: Date,
-        default: Date.now,
-    }
-}, { timestamps: true });
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { timestamps: true },
+);
 
-const userModel = mongoose.model('users', userSchema);
+const userModel = mongoose.model("users", userSchema);
 
 module.exports = userModel;

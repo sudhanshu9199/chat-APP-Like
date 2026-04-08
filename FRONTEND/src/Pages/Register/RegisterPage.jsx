@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../Redux/slices/authSlice";
 import { useState } from "react";
 import pandaImg from "../../assets/panda_right.png";
+import { useGoogleLogin } from "@react-oauth/google";
+import { googleAuthenticate } from "../../Redux/slices/authSlice";
 
 const RegisterPage = () => {
   const {
