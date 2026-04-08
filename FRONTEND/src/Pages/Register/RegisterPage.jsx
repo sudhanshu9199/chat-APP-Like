@@ -20,46 +20,87 @@ const RegisterPage = () => {
   const [preview, setpreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPEG, PNG, and WebP images are allowed");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be smaller than 2MB");
+      return;
+    }
+    setpreview(URL.createObjectURL(file));
+  };
+
   const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("name", data.fullName);
-    formData.append("email", data.email);
+    formData.append("name", data.fullName.trim());
+    formData.append("email", data.email.trim().toLowerCase());
     formData.append("password", data.password);
     if (data.avatar && data.avatar[0]) {
       formData.append("avatar", data.avatar[0]);
     }
 
-    const result = await dispatch(registerUser(formData));
-
-    if (registerUser.fulfilled.match(result)) {
-      navigate("/login", { replace: true });
+    try {
+      const result = await dispatch(registerUser(formData));
+      if (registerUser.fulfilled.match(result)) {
+        toast.success("Account created! Please log in.");
+        navigate("/login", { replace: true });
+      } else {
+        toast.error(
+          result.payload?.message || "Registration failed. Try again.",
+        );
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setpreview(URL.createObjectURL(file));
-    }
-  };
+  const registerWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const result = await dispatch(
+          googleAuthenticate(tokenResponse.access_token),
+        );
+        if (googleAuthenticate.fulfilled.match(result)) {
+          toast.success("Signed up with Google!");
+          navigate("/home", { replace: true });
+        } else {
+          toast.error(result.payload?.message || "Google Sign-Up failed.");
+        }
+      } catch {
+        toast.error("Google Sign-Up failed. Please try again.");
+      }
+    },
+    onError: () => toast.error("Google Sign-Up Failed"),
+  });
 
   return (
     <div className={style.registerWrapper}>
       <img src={pandaImg} alt="panda" className={style.pandaImage} />
 
       <div className={style.header}>
-        <Link to="/" className={style.backBtn}>
+        <Link to="/" className={style.backBtn} aria-label="Go back">
           <i className="ri-arrow-left-s-line"></i>
         </Link>
         <h1>Register</h1>
         <p className={style.subtitle}>Create your new account</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div className={style.pic}>
-          <label htmlFor="file-input" className={style.picInner}>
+          <label
+            htmlFor="file-input"
+            className={style.picInner}
+            aria-label="Upload profile photo"
+          >
             {preview ? (
-              <img src={preview} alt="Preview" />
+              <img src={preview} alt="Avatar preview" />
             ) : (
               <>
                 <i className={`ri-camera-4-fill ${style.icon}`}></i>
@@ -140,7 +181,15 @@ const RegisterPage = () => {
         </div>
 
         <div className={style.socialOptions}>
-          <div className={style.socialIcon}>
+          <div
+            className={style.socialIcon}
+            onClick={() => registerWithGoogle()}
+            role="button"
+            tabIndex={0}
+            aria-label="Sign up with Google"
+            onKeyDown={(e) => e.key === "Enter" && registerWithGoogle()}
+            style={{ cursor: "pointer" }}
+          >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
               alt="Google"
