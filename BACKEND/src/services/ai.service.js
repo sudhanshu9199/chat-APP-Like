@@ -1,3 +1,9 @@
+const Groq = require("groq-sdk");
+
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
+
 exports.generateReplySuggestions = async (conversationHistory) => {
   const systemPrompt = `You are an AI chat assistant. Your job is to suggest three short, natural, and context-aware replies for the user to select.
     Rules:
@@ -8,42 +14,25 @@ exports.generateReplySuggestions = async (conversationHistory) => {
     Example: ["Yes, I agree.", "No, I don't think so.", "What do you mean?"]`;
 
   try {
-    const API_URL = process.env.LLM_API_ENDPOINT;
-    const API_KEY = process.env.LLM_API_KEY;
-
-    if (!API_URL || !API_KEY) {
-      throw new Error(
-        "Missing LLM_API_ENDPOINT or LLM_API_KEY in environment variables.",
-      );
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error("Missing GROQ_API_KEY in environment variables.");
     }
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama3-8b-8192", // Change this if using a different Llama-3 provider
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content: `Conversation history:\n${conversationHistory}\n\nGenerate 3 replies for 'Me'.`,
-          },
-        ],
-        temperature: 0.7,
-      }),
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: systemPrompt },
+        {
+          role: "user",
+          content: `Conversation history:\n${conversationHistory}\n\nGenerate 3 replies for 'Me'.`,
+        },
+      ],
+      model: "llama-3.1-8b-instant",
+      temperature: 0.7,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`AI Provider Error (${response.status}): ${errorText}`);
-    }
+    let rawText = chatCompletion.choices[0]?.message?.content || "[]";
 
-    const data = await response.json();
-    let rawText = data.choices[0].message.content;
-
+    // Clean up potential markdown formatting the AI might inject around the JSON
     rawText = rawText
       .replace(/```json/g, "")
       .replace(/```/g, "")
@@ -51,7 +40,7 @@ exports.generateReplySuggestions = async (conversationHistory) => {
 
     return JSON.parse(rawText);
   } catch (err) {
-    console.error("AI Service Error:", error.message);
-    throw error;
+    console.error("Groq AI Service Error:", err.message);
+    throw err;
   }
 };
