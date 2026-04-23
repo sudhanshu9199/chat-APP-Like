@@ -1,6 +1,7 @@
 // message.controller.js
 const Message = require("../models/message.model");
 const User = require("../models/user.model");
+const aiService = require("../services/ai.service.js");
 
 exports.sendMessage = async (req, res) => {
   try {
@@ -74,46 +75,16 @@ exports.suggestReplies = async (req, res) => {
       })
       .join("\n");
 
-    const systemPrompt = `You are an AI chat assistant. Your job is to suggest three short, natural, and context-aware replies for the user to select.
-    Rules:
-    1. Replies MUST be under 6 words.
-    2. DO NOT use emojis.
-    3. Provide diverse a strict JSON array of strings and absolutely nothing else. No markdown formatting, no explanation.
-    Example: ["Yes, I agree.", "No, I don't think so.", "What do you mean?"]`;
-
-    const llmResponse = await fetch("YOUR_LLAMA_3_API_ENDPOINT", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.LLM_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        model: "llama3-8b-8192",
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content: `Conversation history:\n${conversationHistory}\n\nGenerate 3 replies foe 'Me'.`,
-          },
-        ],
-        temperature: 0.7,
-      }),
-    });
-
-    const data = await llmResponse.json();
-
-    let rawText = data.choices[0].message.content;
-
-    rawText = rawText
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const repliesArray = JSON.parse(rawText);
+    const repliesArray =
+      await aiService.generateReplySuggestions(conversationHistory);
     res.status(200).json(repliesArray);
   } catch (err) {
     console.log("Error in suggestReplies controller: ", err.message);
-    res.status(500).json({ error: "Failed to generate AI suggestions" });
+    res
+      .status(500)
+      .json({
+        error: "Failed to generate AI suggestions",
+        details: err.message,
+      });
   }
 };
