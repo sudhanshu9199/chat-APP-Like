@@ -123,7 +123,7 @@
   left: -2.5rem;
   width: 2.5rem;
   height: 2.5rem;
-  background: radial-gradient(circle at 0% 100%, transparent 2.5rem, #f2f3f7 2.5rem);
+  background: radial-gradient(circle at 0% 100%, transparent 2.5rem, #ffffff 2.5rem);
 }
 .chatContainer .header .headerRight .actionsContainer .callBtn {
   width: 2.8rem;
@@ -280,6 +280,7 @@
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
+  flex-shrink: 0;
   background: #3b379c;
   display: flex;
   align-items: center;
@@ -296,4 +297,53 @@
 }
 .chatContainer .messageForm button.send:active {
   transform: scale(0.94);
+}
+
+.suggestionsWrapper {
+  width: 100%;
+  padding: 0 1.5rem;
+  margin-bottom: 0.2rem;
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.suggestionsWrapper::-webkit-scrollbar {
+  display: none;
+}
+.suggestionsWrapper {
+  animation: slideUpFade 0.3s ease-out forwards;
+}
+.suggestionsWrapper .suggestionChip {
+  white-space: nowrap;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+.suggestionsWrapper .suggestionChip:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+.suggestionsWrapper .suggestionChip:active {
+  transform: translateY(0);
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }/*# sourceMappingURL=ChatRoomPage.module.css.map */

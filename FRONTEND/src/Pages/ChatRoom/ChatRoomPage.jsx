@@ -484,6 +484,21 @@ const ChatRoomPage = () => {
           )}
           <div ref={messagesEndRef} />
         </div>
+
+        {aiSuggestions.length > 0 && (
+          <div className={style.suggestionsWrapper}>
+            {aiSuggestions.map((suggestion, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={style.suggestionChip}
+                onClick={() => handleChipClick(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
         <form onSubmit={handleSendMessage} className={style.messageForm}>
           <div className={style.inputBox}>
             {/* AI Trigger Button */}
