@@ -8,6 +8,7 @@ import {
   Loader2,
   Mic,
   Paperclip,
+  Wand2,
 } from "lucide-react";
 import userImg from "../../assets/DefaultUserPic.png";
 import { useEffect, useState, useRef, useMemo, Fragment } from "react";
@@ -359,6 +360,27 @@ const ChatRoomPage = () => {
     };
   }, [socket, callStatus, incomingCaller]);
 
+  // AI Suggestion
+  const [aiSuggestions, setaiSuggestions] = useState([]);
+  const [isSuggesting, setisSuggesting] = useState(false);
+
+  const handleGetAiSuggestions = async () => {
+    setisSuggesting(true);
+    try {
+      const res = await api.get(`/messages/suggest-replies/${receiverId}`);
+      setaiSuggestions(res.data);
+    } catch (err) {
+      console.error("Failed to fetch AI suggestions:", err);
+    } finally {
+      setisSuggesting(false);
+    }
+  };
+
+  const handleChipClick = (text) => {
+    setnewMessage(text);
+    setaiSuggestions([]);
+  };
+
   return (
     <div className={style.chatRoomPage}>
       {showInfo && (
@@ -387,71 +409,102 @@ const ChatRoomPage = () => {
       <div className={style.chatContainer}>
         <div className={style.header}>
           <div className={style.headerLeft}>
-          <ArrowLeft
-            onClick={() => navigate("/home")}
-            className={style.backBtn}
-          />
-          <div className={style.participantDp} onClick={() => setshowInfo(true)} style={{ cursor: "pointer" }}>
-            <img src={selectedUser.avatar || userImg} alt="userDP" />
-            {isOnline && <div className={style.onlineIndicator}></div>}
+            <ArrowLeft
+              onClick={() => navigate("/home")}
+              className={style.backBtn}
+            />
+            <div
+              className={style.participantDp}
+              onClick={() => setshowInfo(true)}
+              style={{ cursor: "pointer" }}
+            >
+              <img src={selectedUser.avatar || userImg} alt="userDP" />
+              {isOnline && <div className={style.onlineIndicator}></div>}
+            </div>
+            <div className={style.texts}>
+              <p className={style.participantName}>{selectedUser.name}</p>
+              <p className={style.status}>{isOnline ? "Online" : "Offline"}</p>
+            </div>
           </div>
-          <div className={style.texts}>
-            <p className={style.participantName}>{selectedUser.name}</p>
-            <p className={style.status}>{isOnline ? "Online" : "Offline"}</p>
+          <div className={style.headerRight}>
+            <div className={style.actionsContainer}>
+              <button
+                type="button"
+                className={style.callBtn}
+                onClick={() => startCall("video")}
+              >
+                <Video className={style.calIcon} />
+              </button>
+              <button
+                type="button"
+                className={style.callBtn}
+                onClick={() => startCall("audio")}
+              >
+                <Phone className={style.calIcon} />
+              </button>
+            </div>
           </div>
         </div>
-        <div className={style.headerRight}>
-          <div className={style.actionsContainer}>
-            <button type="button" className={style.callBtn} onClick={() => startCall("video")}>
-              <Video className={style.calIcon} />
-            </button>
-            <button type="button" className={style.callBtn} onClick={() => startCall("audio")}>
-              <Phone className={style.calIcon} />
-            </button>
-          </div>
+        <div className={style.fullMessage}>
+          {loading ? (
+            <Loader2 className="animate-spin mx-auto mt-10" />
+          ) : (
+            messages.map((msg, idx) => {
+              const showDateSeparator = isNewDay(msg, messages[idx - 1]);
+
+              return (
+                <Fragment key={msg._id || idx}>
+                  {showDateSeparator && (
+                    <div className={style.dateSeparatorWrapper}>
+                      <span className={style.datePill}>
+                        {formatDateLabel(msg.createdAt)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div
+                    key={idx}
+                    className={
+                      msg.sender === (currentUser.id || currentUser._id)
+                        ? style.yourMsg
+                        : style.participantMsg
+                    }
+                  >
+                    <p className={style.message}>{msg.text}</p>
+                    <div className={style.timeline}>
+                      {new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
+                  </div>
+                </Fragment>
+              );
+            })
+          )}
+          <div ref={messagesEndRef} />
         </div>
-      </div>
-      <div className={style.fullMessage}>
-        {loading ? (
-          <Loader2 className="animate-spin mx-auto mt-10" />
-        ) : (
-          messages.map((msg, idx) => {
-            const showDateSeparator = isNewDay(msg, messages[idx - 1]);
-
-            return (
-              <Fragment key={msg._id || idx}>
-                {showDateSeparator && (
-                  <div className={style.dateSeparatorWrapper}>
-                    <span className={style.datePill}>
-                      {formatDateLabel(msg.createdAt)}
-                    </span>
-                  </div>
-                )}
-
-                <div
-                  key={idx}
-                  className={
-                    msg.sender === (currentUser.id || currentUser._id)
-                      ? style.yourMsg
-                      : style.participantMsg
-                  }
-                >
-                  <p className={style.message}>{msg.text}</p>
-                  <div className={style.timeline}>
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
-              </Fragment>
-            );
-          })
-        )}
-        <div ref={messagesEndRef} />
-      </div>
         <form onSubmit={handleSendMessage} className={style.messageForm}>
           <div className={style.inputBox}>
+            {/* AI Trigger Button */}
+            <button
+              type="button"
+              onClick={handleGetAiSuggestions}
+              disabled={isSuggesting}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {isSuggesting ? (
+                <Loader2 className="animate-spin" size={20} color="#888" />
+              ) : (
+                <Wand2 size={20} color="#888" />
+              )}
+            </button>
             <Mic className={style.micIcon} />
             <div className={style.separator}></div>
             <input
