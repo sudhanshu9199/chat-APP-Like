@@ -27,7 +27,11 @@ io.on("connection", async (socket) => {
   if (userId && userId !== "undefined") {
     io.userSocketMap[userId] = socket.id;
 
-    await User.findByIdAndUpdate(userId, { isOnline: true });
+    try {
+      await User.findByIdAndUpdate(userId, { isOnline: true });
+    } catch (err) {
+      console.error("Error setting user online:", err);
+    }
   }
 
   io.emit("getOnlineUsers", Object.keys(io.userSocketMap));
@@ -66,10 +70,14 @@ io.on("connection", async (socket) => {
       delete io.userSocketMap[userId];
       io.emit("getOnlineUsers", Object.keys(io.userSocketMap));
 
-      await User.findByIdAndUpdate(userId, {
-        isOnline: false,
-        lastSeen: new Date()
-      });
+      try {
+        await User.findByIdAndUpdate(userId, {
+          isOnline: false,
+          lastSeen: new Date()
+        });
+      } catch (err) {
+        console.error("Error setting user offline:", err);
+      }
     }
   });
 });

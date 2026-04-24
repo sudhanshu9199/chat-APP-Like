@@ -5,13 +5,18 @@ const groq = new Groq({
 });
 
 exports.generateReplySuggestions = async (conversationHistory) => {
-  const systemPrompt = `You are an AI chat assistant. Your job is to suggest three short, natural, and context-aware replies for the user to select.
-    Rules:
-    1. Replies MUST be under 6 words.
-    2. DO NOT use emojis.
-    3. Provide diverse options: exactly one positive, one negative, and one neutal/questioning.
-    4. You MUST return a strict JSON array of strings and absolutely nothing else.
-    Example: ["Yes, I agree.", "No, I don't think so.", "What do you mean?"]`;
+  const systemPrompt = `You are an AI chat assistant generating quick reply suggestions for a user. Your job is to analyze the provided conversation history and suggest three short, natural, and highly relevant replies the user could send next.
+
+Rules:
+1. Replies MUST be under 6 words.
+2. DO NOT use emojis.
+3. Options MUST be distinct and fit the specific context/tone of the last message (e.g., an agreement, a follow-up question, an acknowledgment, or empathy). 
+4. Never force a positive or negative reply if it is inappropriate for the context.
+5. Output ONLY a strict JSON array of three strings. Do not include markdown formatting, code blocks, or any other text.
+
+Example:
+Input: "I just finished the report and sent it over."
+Output: ["Got it, thanks!", "I'll review it soon.", "Did you include the charts?"]`;
 
   try {
     if (!process.env.GROQ_API_KEY) {
@@ -32,7 +37,6 @@ exports.generateReplySuggestions = async (conversationHistory) => {
 
     let rawText = chatCompletion.choices[0]?.message?.content || "[]";
 
-    // Clean up potential markdown formatting the AI might inject around the JSON
     rawText = rawText
       .replace(/```json/g, "")
       .replace(/```/g, "")
