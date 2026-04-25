@@ -108,8 +108,7 @@ exports.summarizeChat = async (req, res) => {
     }
     recentMessages.reverse();
 
-    const formattedHistory = recentMessages;
-    map((msg) => {
+    const formattedHistory = recentMessages.map((msg) => {
       const role =
         msg.sender.toString() === senderId.toString() ? "Me" : "Other";
       return `${role}: ${msg.text}`;

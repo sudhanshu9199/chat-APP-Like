@@ -5,8 +5,6 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 exports.generateReplySuggestions = async (conversationHistory) => {
   const systemPrompt = `You are an AI chat assistant generating quick reply suggestions for a user. Your job is to analyze the provided conversation history and suggest three short, natural, and highly relevant replies the user could send next.
 
@@ -57,15 +55,20 @@ exports.generateChatSummary = async (formattedHistory) => {
     if (!process.env.GEMINI_API_KEY) {
       throw new Error("Missing GEMINI_API_KEY in environment variables.");
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    if (!formattedHistory || formattedHistory.trim() === "") {
+      return "No recent messages to summarize.";
+    }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const prompt = `Summarize the following chat log in 3 bullet points. Focus only on decisions made and pending questions. Do not introduce the summary.\n\nChat Log:\n${formattedHistory}`;
 
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+    return result.response.text();
   } catch (err) {
-    console.error("Gemini AI Service Error", err.message);
-    throw err;
+    console.error("Gemini AI Error:", err.message);
+    return `Summary unavailable: ${err.message}`;
   }
 };

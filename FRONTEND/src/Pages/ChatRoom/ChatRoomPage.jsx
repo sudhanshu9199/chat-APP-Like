@@ -445,7 +445,7 @@ const ChatRoomPage = () => {
           </div>
           <div className={style.headerRight}>
             <div className={style.actionsContainer}>
-              <button
+              {/* <button
                 type="button"
                 className={style.callBtn}
                 onClick={handleGetSummary}
@@ -457,7 +457,7 @@ const ChatRoomPage = () => {
                 ) : (
                   <Zap className={style.calIcon} />
                 )}
-              </button>
+              </button> */}
 
               <button
                 type="button"
@@ -476,45 +476,127 @@ const ChatRoomPage = () => {
             </div>
           </div>
         </div>
-        {chatSummary && (
-          <div
-            style={{
-              padding: "12px 20px",
-              backgroundColor: "rgba(255, 235, 59, 0.15)", // Subtle Zap thematic color
-              borderBottom: "1px solid rgba(255, 235, 59, 0.3)",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              fontSize: "14px",
-              color: "inherit",
-            }}
-          >
-            <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
-              <strong
+        <div
+          style={{
+            position: "relative",
+            zIndex: 10,
+            display: "flex",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          {/* The clickable floating pill */}
+          {!chatSummary && !isSummarizing && (
+            <button
+              onClick={handleGetSummary}
+              style={{
+                position: "absolute",
+                top: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                background: "rgba(255, 255, 255, 0.85)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                border: "1px solid rgba(0,0,0,0.08)",
+                padding: "6px 16px",
+                borderRadius: "20px",
+                color: "#444",
+                fontSize: "12px",
+                fontWeight: "600",
+                cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <Zap size={14} color="#FFB300" fill="#FFB300" />
+              Summarize Recent
+            </button>
+          )}
+
+          {/* Loading State Pill */}
+          {isSummarizing && (
+            <div
+              style={{
+                position: "absolute",
+                top: "12px",
+                padding: "6px 16px",
+                background: "rgba(255,255,255,0.85)",
+                borderRadius: "20px",
+                border: "1px solid rgba(0,0,0,0.08)",
+                backdropFilter: "blur(8px)",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+              }}
+            >
+              <Loader2 size={14} className="animate-spin" color="#666" />
+              <span
+                style={{ fontSize: "12px", color: "#555", fontWeight: "500" }}
+              >
+                Analyzing...
+              </span>
+            </div>
+          )}
+
+          {/* Expanded Summary Card */}
+          {chatSummary && (
+            <div
+              style={{
+                position: "absolute",
+                top: "12px",
+                width: "90%",
+                maxWidth: "450px",
+                background: "rgba(255, 255, 255, 0.95)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+                border: "1px solid rgba(255, 179, 0, 0.3)",
+                borderRadius: "16px",
+                padding: "16px 20px",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+              }}
+            >
+              <button
+                onClick={() => setchatSummary(null)}
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  right: "16px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#999",
+                }}
+              >
+                <X size={18} />
+              </button>
+              <h4
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "5px",
-                  marginBottom: "5px",
+                  gap: "6px",
+                  margin: "0 0 12px 0",
+                  color: "#222",
+                  fontSize: "14px",
+                  fontWeight: "700",
                 }}
               >
-                <Zap size={16} fill="currentColor" /> Chat Summary
-              </strong>
-              {chatSummary}
+                <Zap size={16} color="#FFB300" fill="#FFB300" /> AI Summary
+              </h4>
+              <div
+                style={{
+                  fontSize: "13.5px",
+                  color: "#444",
+                  lineHeight: "1.7",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {chatSummary}
+              </div>
             </div>
-            <button
-              onClick={() => setChatSummary(null)}
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                opacity: 0.7,
-              }}
-            >
-              <X size={18} />
-            </button>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className={style.fullMessage}>
           {loading ? (
