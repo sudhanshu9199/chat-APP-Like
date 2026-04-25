@@ -1,8 +1,11 @@
 const Groq = require("groq-sdk");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 exports.generateReplySuggestions = async (conversationHistory) => {
   const systemPrompt = `You are an AI chat assistant generating quick reply suggestions for a user. Your job is to analyze the provided conversation history and suggest three short, natural, and highly relevant replies the user could send next.
@@ -45,6 +48,24 @@ Output: ["Got it, thanks!", "I'll review it soon.", "Did you include the charts?
     return JSON.parse(rawText);
   } catch (err) {
     console.error("Groq AI Service Error:", err.message);
+    throw err;
+  }
+};
+
+exports.generateChatSummary = async (formattedHistory) => {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("Missing GEMINI_API_KEY in environment variables.");
+    }
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `Summarize the following chat log in 3 bullet points. Focus only on decisions made and pending questions. Do not introduce the summary.\n\nChat Log:\n${formattedHistory}`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (err) {
+    console.error("Gemini AI Service Error", err.message);
     throw err;
   }
 };

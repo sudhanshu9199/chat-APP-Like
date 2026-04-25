@@ -6,11 +6,13 @@ const {
   sendMessage,
   getMessages,
   suggestReplies,
+  summarizeChat,
 } = require("../controller/message.controller");
 
 router.get("/:id", authMiddleware, getMessages);
 router.post("/send/:id", authMiddleware, sendMessage);
 
 router.get("/suggest-replies/:id", authMiddleware, suggestReplies);
+router.get("/summarize/:id", authMiddleware, summarizeChat);
 
 module.exports = router;

@@ -9,6 +9,8 @@ import {
   Mic,
   Paperclip,
   Wand2,
+  Zap,
+  X,
 } from "lucide-react";
 import userImg from "../../assets/DefaultUserPic.png";
 import { useEffect, useState, useRef, useMemo, Fragment } from "react";
@@ -381,6 +383,21 @@ const ChatRoomPage = () => {
     setaiSuggestions([]);
   };
 
+  const [chatSummary, setchatSummary] = useState(null);
+  const [isSummarizing, setisSummarizing] = useState(false);
+
+  const handleGetSummary = async () => {
+    setisSummarizing(true);
+    try {
+      const res = await api.get(`/messages/summarize/${receiverId}`);
+      setchatSummary(res.data.summary);
+    } catch (err) {
+      console.error("Failed to fetch AI summary:", err);
+    } finally {
+      setisSummarizing(false);
+    }
+  };
+
   return (
     <div className={style.chatRoomPage}>
       {showInfo && (
@@ -431,6 +448,20 @@ const ChatRoomPage = () => {
               <button
                 type="button"
                 className={style.callBtn}
+                onClick={handleGetSummary}
+                disabled={isSummarizing}
+                title="Summarize Recent Chat"
+              >
+                {isSummarizing ? (
+                  <Loader2 className="animate-spin" size={20} color="#888" />
+                ) : (
+                  <Zap className={style.calIcon} />
+                )}
+              </button>
+
+              <button
+                type="button"
+                className={style.callBtn}
                 onClick={() => startCall("video")}
               >
                 <Video className={style.calIcon} />
@@ -445,6 +476,46 @@ const ChatRoomPage = () => {
             </div>
           </div>
         </div>
+        {chatSummary && (
+          <div
+            style={{
+              padding: "12px 20px",
+              backgroundColor: "rgba(255, 235, 59, 0.15)", // Subtle Zap thematic color
+              borderBottom: "1px solid rgba(255, 235, 59, 0.3)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              fontSize: "14px",
+              color: "inherit",
+            }}
+          >
+            <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.5" }}>
+              <strong
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  marginBottom: "5px",
+                }}
+              >
+                <Zap size={16} fill="currentColor" /> Chat Summary
+              </strong>
+              {chatSummary}
+            </div>
+            <button
+              onClick={() => setChatSummary(null)}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                opacity: 0.7,
+              }}
+            >
+              <X size={18} />
+            </button>
+          </div>
+        )}
+
         <div className={style.fullMessage}>
           {loading ? (
             <Loader2 className="animate-spin mx-auto mt-10" />
