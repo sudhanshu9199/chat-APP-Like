@@ -61,14 +61,46 @@ exports.generateChatSummary = async (formattedHistory) => {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    // const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    const modelsToTry = [
+      "gemini-3-flash-preview",
+      "gemini-3.1-flash-lite-preview",
+    ];
 
     const prompt = `Summarize the following chat log in 3 bullet points. Focus only on decisions made and pending questions. Do not introduce the summary.\n\nChat Log:\n${formattedHistory}`;
 
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    let lastErrorMsg = "";
+
+    // 2. The Waterfall execution
+    for (const modelName of modelsToTry) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        return result.response.text();
+      } catch (error) {
+        console.warn(`[Gemini Fallback] ${modelName} failed: ${error.message}`);
+        lastErrorMsg = error.message;
+
+        // 3. Only fallback if the error is related to demand/rate-limiting
+        // If it's a 400 Bad Request (e.g., policy violation), falling back won't help.
+        const isHighDemand =
+          error.message.includes("503") || error.message.includes("429");
+
+        if (!isHighDemand) {
+          break; // Exit the loop early for non-demand errors
+        }
+        // If it IS high demand, the loop naturally continues to the next model
+      }
+    }
+
+    // 4. If the loop finishes and all models failed due to high demand
+    console.error(
+      "All Gemini fallback models exhausted. Last error:",
+      lastErrorMsg,
+    );
+    return "The AI servers are currently experiencing unusually high demand. Please wait a few moments and try again. ⏳";
   } catch (err) {
-    console.error("Gemini AI Error:", err.message);
-    return `Summary unavailable: ${err.message}`;
+    console.error("Critical Gemini AI Error:", err.message);
+    return "Summary system is temporarily offline. Please try again later.";
   }
 };

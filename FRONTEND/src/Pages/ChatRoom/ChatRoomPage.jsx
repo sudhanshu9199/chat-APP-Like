@@ -477,6 +477,7 @@ const ChatRoomPage = () => {
           </div>
         </div>
         <div
+          className={style.summaryPillWrapper}
           style={{
             position: "relative",
             zIndex: 10,
@@ -487,28 +488,7 @@ const ChatRoomPage = () => {
         >
           {/* The clickable floating pill */}
           {!chatSummary && !isSummarizing && (
-            <button
-              onClick={handleGetSummary}
-              style={{
-                position: "absolute",
-                top: "12px",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                background: "rgba(255, 255, 255, 0.85)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                border: "1px solid rgba(0,0,0,0.08)",
-                padding: "6px 16px",
-                borderRadius: "20px",
-                color: "#444",
-                fontSize: "12px",
-                fontWeight: "600",
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-                transition: "all 0.2s ease",
-              }}
-            >
+            <button onClick={handleGetSummary} className={style.summaryPill}>
               <Zap size={14} color="#FFB300" fill="#FFB300" />
               Summarize Recent
             </button>
@@ -516,84 +496,25 @@ const ChatRoomPage = () => {
 
           {/* Loading State Pill */}
           {isSummarizing && (
-            <div
-              style={{
-                position: "absolute",
-                top: "12px",
-                padding: "6px 16px",
-                background: "rgba(255,255,255,0.85)",
-                borderRadius: "20px",
-                border: "1px solid rgba(0,0,0,0.08)",
-                backdropFilter: "blur(8px)",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-              }}
-            >
+            <div className={style.summaryLoadingPill}>
               <Loader2 size={14} className="animate-spin" color="#666" />
-              <span
-                style={{ fontSize: "12px", color: "#555", fontWeight: "500" }}
-              >
-                Analyzing...
-              </span>
+              <span className={style.summaryLoadingText}>Analyzing...</span>
             </div>
           )}
 
           {/* Expanded Summary Card */}
           {chatSummary && (
-            <div
-              style={{
-                position: "absolute",
-                top: "12px",
-                width: "90%",
-                maxWidth: "450px",
-                background: "rgba(255, 255, 255, 0.95)",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                border: "1px solid rgba(255, 179, 0, 0.3)",
-                borderRadius: "16px",
-                padding: "16px 20px",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
-              }}
-            >
+            <div className={style.summaryCard}>
               <button
                 onClick={() => setchatSummary(null)}
-                style={{
-                  position: "absolute",
-                  top: "16px",
-                  right: "16px",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#999",
-                }}
+                className={style.summaryCloseBtn}
               >
                 <X size={18} />
               </button>
-              <h4
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  margin: "0 0 12px 0",
-                  color: "#222",
-                  fontSize: "14px",
-                  fontWeight: "700",
-                }}
-              >
+              <h4 className={style.summaryTitle}>
                 <Zap size={16} color="#FFB300" fill="#FFB300" /> AI Summary
               </h4>
-              <div
-                style={{
-                  fontSize: "13.5px",
-                  color: "#444",
-                  lineHeight: "1.7",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {chatSummary}
-              </div>
+              <div className={style.summaryContent}>{chatSummary}</div>
             </div>
           )}
         </div>
@@ -659,13 +580,7 @@ const ChatRoomPage = () => {
               type="button"
               onClick={handleGetAiSuggestions}
               disabled={isSuggesting}
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-              }}
+              className={style.aiTriggerBtn}
             >
               {isSuggesting ? (
                 <Loader2 className="animate-spin" size={20} color="#888" />
