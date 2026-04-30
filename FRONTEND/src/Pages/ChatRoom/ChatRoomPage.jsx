@@ -169,7 +169,13 @@ const ChatRoomPage = () => {
   const peerConnection = useRef(null);
 
   const servers = {
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" },
+      {
+        urls: "turn:your-turn-server.com.:3478",
+        username: "turn_username",
+        credential: "turn_password",
+      },
+    ],
   };
 
   const createPeerConnection = async () => {
