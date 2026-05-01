@@ -1,6 +1,6 @@
 import style from "./VideoCall.module.scss";
 import userImg from "../../../assets/DefaultUserPic.png";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { Mic, MicOff, PhoneOff, Video, VideoOff, Settings } from "lucide-react";
 import { useIdleTimer } from "../../../hooks/useIdleTimer";
 
@@ -20,11 +20,11 @@ const VideoCall = ({
   const [videoQuality, setVideoQuality] = useState("360p");
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [duration, setDuration] = useState(0);
-  const { isIdle, setMenuOpen } = useIdleTimer(3500);
+  const { isIdle, setmenuOpen } = useIdleTimer(3500);
 
   useEffect(() => {
-    setMenuOpen(showQualityMenu);
-  }, [showQualityMenu, setMenuOpen]);
+    setmenuOpen(showQualityMenu);
+  }, [showQualityMenu, setmenuOpen]);
 
   useEffect(() => {
     if (callStatus !== "CONNECTED") {
