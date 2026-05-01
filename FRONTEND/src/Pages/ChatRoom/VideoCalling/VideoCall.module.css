@@ -4,63 +4,122 @@
   left: 0;
   width: 100vw;
   height: 100dvh;
-  background: #0f0f0f;
+  background: #111111;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  cursor: default;
+  /* When idle, hide the cursor too for a true cinema feel */
 }
-.videoOverlay .remoteVideoContainer {
+.videoOverlay.idle {
+  cursor: none;
+}
+
+.remoteVideoContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  position: relative;
+  z-index: 1;
+}
+.remoteVideoContainer .remoteVideo {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.remoteVideoContainer .placeholder {
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #1a1a1a;
 }
-.videoOverlay .remoteVideoContainer .remoteVideo {
+.remoteVideoContainer .placeholder .avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.controlsArea, .localVideoWrapper, .topBar {
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
+  will-change: opacity, transform;
+}
+
+.idle .controlsArea, .idle .localVideoWrapper, .idle .topBar {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.35s;
+}
+
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-}
-.videoOverlay .remoteVideoContainer .placeholder {
+  padding: 4rem 1rem 3rem 1rem;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  pointer-events: none; /* Let clicks pass through */
+  opacity: 1;
+  transform: translateY(0);
+}
+.topBar .callerName {
   color: white;
-}
-.videoOverlay .remoteVideoContainer .placeholder .avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  border: 4px solid #25d366;
-  animation: pulse 2s infinite;
-}
-.videoOverlay .remoteVideoContainer .placeholder .statusText {
   font-size: 1.5rem;
   font-weight: 500;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
-.videoOverlay .localVideoContainer {
+.topBar .durationText {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.topBar {
+  /* Idle state: slide up and fade out */
+}
+.idle .topBar {
+  transform: translateY(-20px);
+}
+
+.localVideoWrapper {
   position: absolute;
-  top: 20px;
+  bottom: 120px; /* Above the controls row */
   right: 20px;
-  width: 90px;
-  height: 120px;
-  background: #333;
-  border-radius: 10px;
+  z-index: 10;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  width: 110px;
+  height: 160px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  opacity: 1;
+  transform: scale(1) translateY(0);
 }
-.videoOverlay .localVideoContainer .localVideo {
+.localVideoWrapper .localVideoContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #2a2a2a;
+}
+.localVideoWrapper .localVideoContainer .localVideo {
   width: 100%;
   height: 100%;
   -o-object-fit: cover;
      object-fit: cover;
+  transform: scaleX(-1); /* Mirror local video */
 }
-.videoOverlay .localVideoContainer .videoOffOverlay {
+.localVideoWrapper .localVideoContainer .videoOffOverlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -69,44 +128,38 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #222;
-  color: #777;
+  background: rgba(30, 30, 30, 0.95);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.8rem;
 }
-.videoOverlay .controls {
+.idle .localVideoWrapper {
+  transform: scale(0.9) translateY(12px);
+}
+
+.controlsArea {
   position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0 20px 40px 20px;
+  z-index: 20;
+  opacity: 1;
+  transform: translateY(0);
+  /* Idle state: slide down and fade out */
+}
+.idle .controlsArea {
+  transform: translateY(24px);
+}
+.controlsArea .controlsRow {
   display: flex;
-  gap: 20px;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 15px 30px;
-  border-radius: 50px;
-  backdrop-filter: blur(5px);
+  justify-content: center;
+  gap: 1.2rem;
+  max-width: 400px;
+  margin: 0 auto;
 }
-.videoOverlay .controls .qualitySelector {
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  padding: 8px 12px;
-  margin-right: 15px;
-  cursor: pointer;
-  outline: none;
-  font-family: inherit;
-}
-.videoOverlay .controls .qualitySelector:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.videoOverlay .controls .qualitySelector option {
-  background: #222;
-  color: white;
-}
-.videoOverlay .controls .btn {
-  width: 50px;
-  height: 50px;
+.controlsArea .controlsRow .controlBtn {
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 50%;
   border: none;
   display: flex;
@@ -114,38 +167,110 @@
   justify-content: center;
   cursor: pointer;
   color: white;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.controlsArea .controlsRow .controlBtn .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.controlsArea .controlsRow .controlBtn:hover {
   background: rgba(255, 255, 255, 0.3);
-  transition: all 0.2s ease;
+  transform: scale(1.05); /* Similar styling feel as picture */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
-.videoOverlay .controls .btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.1);
+.controlsArea .controlsRow .controlBtn:active {
+  transform: scale(0.95);
 }
-.videoOverlay .controls .btn.accept {
-  background: #25d366;
+.controlsArea .controlsRow .controlBtn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 3px;
 }
-.videoOverlay .controls .btn.accept:hover {
-  background: #d63229;
+.controlsArea .controlsRow .controlBtn.offBtn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
 }
-.videoOverlay .controls .btn.reject {
+.controlsArea .controlsRow .controlBtn.rejectBtn {
   background: #ff3b30;
 }
-.videoOverlay .controls .btn.reject:hover {
+.controlsArea .controlsRow .controlBtn.rejectBtn:hover {
   background: #d63229;
 }
-.videoOverlay .controls .btn.off {
-  background: white;
-  color: black;
+.controlsArea .controlsRow .controlBtn.acceptBtn {
+  background: #25d366;
 }
-
-@keyframes pluse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+.controlsArea .controlsRow .controlBtn.acceptBtn:hover {
+  background: #1da851;
+}
+.controlsArea .controlsRow .qualityWrapper {
+  position: relative;
+}
+.controlsArea .controlsRow .qualityWrapper .qualityMenu {
+  position: absolute;
+  bottom: calc(100% + 15px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 100px;
+  animation: menuAppear 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes menuAppear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.92);
   }
-  70% {
-    box-shadow: 0 0 0 20px rgba(37, 211, 102, 0);
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
   }
-  100% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
-  }
+}
+.controlsArea .controlsRow .qualityWrapper .qualityMenu {
+  /* Small triangle arrow on the bottom */
+}
+.controlsArea .controlsRow .qualityWrapper .qualityMenu::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(30, 30, 30, 0.85);
+}
+.controlsArea .controlsRow .qualityWrapper .qualityMenu .qualityOption {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+  text-align: center;
+}
+.controlsArea .controlsRow .qualityWrapper .qualityMenu .qualityOption:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+.controlsArea .controlsRow .qualityWrapper .qualityMenu .qualityOption:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 1px;
+}
+.controlsArea .controlsRow .qualityWrapper .qualityMenu .qualityOption.activeQuality {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
 }/*# sourceMappingURL=VideoCall.module.css.map */

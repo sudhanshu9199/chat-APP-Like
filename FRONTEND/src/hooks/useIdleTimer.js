@@ -1,66 +1,66 @@
 // useIdleTimer.js
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export const useIdleTimer = (timeoutMs = 3000) => {
   const [isIdle, setisIdle] = useState(false);
-  const [isMenuOpen, setisMenuOpen] = useState(false);
+  const [menuOpen, setmenuOpen] = useState(false);
 
-  const timeoutRef = useRef(null);
+  const timeRef = useRef(null);
   const debounceRef = useRef(null);
-  const isIdelRef = useRef(isIdle);
-  const isMenuOpenRef = useRef(isMenuOpen);
+  const idelRef = useRef(false);
+  const menuRef = useRef(false);
 
   useEffect(() => {
-    isIdelRef.current = isIdle;
+    idelRef.current = isIdle;
   }, [isIdle]);
 
   useEffect(() => {
-    isMenuOpenRef.current = isMenuOpen;
-  }, [isMenuOpen]);
+    menuRef.current = menuOpen;
+  }, [menuOpen]);
+
+  const clearTimers = useCallback(() => {
+    clearTimeout(timeRef.current);
+    clearTimeout(debounceRef.current);
+  }, []);
+
+  const scheduleHide = useCallback(() => {
+    clearTimers();
+
+    debounceRef.current = setTimeout(() => {
+      timeRef.current = setTimeout(() => {
+        if (!menuRef.current) setisIdle(true);
+      }, timeoutMs);
+    }, 120);
+  }, [timeoutMs, clearTimers]);
+
+  const handleInteraction = useCallback(() => {
+    if (menuRef.current) return;
+    if (idelRef.current) setisIdle(false);
+    scheduleHide();
+  }, [scheduleHide]);
 
   useEffect(() => {
-    const handleInteraction = () => {
-      if (isMenuOpenRef.current) return;
+    const events = ["mousemove", "touchend", "click", "keydown"];
 
-      if (isIdelRef.current) {
-        setisIdle(false);
-      }
-
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-
-      debounceRef.current = setTimeout(() => {
-        timeoutRef.current = setTimeout(() => {
-          if (!isMenuOpenRef.current) {
-            setisIdle(true);
-          }
-        }, timeoutMs);
-      }, 100);
-    };
-
-    const events = ["mousemove", "touchstart", "touchend", "click", "keydown"];
-
-    events.forEach((event) =>
-      window.addEventListener(event, handleInteraction),
+    events.forEach((e) =>
+      window.addEventListener(e, handleInteraction, { passive: true }),
     );
-    handleInteraction();
+    scheduleHide();
 
     return () => {
-      events.forEach((event) =>
-        window.removeEventListener(event, handleInteraction),
-      );
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+      events.forEach((e) => window.removeEventListener(e, handleInteraction));
+      clearTimers();
     };
-  }, [timeoutMs]);
+  }, [handleInteraction, scheduleHide, clearTimers]);
 
   useEffect(() => {
-    if (isMenuOpen) {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (menuOpen) {
+      clearTimers();
       setisIdle(false);
+    } else {
+      scheduleHide();
     }
-  }, [isMenuOpen]);
+  }, [menuOpen, clearTimers, scheduleHide]);
 
-  return { isIdle, isMenuOpen, setisMenuOpen };
+  return { isIdle, setmenuOpen };
 };
