@@ -9,8 +9,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  -webkit-backdrop-filter: blur(5px);
-          backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
 }
 .callOverlay .callBox {
   background: #1f2c34;
@@ -55,6 +54,14 @@
   display: flex;
   justify-content: center;
   gap: 40px;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+.callOverlay .callBox .controls.controlsHidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 .callOverlay .callBox .controls .btn {
   border: none;
@@ -76,6 +83,48 @@
 }
 .callOverlay .callBox .controls .reject {
   background: #ef4444;
+}
+.callOverlay .callBox .controls .muteActive {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+.callOverlay .callBox .controls .muteActive:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+.callOverlay .callBox .controls .muted {
+  background-color: #e53e3e;
+  color: #fff;
+}
+.callOverlay .callBox .controls .muted:hover {
+  background-color: #c53030;
+}
+.callOverlay .video-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #000;
+}
+.callOverlay .ui-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  /* GPU Acceleration properties */
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+.callOverlay {
+  /* The class we toggle based on the hook */
+}
+.callOverlay .controls-hidden {
+  opacity: 0;
+  /* pointer-events: none ensures hidden buttons can't be accidentally clicked */
+  pointer-events: none;
+  visibility: hidden;
 }
 @keyframes ripple {
   0% {
