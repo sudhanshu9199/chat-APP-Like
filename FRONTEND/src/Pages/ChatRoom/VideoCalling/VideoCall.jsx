@@ -1,7 +1,17 @@
+// VideoCall.jsx
 import style from "./VideoCall.module.scss";
 import userImg from "../../../assets/DefaultUserPic.png";
 import { useRef, useEffect, useState, useCallback } from "react";
-import { Mic, MicOff, PhoneOff, Video, VideoOff, Settings } from "lucide-react";
+import {
+  Mic,
+  MicOff,
+  PhoneOff,
+  Video,
+  VideoOff,
+  Settings,
+  Captions,
+  CaptionsOff,
+} from "lucide-react";
 import { useIdleTimer } from "../../../hooks/useIdleTimer";
 import { useTranscription } from "../../../hooks/useTranscription";
 import CaptionsOverlay from "../../../components/CaptionOverlay";
@@ -119,12 +129,6 @@ const VideoCall = ({
     };
   }, [showQualityMenu]);
 
-  if (callStatus === "IDLE") return null;
-
-  const isConnected = callStatus === "CONNECTED";
-  const isCalling = callStatus === "CALLING";
-  const isIncoming = callStatus === "INCOMING";
-
   useEffect(() => {
     if (!peerConnection) return;
     dataChannelRef.current = peerConnection.createDataChannel("live-captions");
@@ -153,9 +157,29 @@ const VideoCall = ({
     }
   }, []);
 
-  const { startTranscription, stopTranscription } = useTranscription(
-    handleLocalTranscription,
-  );
+  const { startTranscription, stopTranscription, isListening } =
+    useTranscription(handleLocalTranscription);
+
+  useEffect(() => {
+    if (callStatus !== "CONNECTED" && isListening) {
+      stopTranscription();
+    }
+  }, [callStatus, isListening, stopTranscription]);
+
+  // ✅ Single toggle handler — satisfies browser user-gesture requirement
+  const toggleCaptions = useCallback(() => {
+    if (isListening) {
+      stopTranscription();
+    } else {
+      startTranscription();
+    }
+  }, [isListening, startTranscription, stopTranscription]);
+
+  if (callStatus === "IDLE") return null;
+
+  const isConnected = callStatus === "CONNECTED";
+  const isCalling = callStatus === "CALLING";
+  const isIncoming = callStatus === "INCOMING";
 
   useEffect(() => {
     if (callStatus === "CONNECTED") {
@@ -296,6 +320,24 @@ const VideoCall = ({
                 <MicOff className={style.icon} />
               )}
             </button>
+
+            {isConnected && (
+              <button
+                onClick={toggleCaptions}
+                className={`${style.controlBtn} ${!isListening ? style.offBtn : ""}`}
+                aria-label={
+                  isListening ? "Stop live captions" : "Start live captions"
+                }
+                aria-pressed={isListening}
+              >
+                {isListening ? (
+                  <Captions className={style.icon} />
+                ) : (
+                  <CaptionsOff className={style.icon} />
+                )}
+              </button>
+            )}
+
             <button
               onClick={endCall}
               className={`${style.controlBtn} ${style.rejectBtn}`}

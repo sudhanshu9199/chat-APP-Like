@@ -1,3 +1,4 @@
+// CaptionOverlay.jsx
 import React, { useState, useEffect } from "react";
 
 const CaptionsOverlay = ({ incomingCaptionPayload, bufferMs = 300 }) => {
