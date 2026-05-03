@@ -3,23 +3,28 @@ import userImg from "../../../assets/DefaultUserPic.png";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Mic, MicOff, PhoneOff, Video, VideoOff, Settings } from "lucide-react";
 import { useIdleTimer } from "../../../hooks/useIdleTimer";
+import { useTranscription } from "../../../hooks/useTranscription";
+import CaptionsOverlay from "../../../components/CaptionOverlay";
 
 const VideoCall = ({
   callStatus,
   localStream,
   remoteStream,
   callerName,
+  peerConnection,
   endCall,
   acceptCall,
 }) => {
   const remoteVideoRef = useRef();
   const localVideoRef = useRef();
+  const dataChannelRef = useRef(null);
 
   const [micOn, setmicOn] = useState(true);
   const [videoOn, setvideoOn] = useState(true);
   const [videoQuality, setVideoQuality] = useState("360p");
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [remoteCaption, setRemoteCaption] = useState(null);
   const { isIdle, setmenuOpen } = useIdleTimer(3500);
 
   useEffect(() => {
@@ -120,6 +125,45 @@ const VideoCall = ({
   const isCalling = callStatus === "CALLING";
   const isIncoming = callStatus === "INCOMING";
 
+  useEffect(() => {
+    if (!peerConnection) return;
+    dataChannelRef.current = peerConnection.createDataChannel("live-captions");
+
+    peerConnection.ondatachannel = (event) => {
+      event.channel.onmessage = (msg) => {
+        try {
+          const captionData = JSON.parse(msg.data);
+          setRemoteCaption(captionData);
+        } catch (err) {
+          console.warn("Failed to parse caption data:", msg.data);
+        }
+      };
+    };
+    return () => {
+      if (dataChannelRef.current) {
+        dataChannelRef.current.close();
+        dataChannelRef.current = null;
+      }
+    };
+  }, [peerConnection]);
+
+  const handleLocalTranscription = useCallback((payload) => {
+    if (dataChannelRef.current?.readyState === "open") {
+      dataChannelRef.current.send(JSON.stringify(payload));
+    }
+  }, []);
+
+  const { startTranscription, stopTranscription } = useTranscription(
+    handleLocalTranscription,
+  );
+
+  useEffect(() => {
+    if (callStatus === "CONNECTED") {
+      startTranscription();
+    } else stopTranscription();
+    return () => stopTranscription();
+  }, [callStatus, startTranscription, stopTranscription]);
+
   return (
     <div
       className={`${style.videoOverlay} ${isIdle ? style.idle : ""}`}
@@ -128,13 +172,19 @@ const VideoCall = ({
     >
       <div className={style.remoteVideoContainer}>
         {isConnected && remoteStream ? (
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-            className={style.remoteVideo}
-            aria-label="Remote participant video"
-          />
+          <div className={style.remoteVideoWrapper}>
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              playsInline
+              className={style.remoteVideo}
+              aria-label="Remote participant video"
+            />
+            <CaptionsOverlay
+              incomingCaptionPayload={remoteCaption}
+              bufferMs={300}
+            />
+          </div>
         ) : (
           <div className={style.placeholder}>
             <img src={userImg} alt={callerName} className={style.avatar} />
