@@ -142,7 +142,7 @@ const registerPartyHandlers = (io, socket) => {
   });
 
   // ─── 3. SYNCHRONIZED WATCH PARTY MEDIA CONTROLS ───
-  socket.on("party:media-sync", ({ roomId, action, currentTime, url, type, title, isStreaming, senderName }) => {
+  socket.on("party:media-sync", ({ roomId, action, currentTime, duration, url, type, title, isStreaming, senderName }) => {
     if (!roomId) return;
     const cleanRoomId = parsePartyRoomCode(roomId);
     const room = partyRooms.get(cleanRoomId);
@@ -156,12 +156,14 @@ const registerPartyHandlers = (io, socket) => {
     if (action === "play") room.media.isPlaying = true;
     if (action === "pause") room.media.isPlaying = false;
     if (typeof currentTime === "number") room.media.currentTime = currentTime;
+    if (typeof duration === "number") room.media.duration = duration;
     room.media.updatedAt = Date.now();
 
     // Broadcast sub-100-byte sync payload to all peers in the room
     socket.to(cleanRoomId).emit("party:media-sync", {
       action,
       currentTime: room.media.currentTime,
+      duration: room.media.duration,
       url: room.media.url,
       type: room.media.type,
       title: room.media.title,

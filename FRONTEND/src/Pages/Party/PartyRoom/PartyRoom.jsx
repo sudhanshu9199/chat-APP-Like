@@ -29,7 +29,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-// Production WebRTC NAT Traversal Configuration (STUN + OpenRelay TURN for 5G/Mobile Networks)
+// Production WebRTC NAT Traversal Configuration (Google STUN + OpenRelay TURN for 5G/Mobile Networks)
 const FREE_RTC_CONFIG = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
@@ -70,7 +70,7 @@ const PartyRoom = () => {
   const { user: currentUser } = useSelector((state) => state.auth);
   const { triggerPetState } = useCompanionPet();
 
-  // URL Auto-Correction
+  // URL Auto-Correction: Fix any mangled URL immediately in address bar
   useEffect(() => {
     if (rawParamRoomId && rawParamRoomId !== roomId) {
       navigate(`/party/${roomId}`, { replace: true });
@@ -108,9 +108,10 @@ const PartyRoom = () => {
   // Refs
   const cinemaContainerRef = useRef(null);
   const ytPlayerRef = useRef(null);
-  const ytContainerRef = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const remoteMediaAudioRef = useRef(null); // Dedicated mounted DOM audio for live incoming movie audio
+  const mediaElementSourceRef = useRef(null); // Cached Web Audio source node to prevent InvalidStateError
   const controlsTimeoutRef = useRef(null);
   const timeUpdateIntervalRef = useRef(null);
 
@@ -122,7 +123,7 @@ const PartyRoom = () => {
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const animFrameRef = useRef(null);
-  const remoteAudiosRef = useRef({}); // socketId -> Audio
+  const remoteAudiosRef = useRef({}); // socketId -> HTMLAudioElement (Voice)
 
   const myUserId = currentUser?._id || currentUser?.id;
   const isHost =
@@ -135,7 +136,7 @@ const PartyRoom = () => {
     setTimeout(() => setToastMessage(""), 2200);
   };
 
-  // ─── 1. INTERACTION TIMER (AUTO-HIDE CONTROLS) ───
+  // ─── 1. INTERACTION TIMER (AUTO-HIDE CONTROLS ON IDLE) ───
   const handleUserActivity = useCallback(() => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -146,7 +147,8 @@ const PartyRoom = () => {
     }
   }, [isPlaying]);
 
-  // ─── 2. YOUTUBE IFRAME API LOADER & CONTROLLER ───
+  // ─── 2. YOUTUBE PRIVACY-ENHANCED API & CONTROLLER (NO-COOKIE MODE) ───
+  // Using youtube-nocookie.com domain bypasses ad-blocker ERR_BLOCKED_BY_CLIENT
   useEffect(() => {
     if (mediaMode !== "youtube") return;
 
@@ -155,64 +157,62 @@ const PartyRoom = () => {
     const initYTPlayer = () => {
       if (!window.YT || !window.YT.Player) return;
 
-      // Clean existing player instance if any
+      const iframeEl = document.getElementById("yt-player-target");
+      if (!iframeEl) return;
+
       if (ytPlayerRef.current && ytPlayerRef.current.destroy) {
         try {
           ytPlayerRef.current.destroy();
         } catch (e) {}
+        ytPlayerRef.current = null;
       }
 
-      const playerDiv = document.getElementById("yt-player-target");
-      if (!playerDiv) return;
-
-      ytPlayerRef.current = new window.YT.Player("yt-player-target", {
-        videoId: videoId || DEFAULT_YOUTUBE_ID,
-        playerVars: {
-          autoplay: 1,
-          controls: 0, // HIDE YOUTUBE DEFAULT CONTROLS COMPLETELY
-          disablekb: 1, // Disable YouTube keyboard shortcuts
-          modestbranding: 1,
-          rel: 0,
-          fs: 0, // Hide YouTube fullscreen button (we use our own)
-          iv_load_policy: 3,
-          enablejsapi: 1,
-          origin: window.location.origin,
-          playsinline: 1,
-        },
-        events: {
-          onReady: (event) => {
-            if (!isMounted) return;
-            event.target.setVolume(volume * 100);
-            if (isPlayerMuted) event.target.mute();
-            event.target.playVideo();
-            setIsPlaying(true);
-            setDuration(event.target.getDuration() || 0);
-          },
-          onStateChange: (event) => {
-            if (!isMounted) return;
-            // 1 = PLAYING, 2 = PAUSED, 0 = ENDED
-            if (event.data === window.YT.PlayerState.PLAYING) {
+      try {
+        ytPlayerRef.current = new window.YT.Player(iframeEl, {
+          events: {
+            onReady: (event) => {
+              if (!isMounted) return;
+              try {
+                event.target.playVideo();
+              } catch (e) {}
               setIsPlaying(true);
               setDuration(event.target.getDuration() || 0);
-              setNeedsUserGesture(false);
-            } else if (event.data === window.YT.PlayerState.PAUSED) {
-              setIsPlaying(false);
-            }
+            },
+            onStateChange: (event) => {
+              if (!isMounted) return;
+              // 1 = PLAYING, 2 = PAUSED, 0 = ENDED
+              if (event.data === window.YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+                setDuration(event.target.getDuration() || 0);
+                setNeedsUserGesture(false);
+              } else if (event.data === window.YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+              } else if (event.data === window.YT.PlayerState.ENDED) {
+                setIsPlaying(false);
+              }
+            },
+            onError: (event) => {
+              console.warn("[Party YT] Error code:", event.data);
+              // Error 150/101 = owner restricted embedding
+              showToast("Video restricted by owner. Switching to Lofi Chill 🎵");
+              setVideoId(DEFAULT_YOUTUBE_ID);
+            },
           },
-          onError: (event) => {
-            console.warn("[Party YT] Playback restriction error code:", event.data);
-            showToast("Video has playback restrictions. Trying alternate track.");
-          },
-        },
-      });
+        });
+      } catch (err) {
+        console.warn("[Party YT] Init error:", err);
+      }
     };
 
-    // Load YouTube API script if not loaded
     if (!window.YT) {
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      if (firstScriptTag && firstScriptTag.parentNode) {
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      } else {
+        document.head.appendChild(tag);
+      }
       window.onYouTubeIframeAPIReady = () => {
         initYTPlayer();
       };
@@ -245,54 +245,186 @@ const PartyRoom = () => {
         setCurrentTime(localVideoRef.current.currentTime || 0);
         setDuration(localVideoRef.current.duration || 0);
         setIsPlaying(!localVideoRef.current.paused);
-      } else if (remoteVideoRef.current && remoteVideoStream) {
-        setCurrentTime(remoteVideoRef.current.currentTime || 0);
-        setDuration(remoteVideoRef.current.duration || 0);
       }
     }, 300);
 
     return () => {
       if (timeUpdateIntervalRef.current) clearInterval(timeUpdateIntervalRef.current);
     };
-  }, [mediaMode, duration, remoteVideoStream]);
+  }, [mediaMode, duration]);
 
-  // ─── 3. WEBRTC MEDIA TRACK BROADCASTER (LOCAL VIDEO & SCREEN SHARE) ───
-  const broadcastMediaStream = useCallback((stream) => {
-    if (!stream) return;
-    localMediaStreamRef.current = stream;
+  // ─── 3. WEBRTC MEDIA TRACK BROADCASTER (VIDEO & AUDIO TRACKS) ───
+  const broadcastMediaStream = useCallback(
+    (stream) => {
+      if (!stream) return;
+      localMediaStreamRef.current = stream;
+      const videoTrack = stream.getVideoTracks()[0];
+      const audioTrack = stream.getAudioTracks()[0];
 
-    Object.entries(peersRef.current).forEach(async ([peerSocketId, pc]) => {
-      try {
-        const senders = pc.getSenders();
-        stream.getTracks().forEach((track) => {
-          const existingSender = senders.find((s) => s.track?.kind === track.kind);
-          if (existingSender) {
-            existingSender.replaceTrack(track).catch((err) => {
-              console.warn("[Party RTC] Track replace error:", err);
-            });
-          } else {
-            pc.addTrack(track, stream);
+      Object.entries(peersRef.current).forEach(async ([peerSocketId, pc]) => {
+        try {
+          // 1. Broadcast Video Track with explicit sendrecv direction
+          if (videoTrack) {
+            let videoTransceiver = pc.getTransceivers().find(
+              (t) => t.sender.track?.kind === "video" || t.receiver.track?.kind === "video"
+            );
+            if (videoTransceiver) {
+              videoTransceiver.direction = "sendrecv";
+              await videoTransceiver.sender.replaceTrack(videoTrack);
+            } else {
+              pc.addTrack(videoTrack, stream);
+            }
           }
-        });
 
-        // Trigger clean renegotiation offer so peer immediately expects video track
-        const offer = await pc.createOffer({
-          offerToReceiveVideo: true,
-          offerToReceiveAudio: true,
-        });
-        await pc.setLocalDescription(offer);
-        socket?.emit("party:webrtc-signal", {
-          to: peerSocketId,
-          signal: { sdp: pc.localDescription },
-          type: "offer",
-        });
-      } catch (e) {
-        console.warn("[Party RTC] Error broadcasting stream to peer:", peerSocketId, e);
+          // 2. Broadcast Media Audio Track
+          if (audioTrack) {
+            const micTrack = localMicStreamRef.current?.getAudioTracks()[0];
+            let mediaAudioTransceiver = pc.getTransceivers().find(
+              (t) => t.sender.track?.kind === "audio" && t.sender.track !== micTrack
+            );
+            if (mediaAudioTransceiver) {
+              mediaAudioTransceiver.direction = "sendrecv";
+              await mediaAudioTransceiver.sender.replaceTrack(audioTrack);
+            } else {
+              pc.addTrack(audioTrack, stream);
+            }
+          }
+
+          // 3. Renegotiation Offer Handshake
+          const offer = await pc.createOffer({
+            offerToReceiveVideo: true,
+            offerToReceiveAudio: true,
+          });
+          await pc.setLocalDescription(offer);
+          socket?.emit("party:webrtc-signal", {
+            to: peerSocketId,
+            signal: { sdp: pc.localDescription },
+            type: "offer",
+          });
+        } catch (e) {
+          console.warn("[Party RTC] Error broadcasting stream to peer:", peerSocketId, e);
+        }
+      });
+    },
+    [socket]
+  );
+
+  // ─── 4. LOCAL MOVIE STREAMING ENGINE (CANVAS/CAPTURESTREAM + WEB AUDIO API) ───
+  // Captures BOTH video frames AND decoded audio from local file
+  const startStreamingLocalVideo = useCallback(
+    (videoEl) => {
+      if (!videoEl) return;
+
+      const captureAndBroadcast = async () => {
+        try {
+          await videoEl.play().catch(() => {});
+
+          // A. Capture Video Track
+          let capStream = null;
+          if (typeof videoEl.captureStream === "function") {
+            capStream = videoEl.captureStream(30);
+          } else if (typeof videoEl.mozCaptureStream === "function") {
+            capStream = videoEl.mozCaptureStream(30);
+          }
+
+          let videoTrack = capStream && capStream.getVideoTracks().length > 0 ? capStream.getVideoTracks()[0] : null;
+          let audioTrack = capStream && capStream.getAudioTracks().length > 0 ? capStream.getAudioTracks()[0] : null;
+
+          // B. Capture Audio via Web Audio API if captureStream has no audio track
+          if (!audioTrack) {
+            try {
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (AudioCtx) {
+                if (!audioContextRef.current || audioContextRef.current.state === "closed") {
+                  audioContextRef.current = new AudioCtx();
+                }
+                const actx = audioContextRef.current;
+                if (actx.state === "suspended") await actx.resume().catch(() => {});
+
+                if (!mediaElementSourceRef.current) {
+                  mediaElementSourceRef.current = actx.createMediaElementSource(videoEl);
+                }
+                const dest = actx.createMediaStreamDestination();
+                mediaElementSourceRef.current.connect(dest);
+                mediaElementSourceRef.current.connect(actx.destination); // Host hears local movie sound
+
+                if (dest.stream && dest.stream.getAudioTracks().length > 0) {
+                  audioTrack = dest.stream.getAudioTracks()[0];
+                }
+              }
+            } catch (audioErr) {
+              console.warn("[Party] Web Audio capture note:", audioErr);
+            }
+          }
+
+          const combinedTracks = [videoTrack, audioTrack].filter(Boolean);
+          if (combinedTracks.length > 0) {
+            const stream = new MediaStream(combinedTracks);
+            localMediaStreamRef.current = stream;
+            broadcastMediaStream(stream);
+            showToast("Streaming movie with live audio 🍿");
+          }
+        } catch (err) {
+          console.error("[Party] Local video stream setup error:", err);
+        }
+      };
+
+      if (videoEl.readyState >= 1) {
+        captureAndBroadcast();
+      } else {
+        videoEl.onloadedmetadata = () => captureAndBroadcast();
       }
-    });
-  }, [socket]);
+    },
+    [broadcastMediaStream]
+  );
 
-  // ─── 4. WEBRTC PEER CONNECTION FACTORY ───
+  // Handle Host Local Video Attachment
+  useEffect(() => {
+    if (isHost && mediaMode === "local" && localVideoUrl && localVideoRef.current) {
+      if (localVideoRef.current.src !== localVideoUrl) {
+        localVideoRef.current.src = localVideoUrl;
+        localVideoRef.current.play().catch(() => {});
+        startStreamingLocalVideo(localVideoRef.current);
+      }
+    }
+  }, [isHost, mediaMode, localVideoUrl, startStreamingLocalVideo]);
+
+  // Handle Peer Remote Video Attachment (Plays without black screen)
+  useEffect(() => {
+    if (!isHost && mediaMode !== "youtube" && remoteVideoRef.current && remoteVideoStream) {
+      if (remoteVideoRef.current.srcObject !== remoteVideoStream) {
+        remoteVideoRef.current.srcObject = remoteVideoStream;
+      }
+      remoteVideoRef.current.play().catch((err) => {
+        console.warn("[Party] Remote video play deferred:", err);
+      });
+    }
+  }, [isHost, mediaMode, remoteVideoStream]);
+
+  // Host Periodic Playback Sync (Every 1.5s for Local Movie or Screenshare)
+  useEffect(() => {
+    if (!isHost || mediaMode === "youtube") return;
+    const interval = setInterval(() => {
+      if (localVideoRef.current && !localVideoRef.current.paused) {
+        const cur = localVideoRef.current.currentTime || 0;
+        const dur = localVideoRef.current.duration || 0;
+        socket?.emit("party:media-sync", {
+          roomId,
+          action: "sync",
+          currentTime: cur,
+          duration: dur,
+          url: mediaTitle,
+          type: mediaMode,
+          title: mediaTitle,
+          isStreaming: isHostStreaming,
+        });
+      }
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [isHost, mediaMode, roomId, socket, mediaTitle, isHostStreaming]);
+
+  // ─── 5. WEBRTC PEER CONNECTION FACTORY ───
   const createPeerConnection = useCallback(
     (targetSocketId, isInitiator) => {
       if (peersRef.current[targetSocketId]) {
@@ -317,6 +449,11 @@ const PartyRoom = () => {
         });
       }
 
+      // Ensure video transceiver exists with sendrecv so receiving/sending works seamlessly
+      if (!pc.getTransceivers().some((t) => t.receiver.track.kind === "video")) {
+        pc.addTransceiver("video", { direction: "sendrecv" });
+      }
+
       // Handle ICE Candidates
       pc.onicecandidate = (event) => {
         if (event.candidate && socket) {
@@ -328,41 +465,46 @@ const PartyRoom = () => {
         }
       };
 
-      // Handle incoming remote tracks (Microphone voice, Host live video stream)
+      // Handle incoming remote tracks (Microphone voice, Host live movie/screen stream)
       pc.ontrack = (event) => {
         const [stream] = event.streams;
         const track = event.track;
 
         if (track.kind === "video") {
-          // Received Host Live P2P Video Stream
+          console.log("[Party RTC] Received video stream from peer:", track.id);
           const videoStream = stream || new MediaStream([track]);
           setRemoteVideoStream(videoStream);
           setNeedsUserGesture(false);
 
-          // If audio track is also part of stream, ensure it's active
           if (remoteVideoRef.current) {
             remoteVideoRef.current.srcObject = videoStream;
-            remoteVideoRef.current
-              .play()
-              .catch((err) => {
-                console.warn("[Party] Mobile autoplay deferred:", err);
-                setNeedsUserGesture(true);
-              });
+            remoteVideoRef.current.play().catch((err) => {
+              console.warn("[Party] Autoplay deferred on mobile:", err);
+            });
           }
         } else if (track.kind === "audio") {
-          // Voice mesh track
-          let audioEl = remoteAudiosRef.current[targetSocketId];
-          if (!audioEl) {
-            audioEl = new Audio();
+          console.log("[Party RTC] Received audio track from peer:", track.id);
+          const existingVoice = remoteAudiosRef.current[targetSocketId];
+          if (!existingVoice) {
+            // First audio track is Voice Mic
+            const audioEl = new Audio();
             audioEl.autoplay = true;
+            audioEl.srcObject = stream || new MediaStream([track]);
+            audioEl.play().catch(() => {});
             remoteAudiosRef.current[targetSocketId] = audioEl;
+          } else {
+            // Second audio track is Live Movie / Screen Audio!
+            if (remoteMediaAudioRef.current) {
+              remoteMediaAudioRef.current.srcObject = stream || new MediaStream([track]);
+              remoteMediaAudioRef.current.volume = isPlayerMuted ? 0 : volume;
+              remoteMediaAudioRef.current.play().catch(() => {
+                setNeedsUserGesture(true);
+              });
+            }
           }
-          audioEl.srcObject = stream || new MediaStream([track]);
-          audioEl.play().catch(() => {});
         }
       };
 
-      // If initiator, create and send Offer
       if (isInitiator) {
         pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true })
           .then((offer) => pc.setLocalDescription(offer))
@@ -378,10 +520,10 @@ const PartyRoom = () => {
 
       return pc;
     },
-    [socket]
+    [socket, volume, isPlayerMuted]
   );
 
-  // ─── 5. LOCAL AUDIO LEVEL ANALYZER ───
+  // ─── 6. LOCAL AUDIO LEVEL ANALYZER (VOICE RING DETECTION) ───
   const setupAudioAnalyzer = (stream) => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -418,7 +560,7 @@ const PartyRoom = () => {
     }
   };
 
-  // ─── 6. INITIALIZE VOICE & JOIN ROOM ───
+  // ─── 7. INITIALIZE VOICE & JOIN ROOM ───
   useEffect(() => {
     if (!socket || !roomId) return;
 
@@ -437,7 +579,7 @@ const PartyRoom = () => {
         localMicStreamRef.current = localMic;
         setupAudioAnalyzer(localMic);
       } catch (err) {
-        console.warn("[Party] Microphone permission unavailable, joining as listener.");
+        console.warn("[Party] Microphone permission unavailable, joining in listener mode.");
       }
 
       // Join party room
@@ -490,9 +632,13 @@ const PartyRoom = () => {
         delete peersRef.current[socketId];
       }
       delete iceCandidateQueuesRef.current[socketId];
-      if (remoteAudiosRef.current[socketId]) {
-        delete remoteAudiosRef.current[socketId];
-      }
+
+      // Clean remote audios for this socket
+      Object.keys(remoteAudiosRef.current).forEach((key) => {
+        if (key.startsWith(socketId)) {
+          delete remoteAudiosRef.current[key];
+        }
+      });
     };
 
     const handleNewHost = ({ hostId: newHost }) => {
@@ -510,7 +656,6 @@ const PartyRoom = () => {
         if (signal?.sdp) {
           await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
 
-          // Drain queued ICE candidates
           const queue = iceCandidateQueuesRef.current[from] || [];
           while (queue.length > 0) {
             const cand = queue.shift();
@@ -528,9 +673,9 @@ const PartyRoom = () => {
               type: "answer",
             });
           }
-        } else if (signal?.candidate) {
+        } else if (signal?.candidate && signal.candidate.candidate) {
           if (pc.remoteDescription && pc.remoteDescription.type) {
-            await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+            await pc.addIceCandidate(new RTCIceCandidate(signal.candidate)).catch(() => {});
           } else {
             if (!iceCandidateQueuesRef.current[from]) {
               iceCandidateQueuesRef.current[from] = [];
@@ -543,10 +688,13 @@ const PartyRoom = () => {
       }
     };
 
-    const handleMediaSync = ({ url, type, title, isStreaming, action, currentTime: syncTime }) => {
+    const handleMediaSync = ({ url, type, title, isStreaming, action, currentTime: syncTime, duration: syncDuration }) => {
       if (url && url !== videoId) setVideoId(url);
       if (type) setMediaMode(type);
       if (title) setMediaTitle(title);
+
+      if (typeof syncDuration === "number" && syncDuration > 0) setDuration(syncDuration);
+      if (typeof syncTime === "number") setCurrentTime(syncTime);
 
       if (typeof isStreaming === "boolean") {
         setIsHostStreaming(isStreaming);
@@ -556,20 +704,29 @@ const PartyRoom = () => {
       // Synchronize Player Action
       if (type === "youtube" && ytPlayerRef.current) {
         if (typeof syncTime === "number") {
-          ytPlayerRef.current.seekTo(syncTime, true);
-          setCurrentTime(syncTime);
+          try {
+            ytPlayerRef.current.seekTo(syncTime, true);
+          } catch (e) {}
         }
         if (action === "play") {
-          ytPlayerRef.current.playVideo();
-          setIsPlaying(true);
+          try {
+            ytPlayerRef.current.playVideo();
+            setIsPlaying(true);
+          } catch (e) {}
         } else if (action === "pause") {
-          ytPlayerRef.current.pauseVideo();
-          setIsPlaying(false);
+          try {
+            ytPlayerRef.current.pauseVideo();
+            setIsPlaying(false);
+          } catch (e) {}
         }
-      } else if (type === "local" && localVideoRef.current) {
-        if (typeof syncTime === "number") localVideoRef.current.currentTime = syncTime;
-        if (action === "play") localVideoRef.current.play().catch(() => {});
-        else if (action === "pause") localVideoRef.current.pause();
+      } else if (type === "local") {
+        if (localVideoRef.current && isHost) {
+          if (typeof syncTime === "number") localVideoRef.current.currentTime = syncTime;
+          if (action === "play") localVideoRef.current.play().catch(() => {});
+          else if (action === "pause") localVideoRef.current.pause();
+        }
+        if (action === "play") setIsPlaying(true);
+        else if (action === "pause") setIsPlaying(false);
       }
 
       triggerPetState("TALK", 2000, "Vibing to the party! 🎶");
@@ -623,14 +780,23 @@ const PartyRoom = () => {
     };
   }, [socket, roomId, myUserId, currentUser, createPeerConnection, triggerPetState, videoId]);
 
-  // ─── 7. UNIFIED PLAYBACK CONTROLLERS ───
+  // ─── 8. UNIFIED PLAYBACK CONTROLS ───
   const togglePlayPause = () => {
     const nextState = !isPlaying;
     setIsPlaying(nextState);
 
     if (mediaMode === "youtube" && ytPlayerRef.current) {
-      if (nextState) ytPlayerRef.current.playVideo();
-      else ytPlayerRef.current.pauseVideo();
+      try {
+        if (nextState) {
+          if (!isPlayerMuted) {
+            ytPlayerRef.current.unMute();
+            ytPlayerRef.current.setVolume((volume || 0.8) * 100);
+          }
+          ytPlayerRef.current.playVideo();
+        } else {
+          ytPlayerRef.current.pauseVideo();
+        }
+      } catch (e) {}
     } else if (mediaMode === "local" && localVideoRef.current) {
       if (nextState) localVideoRef.current.play().catch(() => {});
       else localVideoRef.current.pause();
@@ -641,6 +807,7 @@ const PartyRoom = () => {
       roomId,
       action: nextState ? "play" : "pause",
       currentTime,
+      duration,
       url: videoId,
       type: mediaMode,
       title: mediaTitle,
@@ -657,16 +824,18 @@ const PartyRoom = () => {
     setCurrentTime(newTime);
 
     if (mediaMode === "youtube" && ytPlayerRef.current) {
-      ytPlayerRef.current.seekTo(newTime, true);
+      try {
+        ytPlayerRef.current.seekTo(newTime, true);
+      } catch (e) {}
     } else if (mediaMode === "local" && localVideoRef.current) {
       localVideoRef.current.currentTime = newTime;
     }
 
-    // Broadcast seek to party
     socket?.emit("party:media-sync", {
       roomId,
       action: "seek",
       currentTime: newTime,
+      duration,
       url: videoId,
       type: mediaMode,
       title: mediaTitle,
@@ -679,7 +848,9 @@ const PartyRoom = () => {
     setCurrentTime(newTime);
 
     if (mediaMode === "youtube" && ytPlayerRef.current) {
-      ytPlayerRef.current.seekTo(newTime, true);
+      try {
+        ytPlayerRef.current.seekTo(newTime, true);
+      } catch (e) {}
     } else if (mediaMode === "local" && localVideoRef.current) {
       localVideoRef.current.currentTime = newTime;
     }
@@ -688,6 +859,7 @@ const PartyRoom = () => {
       roomId,
       action: "seek",
       currentTime: newTime,
+      duration,
       url: videoId,
       type: mediaMode,
       title: mediaTitle,
@@ -701,14 +873,23 @@ const PartyRoom = () => {
     setIsPlayerMuted(val === 0);
 
     if (mediaMode === "youtube" && ytPlayerRef.current) {
-      ytPlayerRef.current.setVolume(val * 100);
-      if (val === 0) ytPlayerRef.current.mute();
-      else ytPlayerRef.current.unMute();
+      try {
+        ytPlayerRef.current.setVolume(val * 100);
+        if (val === 0) ytPlayerRef.current.mute();
+        else ytPlayerRef.current.unMute();
+      } catch (e) {}
     } else if (localVideoRef.current) {
       localVideoRef.current.volume = val;
-    } else if (remoteVideoRef.current) {
-      remoteVideoRef.current.volume = val;
     }
+
+    if (remoteMediaAudioRef.current) {
+      remoteMediaAudioRef.current.volume = val;
+    }
+
+    // Update all remote voice audio elements volume
+    Object.values(remoteAudiosRef.current).forEach((audio) => {
+      audio.volume = val;
+    });
   };
 
   const togglePlayerMute = () => {
@@ -716,15 +897,36 @@ const PartyRoom = () => {
     setIsPlayerMuted(nextMute);
 
     if (mediaMode === "youtube" && ytPlayerRef.current) {
-      if (nextMute) ytPlayerRef.current.mute();
-      else {
-        ytPlayerRef.current.unMute();
-        ytPlayerRef.current.setVolume((volume || 0.8) * 100);
-      }
+      try {
+        if (nextMute) ytPlayerRef.current.mute();
+        else {
+          ytPlayerRef.current.unMute();
+          ytPlayerRef.current.setVolume((volume || 0.8) * 100);
+        }
+      } catch (e) {}
     } else if (localVideoRef.current) {
       localVideoRef.current.muted = nextMute;
-    } else if (remoteVideoRef.current) {
-      remoteVideoRef.current.muted = nextMute;
+    }
+
+    if (remoteMediaAudioRef.current) {
+      remoteMediaAudioRef.current.muted = nextMute;
+    }
+
+    Object.values(remoteAudiosRef.current).forEach((audio) => {
+      audio.muted = nextMute;
+    });
+  };
+
+  const handleCinemaCardClick = () => {
+    // Unmute YouTube player on first interaction if currently muted
+    if (mediaMode === "youtube" && ytPlayerRef.current && !isPlayerMuted) {
+      try {
+        ytPlayerRef.current.unMute();
+        ytPlayerRef.current.setVolume((volume || 0.8) * 100);
+      } catch (e) {}
+    }
+    if (remoteMediaAudioRef.current && remoteMediaAudioRef.current.paused) {
+      remoteMediaAudioRef.current.play().catch(() => {});
     }
   };
 
@@ -739,7 +941,7 @@ const PartyRoom = () => {
     }
   };
 
-  // ─── 8. YOUTUBE SYNC INPUT & PRESETS ───
+  // ─── 9. YOUTUBE SYNC INPUT & PRESETS ───
   const handleSyncVideo = (e) => {
     e?.preventDefault();
     if (!videoInput.trim()) return;
@@ -786,7 +988,7 @@ const PartyRoom = () => {
     showToast(`Playing ${stream.label} 🎶`);
   };
 
-  // ─── 9. HOST LOCAL MOVIE STREAMING (captureStream) ───
+  // ─── 10. HOST LOCAL MOVIE STREAMING TRIGGER ───
   const handleLocalFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -797,26 +999,6 @@ const PartyRoom = () => {
     setMediaTitle(file.name);
     setIsHostStreaming(true);
     setRemoteVideoStream(null);
-
-    setTimeout(() => {
-      const videoEl = localVideoRef.current;
-      if (videoEl) {
-        try {
-          videoEl.play().catch(() => {});
-          const stream = videoEl.captureStream
-            ? videoEl.captureStream(30)
-            : videoEl.mozCaptureStream
-            ? videoEl.mozCaptureStream(30)
-            : null;
-
-          if (stream) {
-            broadcastMediaStream(stream);
-          }
-        } catch (err) {
-          console.warn("[Party] Local video captureStream error:", err);
-        }
-      }
-    }, 450);
 
     socket?.emit("party:media-sync", {
       roomId,
@@ -831,7 +1013,7 @@ const PartyRoom = () => {
     showToast(`Streaming ${file.name} to party 🍿`);
   };
 
-  // ─── 10. SCREEN / TAB SHARE (1080p 60fps) ───
+  // ─── 11. SCREEN / TAB SHARE (1080p 60fps) ───
   const handleScreenShare = async () => {
     try {
       if (localMediaStreamRef.current && mediaMode === "screenshare") {
@@ -895,7 +1077,7 @@ const PartyRoom = () => {
     }
   };
 
-  // ─── 11. MIC CONTROLS & EMOJI REACTIONS ───
+  // ─── 12. MIC CONTROLS & EMOJI REACTIONS ───
   const toggleMute = () => {
     if (localMicStreamRef.current) {
       const audioTrack = localMicStreamRef.current.getAudioTracks()[0];
@@ -983,6 +1165,7 @@ const PartyRoom = () => {
           className={styles.cinemaCard}
           onMouseMove={handleUserActivity}
           onTouchStart={handleUserActivity}
+          onClick={handleCinemaCardClick}
         >
           {isHostStreaming && (
             <div className={styles.streamBadge}>
@@ -992,14 +1175,15 @@ const PartyRoom = () => {
           )}
 
           <div className={styles.playerWrapper}>
-            {/* A. YOUTUBE CINEMA (Controls=0, Custom Controller Overlay) */}
+            {/* A. YOUTUBE CINEMA (Controls=0, Privacy-Enhanced No-Cookie Domain, Custom Controller Overlay) */}
             {mediaMode === "youtube" && (
-              <div
-                ref={ytContainerRef}
-                style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-              >
-                <div id="yt-player-target" style={{ width: "100%", height: "100%" }} />
-              </div>
+              <iframe
+                id="yt-player-target"
+                className={styles.iframePlayer}
+                src={`https://www.youtube-nocookie.com/embed/${videoId || DEFAULT_YOUTUBE_ID}?enablejsapi=1&autoplay=1&controls=0&disablekb=1&modestbranding=1&rel=0&fs=0&iv_load_policy=3&playsinline=1&mute=1&origin=${encodeURIComponent(window.location.origin)}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                title="ConnectX Cinema Player"
+              />
             )}
 
             {/* B. HOST LOCAL MOVIE OR SCREEN SHARE (Plays Locally & Broadcasts to Peers) */}
@@ -1007,45 +1191,56 @@ const PartyRoom = () => {
               <video
                 ref={localVideoRef}
                 className={styles.localVideo}
-                src={mediaMode === "local" ? localVideoUrl : undefined}
                 playsInline
                 autoPlay
+                muted={false}
               />
             )}
 
             {/* C. PEER VIEW OF LIVE P2P WEBRTC STREAM */}
             {mediaMode !== "youtube" && !isHost && (
               <video
-                ref={(el) => {
-                  remoteVideoRef.current = el;
-                  if (el && remoteVideoStream && el.srcObject !== remoteVideoStream) {
-                    el.srcObject = remoteVideoStream;
-                    el.play().catch((err) => {
-                      console.log("Deferred play:", err);
-                      setNeedsUserGesture(true);
-                    });
-                  }
-                }}
+                ref={remoteVideoRef}
                 className={styles.localVideo}
                 playsInline
                 autoPlay
+                muted={true}
               />
             )}
+
+            {/* Dedicated Mounted Audio for Incoming Live Movie / Screen Audio */}
+            <audio
+              ref={remoteMediaAudioRef}
+              autoPlay
+              playsInline
+              style={{ display: "none" }}
+            />
 
             {/* Tap to Unmute Overlay for Mobile Autoplay Policy */}
             {needsUserGesture && (
               <div
                 className={styles.tapToPlayOverlay}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (remoteVideoRef.current) {
-                    remoteVideoRef.current.play();
-                    setNeedsUserGesture(false);
+                    remoteVideoRef.current.play().catch(() => {});
                   }
+                  if (remoteMediaAudioRef.current) {
+                    remoteMediaAudioRef.current.play().catch(() => {});
+                  }
+                  if (ytPlayerRef.current) {
+                    try {
+                      ytPlayerRef.current.unMute();
+                      ytPlayerRef.current.setVolume((volume || 0.8) * 100);
+                      ytPlayerRef.current.playVideo();
+                    } catch (err) {}
+                  }
+                  setNeedsUserGesture(false);
                 }}
               >
                 <button className={styles.tapToPlayBtn}>
                   <Volume2 size={16} />
-                  <span>Tap to Watch & Unmute Stream</span>
+                  <span>Tap to Play & Unmute Audio</span>
                 </button>
               </div>
             )}
@@ -1082,7 +1277,10 @@ const PartyRoom = () => {
               <div className={styles.centerActionContainer}>
                 <button
                   type="button"
-                  onClick={() => skipSeconds(-10)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    skipSeconds(-10);
+                  }}
                   className={styles.quickSkipBtn}
                   title="Rewind 10 seconds"
                 >
@@ -1091,7 +1289,10 @@ const PartyRoom = () => {
 
                 <button
                   type="button"
-                  onClick={togglePlayPause}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePlayPause();
+                  }}
                   className={styles.centerPlayBtn}
                   title={isPlaying ? "Pause" : "Play"}
                 >
@@ -1100,7 +1301,10 @@ const PartyRoom = () => {
 
                 <button
                   type="button"
-                  onClick={() => skipSeconds(10)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    skipSeconds(10);
+                  }}
                   className={styles.quickSkipBtn}
                   title="Fast Forward 10 seconds"
                 >
@@ -1109,7 +1313,7 @@ const PartyRoom = () => {
               </div>
 
               {/* Bottom Glass Controller Dock */}
-              <div className={styles.bottomControlsDock}>
+              <div className={styles.bottomControlsDock} onClick={(e) => e.stopPropagation()}>
                 {/* Timeline Scrubber */}
                 <div className={styles.timelineRow}>
                   <span className={styles.timeLabel}>{formatTime(currentTime)}</span>
@@ -1237,7 +1441,7 @@ const PartyRoom = () => {
           </div>
         </section>
 
-        {/* 2. SPATIAL VOICE STAGE (Speaking Glow Rings & Accurate Host Badges) */}
+        {/* 2. SPATIAL VOICE STAGE */}
         <section className={styles.stageSection}>
           <div className={styles.stageHeader}>
             <span className={styles.stageTitle}>
@@ -1332,7 +1536,7 @@ const PartyRoom = () => {
         ))}
       </div>
 
-      {/* 3. BOTTOM PARTY CONTROL DOCK (With Unique ID for Mascot Ground Snapping) */}
+      {/* 3. BOTTOM PARTY CONTROL DOCK */}
       <footer id="party-control-dock" className={styles.controlDock}>
         <button
           onClick={toggleMute}
