@@ -1,6 +1,7 @@
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import MainRoute from "./router/MainRoute";
 import { useEffect, useState } from "react";
+import CompanionPet from "./components/CompanionPet/CompanionPet";
 
 const App = () => {
   const [isLoading, setisLoading] = useState(true);
@@ -59,6 +60,7 @@ const App = () => {
   return (
     <>
       <MainRoute />
+      <CompanionPet />
       <ToastContainer />
     </>
   );

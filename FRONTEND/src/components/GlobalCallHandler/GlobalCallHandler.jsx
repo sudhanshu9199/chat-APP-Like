@@ -5,11 +5,13 @@ import { useNavigate, useLocation } from "react-router";
 import { toast } from "react-toastify";
 import callMusic from "../../assets/callMusic/Zupiter_&_Jery_Brahma.mp3";
 import userImg from "../../assets/DefaultUserPic.png";
+import { useCompanionPet } from "../CompanionPet/CompanionContext";
 
 const GlobalCallHandler = () => {
   const { socket } = useSocketContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const { triggerPetState } = useCompanionPet();
   const audioRef = useRef(new Audio(callMusic));
   const toastIdRef = useRef(null);
 
@@ -17,6 +19,9 @@ const GlobalCallHandler = () => {
     if (!socket) return;
 
     const handleIncomingCall = (data) => {
+      // Trigger Neko-Byte Call Alert
+      triggerPetState("CALL_ALERT", 12000, `Call from ${data.name}! 📞`);
+
       // If user is already in the caller's chatroom, do nothing (ChatRoomPage handles it)
       if (location.pathname === `/chatroom/${data.from}`) return;
 
@@ -65,6 +70,7 @@ const GlobalCallHandler = () => {
     };
 
     const handleCallEnded = () => {
+      triggerPetState("IDLE");
       // Stop Ringtone and dismiss toast if call ends before answering
       if (toastIdRef.current) {
         toast.dismiss(toastIdRef.current);

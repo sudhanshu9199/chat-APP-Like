@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import styles from "./BottomNav.module.scss";
 import { MessageSquare, Zap, Users } from "lucide-react";
 
@@ -9,8 +9,14 @@ const navItems = [
 ];
 
 const BottomNav = () => {
+  const location = useLocation();
+  const isChatRoom = location.pathname.startsWith("/chatroom");
+
   return (
-    <nav className={styles.bottomNav} aria-label="Primary Navigation">
+    <nav
+      className={`${styles.bottomNav} ${isChatRoom ? styles.inChatRoom : ""}`}
+      aria-label="Primary Navigation"
+    >
       {navItems.map((item) => {
         const Icon = item.icon;
         return (

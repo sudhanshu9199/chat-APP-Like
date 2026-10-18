@@ -22,6 +22,7 @@ import VoiceCall from "./VoiceCalling/VoiceCall";
 import VideoCall from "./VideoCalling/VideoCall";
 import UserInfoPopup from "./UserInfo/UserInfoPopup";
 import callMusic from "../../assets/callMusic/Zupiter_&_Jery_Brahma.mp3";
+import { useCompanionPet } from "../../components/CompanionPet/CompanionContext";
 
 const isNewDay = (currentMsg, prevMsg) => {
   if (!prevMsg) return true;
@@ -57,6 +58,7 @@ const ChatRoomPage = () => {
   const { socket } = useSocketContext();
   const { onlineUsers } = useSelector((state) => state.socket);
   const { user: currentUser } = useSelector((state) => state.auth);
+  const { triggerPetState } = useCompanionPet();
 
   const [messages, setmessages] = useState([]);
   const [newMessage, setnewMessage] = useState("");
@@ -96,11 +98,12 @@ const ChatRoomPage = () => {
       // Only add if it belongs to this chat
       if (newMessage.sender === receiverId) {
         setmessages((prev) => [...prev, newMessage]);
+        triggerPetState("IDLE", 3000, "New message! 🐾");
       }
     });
 
     return () => socket?.off("newMessage");
-  }, [socket, receiverId]);
+  }, [socket, receiverId, triggerPetState]);
 
   useEffect(() => {
     const getMessages = async () => {
@@ -374,11 +377,14 @@ const ChatRoomPage = () => {
 
   const handleGetAiSuggestions = async () => {
     setisSuggesting(true);
+    triggerPetState("AI_THINKING", 0, "Thinking replies... ⚡");
     try {
       const res = await api.get(`/messages/suggest-replies/${receiverId}`);
       setaiSuggestions(res.data);
+      triggerPetState("IDLE", 3000, "3 replies ready! 🐾");
     } catch (err) {
       console.error("Failed to fetch AI suggestions:", err);
+      triggerPetState("IDLE");
     } finally {
       setisSuggesting(false);
     }
@@ -394,11 +400,14 @@ const ChatRoomPage = () => {
 
   const handleGetSummary = async () => {
     setisSummarizing(true);
+    triggerPetState("AI_THINKING", 0, "Analyzing chat... 🧠");
     try {
       const res = await api.get(`/messages/summarize/${receiverId}`);
       setchatSummary(res.data.summary);
+      triggerPetState("IDLE", 3000, "Summary ready! ✨");
     } catch (err) {
       console.error("Failed to fetch AI summary:", err);
+      triggerPetState("IDLE");
     } finally {
       setisSummarizing(false);
     }
@@ -580,7 +589,7 @@ const ChatRoomPage = () => {
           </div>
         )}
         <form onSubmit={handleSendMessage} className={style.messageForm}>
-          <div className={style.inputBox}>
+          <div id="chat-input-pill" className={style.inputBox}>
             {/* AI Trigger Button */}
             <button
               type="button"

@@ -64,7 +64,7 @@ Unlike traditional chat apps, ConnectX integrates **dual AI capabilities** direc
 - 🎙️ **Live Call Captions & Transcriptions:** Real-time speech-to-text displayed over the peer's video stream, streamed directly peer-to-peer through WebRTC DataChannels.
 - ⚡ **AI Smart Replies:** Context-aware 3-choice quick replies generated in milliseconds.
 - 📝 **AI Conversation Summarizer:** 3-bullet executive summary of recent discussion topics, decisions made, and pending questions.
-- 🖼️ **Cloud Media Storage:** User avatars uploaded and CDN-optimized through **ImageKit**.
+- 🐾 **Stateful Living UI Companion ("Neko-Byte"):** 2026 micro-mascot with zero-foot-sliding root-motion walk kinematics, dynamic gaze pupil tracking, and reactive FSM connected to chat events, calls, and AI summarization.
 - 📱 **Progressive Web App (PWA):** Installable on Android, iOS, and Desktop with offline caching and background service workers.
 - 🛡️ **Enterprise Security:** HTTP-Only JWT cookies, Bcrypt password hashing, Helmet HTTP protection, and express-rate-limit brute force prevention.
 

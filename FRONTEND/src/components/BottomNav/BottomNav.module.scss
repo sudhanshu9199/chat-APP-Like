@@ -16,6 +16,14 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   z-index: 1000;
   gap: 6px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+
+  /* Hide bottom nav when inside any chatroom on mobile view (< 768px) */
+  &.inChatRoom {
+    @media (max-width: 768px) {
+      display: none !important;
+    }
+  }
 }
 
 .navItem {

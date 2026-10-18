@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
+import { CompanionProvider } from "./components/CompanionPet/CompanionContext.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./Redux/store.js";
@@ -32,13 +33,16 @@ api.interceptors.response.use(
     return Promise.reject(err);
   },
 );
+// Main application entry
 
 createRoot(document.getElementById("root")).render(
   <GoogleOAuthProvider clientId={clientId}>
     <Provider store={store}>
       <BrowserRouter>
         <SocketContextProvider>
-          <App />
+          <CompanionProvider>
+            <App />
+          </CompanionProvider>
         </SocketContextProvider>
       </BrowserRouter>
     </Provider>
