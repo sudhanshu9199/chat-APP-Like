@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ConnectX - 2026 Mobile UI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #05050A;
+      margin: 0;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    /* 2026 Liquid Glass Surface */
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+    }
+    .liquid-glass-active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(168, 85, 247, 0.12) 100%);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      box-shadow: 0 8px 32px -4px rgba(6, 182, 212, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+    }
+    .liquid-dock {
+      background: rgba(15, 16, 26, 0.65);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    /* Hide scrollbars */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-[#030308] text-white">
+
+  <!-- Mobile-First Device Frame (390x844 iPhone 16/17 Pro Viewport) -->
+  <div class="relative w-[390px] h-[844px] bg-[#080911] rounded-[48px] overflow-hidden border-[6px] border-[#1C1D2A] shadow-[0_0_80px_rgba(6,182,212,0.15)] flex flex-col justify-between my-auto">
+    
+    <!-- Ambient Background Mesh Glows (Brand Colors) -->
+    <div class="absolute -top-24 -left-20 w-72 h-72 bg-cyan-500/20 rounded-full blur-[90px] pointer-events-none"></div>
+    <div class="absolute top-1/3 -right-24 w-72 h-72 bg-purple-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="absolute -bottom-20 left-10 w-64 h-64 bg-indigo-500/15 rounded-full blur-[80px] pointer-events-none"></div>
+
+    <!-- TOP SECTION -->
+    <div class="relative z-10 px-5 pt-12 pb-2">
+      
+      <!-- App Header -->
+      <header class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-2.5">
+          <!-- Mini Brand Icon -->
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-purple-500/20 border border-cyan-400/30 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+            <span class="font-bold text-lg bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">X</span>
+          </div>
+          <h1 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            ConnectX
+          </h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Profile Avatar with Live Ring -->
+          <div class="relative cursor-pointer group">
+            <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 to-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.4)]">
+              <div class="w-full h-full rounded-full bg-[#0B0C14] flex items-center justify-center">
+                <span class="text-xs font-bold bg-gradient-to-tr from-cyan-400 to-purple-400 bg-clip-text text-transparent">α</span>
+              </div>
+            </div>
+            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-[#080911] rounded-full"></span>
+          </div>
+
+          <!-- Glass Menu Button -->
+          <button class="w-10 h-10 rounded-full liquid-glass flex items-center justify-center text-slate-300 hover:text-white transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 2026 Liquid Glass Search & AI Command Bar -->
+      <div class="relative mb-6">
+        <div class="liquid-glass rounded-2xl px-4 py-3.5 flex items-center gap-3 focus-within:border-cyan-400/50 transition">
+          <svg class="w-5 h-5 text-cyan-400/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="text" placeholder="Search chats, voice rooms, or ask AI..." class="bg-transparent w-full text-sm text-white placeholder-slate-400 focus:outline-none">
+          <span class="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white/5 text-slate-400 border border-white/10">⌘K</span>
+        </div>
+      </div>
+
+      <!-- Active Now / Spatial Presence Rail -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2.5 px-1">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Active Pulse</span>
+          <span class="text-[11px] text-cyan-400 font-medium">3 Online</span>
+        </div>
+        <div class="flex items-center gap-4 overflow-x-auto pb-1 no-scrollbar">
+          <!-- Add Note / Status -->
+          <div class="flex flex-col items-center gap-1.5 shrink-0">
+            <div class="w-14 h-14 rounded-2xl liquid-glass flex items-center justify-center border-dashed border-slate-600 relative">
+              <span class="text-cyan-400 text-xl font-medium">+</span>
+            </div>
+            <span class="text-[11px] text-slate-400">Your Pulse</span>
+          </div>
+          <!-- Active User 1 -->
+          <div class="flex flex-col items-center gap-1.5 shrink-0">
+            <div class="relative p-[2px] rounded-2xl bg-gradient-to-tr from-cyan-400 to-purple-500 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
+              <div class="w-[52px] h-[52px] rounded-[14px] bg-[#121320] flex items-center justify-center">
+                <span class="font-bold text-sm text-cyan-300">α</span>
+              </div>
+              <span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 bg-cyan-500 text-[#05050A] font-bold text-[9px] rounded-full">LIVE</span>
+            </div>
+            <span class="text-[11px] text-slate-200 font-medium">testUser</span>
+          </div>
+          <!-- Active User 2 -->
+          <div class="flex flex-col items-center gap-1.5 shrink-0">
+            <div class="relative p-[2px] rounded-2xl bg-white/10">
+              <div class="w-[52px] h-[52px] rounded-[14px] bg-slate-800 flex items-center justify-center text-xs font-semibold text-slate-300">
+                PW
+              </div>
+              <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-[#080911] rounded-full"></span>
+            </div>
+            <span class="text-[11px] text-slate-400 truncate w-14 text-center">Thank You...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="flex items-center gap-2 mb-4">
+        <button class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+          All Chats
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full text-xs font-medium liquid-glass text-slate-300 hover:text-white">
+          Unread <span class="ml-1 text-cyan-400">1</span>
+        </button>
+        <button class="px-3.5 py-1.5 rounded-full text-xs font-medium liquid-glass text-slate-300 hover:text-white">
+          Calls
+        </button>
+      </div>
+
+      <!-- CHAT LIST CARDS (Spatial Tactile Stack) -->
+      <div class="space-y-3">
+        
+        <!-- Card 1: testUser (Active/Unread State) -->
+        <div class="liquid-glass-active rounded-3xl p-3.5 flex items-center justify-between cursor-pointer transition transform hover:scale-[1.01]">
+          <div class="flex items-center gap-3.5">
+            <div class="relative">
+              <div class="w-[52px] h-[52px] rounded-2xl bg-gradient-to-br from-cyan-500/30 to-purple-600/30 border border-cyan-400/40 flex items-center justify-center shadow-inner">
+                <span class="text-lg font-extrabold bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent">α</span>
+              </div>
+              <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#0B0C14] rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-semibold text-[15px] text-white">testUser</h3>
+                <span class="px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 rounded-md border border-cyan-400/20">HD Voice</span>
+              </div>
+              <p class="text-sm text-cyan-100 font-medium mt-0.5 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                Hello
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-col items-end gap-2">
+            <span class="text-[11px] font-semibold text-cyan-400">04:38 PM</span>
+            <span class="w-5 h-5 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 text-[#05050A] font-bold text-[11px] flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.5)]">
+              1
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 2: Thank You PW And Arvind Arora Sir -->
+        <div class="liquid-glass rounded-3xl p-3.5 flex items-center justify-between cursor-pointer hover:border-white/20 transition">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-[52px] h-[52px] rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+              <span class="text-sm font-bold text-slate-300">PW</span>
+            </div>
+            <div class="min-w-0 pr-2">
+              <h3 class="font-semibold text-[15px] text-slate-100 truncate">Thank You PW And Arvind Arora Sir</h3>
+              <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                </svg>
+                Tap to start a conversation
+              </p>
+            </div>
+          </div>
+
+          <!-- Quick Call Action Pill -->
+          <button class="w-9 h-9 rounded-2xl bg-white/5 hover:bg-purple-500/20 border border-white/10 hover:border-purple-400/40 flex items-center justify-center text-slate-300 hover:text-purple-300 transition shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTTOM FLOATING LIQUID GLASS NAVIGATION DOCK -->
+    <div class="relative z-20 px-6 pb-7 pt-2">
+      <nav class="liquid-dock rounded-full p-1.5 flex items-center justify-between">
+        
+        <!-- Tab 1: Chats (Active Pill) -->
+        <a href="#chats" class="flex-1 py-2.5 px-4 rounded-full bg-gradient-to-r from-cyan-500/25 to-purple-500/25 border border-cyan-400/40 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+          <svg class="w-4 h-4 text-cyan-300" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"></path>
+            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"></path>
+          </svg>
+          <span class="text-xs font-bold text-white tracking-wide">Chats</span>
+        </a>
+
+        <!-- Tab 2: Story -->
+        <a href="#story" class="flex-1 py-2.5 px-4 rounded-full flex items-center justify-center gap-2 text-slate-400 hover:text-white transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+          <span class="text-xs font-medium">Story</span>
+        </a>
+
+        <!-- Tab 3: Party -->
+        <a href="#party" class="flex-1 py-2.5 px-4 rounded-full flex items-center justify-center gap-2 text-slate-400 hover:text-white transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span class="text-xs font-medium">Party</span>
+        </a>
+
+      </nav>
+    </div>
+
+  </div>
+
+</body>
+</html>

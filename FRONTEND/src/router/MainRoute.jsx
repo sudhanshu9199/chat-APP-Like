@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from "react-router";
+import { Route, Routes, Navigate, useLocation } from "react-router";
 import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./ProtectedRoute";
@@ -16,12 +16,18 @@ const WelcomePage = lazy(() => import("../Pages/welcome/Welcome"));
 const PartyDashboard = lazy(
   () => import("../Pages/Party/PartDashboard/PartyDashboard"),
 );
+const DesignPreview = lazy(
+  () => import("../Pages/DesignPreview/DesignPreview"),
+);
 
 const MainRoute = () => {
   const { user } = useSelector((state) => state.auth);
+  const location = useLocation();
+  const isPreview = ["/preview", "/test-ui", "/new-ui"].includes(location.pathname);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      {user && <GlobalCallHandler />}
+      {user && !isPreview && <GlobalCallHandler />}
       <Routes>
         <Route
           path="/"
@@ -70,8 +76,12 @@ const MainRoute = () => {
         />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        {/* Temporary Routes for 2026 UI Design Testing */}
+        <Route path="/preview" element={<DesignPreview />} />
+        <Route path="/test-ui" element={<DesignPreview />} />
+        <Route path="/new-ui" element={<DesignPreview />} />
       </Routes>
-      {user && <BottomNav />}
+      {user && !isPreview && <BottomNav />}
     </Suspense>
   );
 };
