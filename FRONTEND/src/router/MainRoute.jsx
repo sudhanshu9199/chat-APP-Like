@@ -16,6 +16,7 @@ const WelcomePage = lazy(() => import("../Pages/welcome/Welcome"));
 const PartyDashboard = lazy(
   () => import("../Pages/Party/PartDashboard/PartyDashboard"),
 );
+const PartyRoom = lazy(() => import("../Pages/Party/PartyRoom/PartyRoom"));
 const DesignPreview = lazy(
   () => import("../Pages/DesignPreview/DesignPreview"),
 );
@@ -55,6 +56,14 @@ const MainRoute = () => {
           element={
             <ProtectedRoute>
               <PartyDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/party/:roomId"
+          element={
+            <ProtectedRoute>
+              <PartyRoom />
             </ProtectedRoute>
           }
         />

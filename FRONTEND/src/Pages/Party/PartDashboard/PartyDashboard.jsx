@@ -1,85 +1,126 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Or your custom API client
+import styles from "./PartyDashboard.module.scss";
+import { Sparkles, Users, Video, Mic, Flame, ArrowRight } from "lucide-react";
+
+import { parsePartyRoomCode } from "../partyUtils";
+
+// Curated active community lounges for 1-tap entry
+const POPULAR_LOUNGES = [
+  { id: "connectx-lounge", icon: "🎉", name: "ConnectX Main Lounge", desc: "The official hangout room" },
+  { id: "lofi-chill", icon: "☕", name: "24/7 Lofi & Chill", desc: "Background study & work beats" },
+  { id: "cyber-beats", icon: "⚡", name: "Cyberpunk Vibe Stage", desc: "High-energy watch & listen party" },
+];
 
 const PartyDashboard = () => {
   const navigate = useNavigate();
-  const [showJoinInput, setShowJoinInput] = useState(false);
   const [joinCode, setJoinCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const handleCreateParty = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // POST /api/v1/party/create
-      const response = await axios.post("/api/v1/party/create");
-      const { code } = response.data; // Adjust based on your API response structure
-
-      // Route to the new party room
-      navigate(`/party/${code}`);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to create party");
-    } finally {
-      setIsLoading(false);
-    }
+  // Create an ephemeral room with a short aesthetic slug
+  const handleQuickLaunch = () => {
+    const adjectives = ["neon", "cyber", "chill", "lounge", "pulse", "echo", "astro"];
+    const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomNum = Math.floor(10 + Math.random() * 89);
+    const generatedRoom = `${randomAdj}-${randomNum}`;
+    navigate(`/party/${generatedRoom}`);
   };
 
-  const handleJoinParty = async (e) => {
+  const handleJoinParty = (e) => {
     e.preventDefault();
     if (!joinCode.trim()) return;
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      // POST /api/v1/party/join
-      await axios.post("/api/v1/party/join", { code: joinCode });
-
-      // On success, route to the party room
-      navigate(`/party/${joinCode}`);
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Invalid party code or failed to join",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    const clean = parsePartyRoomCode(joinCode);
+    navigate(`/party/${clean}`);
   };
 
   return (
-    <div className="party-dashboard-container">
-      <h2>Party Dashboard</h2>
+    <div className={styles.lobbyContainer}>
+      {/* Ambient Radial Glow */}
+      <div className={styles.glowTop} />
 
-      {error && <div className="error-message">{error}</div>}
+      {/* Hero Header */}
+      <header className={styles.headerSection}>
+        <div className={styles.heroIconWrapper}>
+          🎉
+        </div>
+        <h1 className={styles.title}>Live Co-Experience</h1>
+        <p className={styles.subtitle}>
+          Drop in for group voice, watch YouTube or local movies in frame-accurate sync, and hang out with ₹0 lag.
+        </p>
+      </header>
 
-      <div className="party-actions">
-        <button onClick={handleCreateParty} disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create a Party"}
+      {/* 2026 Feature Highlights */}
+      <section className={styles.featuresGrid}>
+        <div className={styles.featureCard}>
+          <span className={styles.featureIcon}>🎙️</span>
+          <span className={styles.featureTitle}>Drop-In Voice</span>
+          <span className={styles.featureDesc}>P2P WebRTC mesh with dynamic speaking rings.</span>
+        </div>
+        <div className={styles.featureCard}>
+          <span className={styles.featureIcon}>🍿</span>
+          <span className={styles.featureTitle}>Watch Together</span>
+          <span className={styles.featureDesc}>Synchronized YouTube or local file streaming.</span>
+        </div>
+        <div className={styles.featureCard}>
+          <span className={styles.featureIcon}>✨</span>
+          <span className={styles.featureTitle}>Emoji Bursts</span>
+          <span className={styles.featureDesc}>Floating glassmorphic reaction effects.</span>
+        </div>
+        <div className={styles.featureCard}>
+          <span className={styles.featureIcon}>🐱</span>
+          <span className={styles.featureTitle}>Mascot Co-Watch</span>
+          <span className={styles.featureDesc}>Kawaii enamel cat vibes to music with you.</span>
+        </div>
+      </section>
+
+      {/* Launch / Join Action Card */}
+      <div className={styles.actionCard}>
+        <button onClick={handleQuickLaunch} className={styles.createBtn}>
+          <Sparkles size={16} />
+          <span>Launch Instant Party Room 🚀</span>
         </button>
 
-        <button
-          onClick={() => setShowJoinInput(!showJoinInput)}
-          disabled={isLoading}
-        >
-          Join a Party
-        </button>
-      </div>
+        <div className={styles.divider}>or join existing</div>
 
-      {showJoinInput && (
-        <form onSubmit={handleJoinParty} className="join-form">
+        <form onSubmit={handleJoinParty} className={styles.joinForm}>
           <input
             type="text"
-            placeholder="Enter Party Code"
+            placeholder="Enter Room Code (e.g. lofi-chill)..."
             value={joinCode}
             onChange={(e) => setJoinCode(e.target.value)}
-            disabled={isLoading}
+            className={styles.joinInput}
           />
-          <button type="submit" disabled={isLoading || !joinCode}>
-            {isLoading ? "Joining..." : "Submit Code"}
+          <button
+            type="submit"
+            disabled={!joinCode.trim()}
+            className={styles.joinBtn}
+          >
+            Join
           </button>
         </form>
-      )}
+      </div>
+
+      {/* Featured Community Lounges */}
+      <section className={styles.featuredSection}>
+        <h2 className={styles.sectionTitle}>Featured 2026 Lounges</h2>
+        <div className={styles.loungeList}>
+          {POPULAR_LOUNGES.map((lounge) => (
+            <div
+              key={lounge.id}
+              onClick={() => navigate(`/party/${lounge.id}`)}
+              className={styles.loungeCard}
+            >
+              <div className={styles.loungeLeft}>
+                <span className={styles.loungeIcon}>{lounge.icon}</span>
+                <div className={styles.loungeInfo}>
+                  <span className={styles.loungeName}>{lounge.name}</span>
+                  <span className={styles.loungeDesc}>{lounge.desc}</span>
+                </div>
+              </div>
+              <span className={styles.loungeTag}>#{lounge.id}</span>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };

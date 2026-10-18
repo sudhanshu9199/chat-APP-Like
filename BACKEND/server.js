@@ -5,6 +5,7 @@ const connectDB = require("./src/db/db");
 const http = require("http");
 const { Server } = require("socket.io");
 const User = require('./src/models/user.model');
+const { registerPartyHandlers } = require('./src/services/socket.service');
 
 const server = http.createServer(app);
 
@@ -21,6 +22,9 @@ io.userSocketMap = {};
 
 io.on("connection", async (socket) => {
   console.log("A user connected:", socket.id);
+
+  // Register 2026 ConnectX Party Live Co-Experience Room Handlers
+  registerPartyHandlers(io, socket);
 
   const userId = socket.handshake.query.userId;
 
