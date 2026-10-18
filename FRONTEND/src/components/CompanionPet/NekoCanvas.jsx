@@ -142,21 +142,40 @@ const NekoCanvas = () => {
       return;
     }
 
-    // 2. Bottom Nav Dock
+    // 2. Party Room Control Dock
+    const partyDock =
+      document.getElementById("party-control-dock") ||
+      document.querySelector('footer[class*="controlDock"]');
+    if (partyDock) {
+      const rect = partyDock.getBoundingClientRect();
+      if (rect.top > 120) {
+        posRef.current.targetY = Math.max(140, rect.top - 54);
+        const minX = Math.max(16, rect.left + 12);
+        const maxX = Math.min(window.innerWidth - 80, rect.right - 75);
+        if (posRef.current.targetX < minX || posRef.current.targetX > maxX) {
+          posRef.current.targetX = Math.max(minX, Math.min(maxX, rect.left + 40));
+        }
+        return;
+      }
+    }
+
+    // 3. Bottom Nav Dock
     const navDock = document.querySelector('nav[aria-label="Primary Navigation"]');
     if (navDock) {
       const rect = navDock.getBoundingClientRect();
-      posRef.current.targetY = rect.top - 54;
-      const minX = Math.max(16, rect.left + 12);
-      const maxX = Math.min(window.innerWidth - 80, rect.right - 75);
-      if (posRef.current.targetX < minX || posRef.current.targetX > maxX) {
-        posRef.current.targetX = Math.max(minX, Math.min(maxX, rect.left + 40));
+      if (rect.top > 120) {
+        posRef.current.targetY = Math.max(140, rect.top - 54);
+        const minX = Math.max(16, rect.left + 12);
+        const maxX = Math.min(window.innerWidth - 80, rect.right - 75);
+        if (posRef.current.targetX < minX || posRef.current.targetX > maxX) {
+          posRef.current.targetX = Math.max(minX, Math.min(maxX, rect.left + 40));
+        }
+        return;
       }
-      return;
     }
 
-    // 3. Viewport Bottom Ground
-    posRef.current.targetY = window.innerHeight - 90;
+    // 4. Viewport Bottom Ground (Safe bounds - never overlap top navigation)
+    posRef.current.targetY = Math.max(140, window.innerHeight - 100);
   }, []);
 
   // Autonomous wandering, pouncing, sleeping & talking behaviors

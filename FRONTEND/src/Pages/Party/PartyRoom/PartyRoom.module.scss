@@ -176,12 +176,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
 }
 
 .iframePlayer {
   width: 100%;
   height: 100%;
   border: none;
+  pointer-events: none; /* Pointer events forwarded to our custom 2026 controller */
 }
 
 .localVideo {
@@ -189,6 +193,278 @@
   height: 100%;
   object-fit: contain;
   background: #000000;
+  pointer-events: none;
+}
+
+/* 2026 Liquid Glass Custom Video Controller Overlay */
+.customControlsOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45) 0%,
+    transparent 35%,
+    transparent 65%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+  transition: opacity 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 20;
+
+  &.controlsHidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.controlsVisible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.topControlRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.mediaTitlePill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.centerActionContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 25;
+}
+
+.centerPlayBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(8, 11, 24, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(6, 182, 212, 0.6);
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  &:hover {
+    transform: scale(1.12);
+    border-color: #38bdf8;
+    box-shadow: 0 0 35px rgba(6, 182, 212, 0.7);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.quickSkipBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Bottom Glass Controller Dock */
+.bottomControlsDock {
+  width: 100%;
+  background: rgba(10, 15, 30, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.timelineRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.timelineBar {
+  flex: 1;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+  cursor: pointer;
+  overflow: visible;
+
+  &:hover .timelineThumb {
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+}
+
+.timelineProgress {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #06b6d4 0%, #a855f7 100%);
+  position: relative;
+}
+
+.timelineThumb {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%) scale(1);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px #06b6d4;
+  transition: transform 0.15s ease;
+}
+
+.timeLabel {
+  font-size: 10px;
+  font-family: monospace;
+  color: #94a3b8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dockActionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dockLeftGroup,
+.dockRightGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dockIconBtn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.volumeGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.volumeSlider {
+  width: 55px;
+  height: 4px;
+  accent-color: #06b6d4;
+  cursor: pointer;
+}
+
+.syncStatusPill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #34d399;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 2px 7px;
+  border-radius: 12px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(16, 185, 129, 0.22);
+  }
+}
+
+/* Tap to Watch / Unmute Overlay for Mobile Autoplay Protection */
+.tapToPlayOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 7, 17, 0.85);
+  backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #ffffff;
+  z-index: 30;
+  cursor: pointer;
+
+  .tapToPlayBtn {
+    background: linear-gradient(135deg, #06b6d4 0%, #a855f7 100%);
+    border: none;
+    border-radius: 24px;
+    padding: 10px 22px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 }
 
 /* Media Controls Bar under video */

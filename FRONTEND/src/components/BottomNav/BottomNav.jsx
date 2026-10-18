@@ -12,7 +12,13 @@ const BottomNav = () => {
   const location = useLocation();
   const isChatRoom = location.pathname.startsWith("/chatroom");
   const isPartyRoom = location.pathname.startsWith("/party/") && location.pathname !== "/party";
-  const shouldHide = isChatRoom || isPartyRoom;
+
+  // Completely hide BottomNav in party rooms (party rooms have their own dedicated control dock)
+  if (isPartyRoom) {
+    return null;
+  }
+
+  const shouldHide = isChatRoom;
 
   return (
     <nav
