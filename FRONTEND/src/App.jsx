@@ -14,22 +14,45 @@ const App = () => {
   }, []);
   if (isLoading) {
     return (
-      <div style={{ 
-        height: "100vh", 
-        width: "100vw", 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        backgroundColor: "#2579ff" // ConnectX theme color!
-      }}>
-        <video 
-          src="/introVideo.mp4" 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-        />
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          height: "100dvh",
+          width: "100vw",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#2579ff", // ConnectX brand theme color
+          overflow: "hidden",
+          zIndex: 99999,
+        }}
+        role="presentation"
+        aria-hidden="true"
+      >
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        >
+          {/* Mobile viewport (portrait & smartphones) */}
+          <source
+            src="/introVideo-v2-2026-mobile.mp4"
+            media="(max-width: 768px)"
+            type="video/mp4"
+          />
+          {/* Large viewport (tablets, laptops, desktops) */}
+          <source
+            src="/introVideo-v2-2026-large.mp4"
+            media="(min-width: 769px)"
+            type="video/mp4"
+          />
+          {/* Universal fallback */}
+          <source src="/introVideo-v2-2026-large.mp4" type="video/mp4" />
+        </video>
       </div>
     );
   }

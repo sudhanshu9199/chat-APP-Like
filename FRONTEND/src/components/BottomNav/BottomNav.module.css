@@ -1,0 +1,35 @@
+.bottomNav {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: min(420px, 100% - 24px);
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(16, 18, 27, 0.92);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  z-index: 1000;
+}
+
+.navItem {
+  text-align: center;
+  color: #dbe4ff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.active {
+  background: #2579ff;
+  color: #fff;
+}/*# sourceMappingURL=BottomNav.module.css.map */

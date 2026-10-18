@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { useSelector } from "react-redux";
 import ProtectedRoute from "./ProtectedRoute";
 import GlobalCallHandler from "../components/GlobalCallHandler/GlobalCallHandler";
+import BottomNav from "../components/BottomNav/BottomNav";
 
 const UserList = lazy(() => import("../Pages/UserList/UserList"));
 const LoginPage = lazy(() => import("../Pages/Login/LoginPage"));
@@ -12,6 +13,9 @@ const ProfileUpdatePage = lazy(
   () => import("../Pages/ProfileUpdate/ProfileUpdatePage"),
 );
 const WelcomePage = lazy(() => import("../Pages/welcome/Welcome"));
+const PartyDashboard = lazy(
+  () => import("../Pages/Party/PartDashboard/PartyDashboard"),
+);
 
 const MainRoute = () => {
   const { user } = useSelector((state) => state.auth);
@@ -28,6 +32,23 @@ const MainRoute = () => {
           element={
             <ProtectedRoute>
               <UserList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/story"
+          element={
+            <ProtectedRoute>
+              <UserList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/party"
+          element={
+            <ProtectedRoute>
+              <PartyDashboard />
             </ProtectedRoute>
           }
         />
@@ -50,6 +71,7 @@ const MainRoute = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
+      {user && <BottomNav />}
     </Suspense>
   );
 };
