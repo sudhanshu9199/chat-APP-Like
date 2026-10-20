@@ -65,13 +65,18 @@ const ConnectXPrivacy = () => {
         <section>
           <h2>6. Contact Information</h2>
           <p>
-            If you have any questions or requests regarding your data or this Privacy Policy, please contact the developer:
+            If you have any questions, feedback, or requests regarding your personal data or this Privacy Policy, please contact our team:
+            <br /><br />
+            <strong>Developer & Lead Maintainer:</strong> Sudhanshu Ghosh
             <br />
-            <strong>Developer:</strong> Sudhanshu Ghosh
-            <br />
-            <strong>Contact Email:</strong>{" "}
+            <strong>Developer Contact Email:</strong>{" "}
             <a href="mailto:shudhanshukumar9713@gmail.com" style={{ color: "#38bdf8" }}>
               shudhanshukumar9713@gmail.com
+            </a>
+            <br />
+            <strong>User Support & Inquiries:</strong>{" "}
+            <a href="mailto:dearsubject@gmail.com" style={{ color: "#38bdf8" }}>
+              dearsubject@gmail.com
             </a>
           </p>
         </section>

@@ -11,12 +11,15 @@ const IK_LARGE_VIDEO = "https://ik.imagekit.io/5gfqhv4e8/introVideo-v2-2026-larg
 const LOCAL_MOBILE_VIDEO = "/introVideo-v2-2026-mobile.mp4";
 const LOCAL_LARGE_VIDEO = "/introVideo-v2-2026-large.mp4";
 
+const isLegalRoute = typeof window !== "undefined" && 
+  (window.location.pathname.startsWith("/privacy") || window.location.pathname.startsWith("/terms"));
+
 const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isLegalRoute);
   const [isVideoVisible, setIsVideoVisible] = useState(false);
   const videoRef = useRef(null);
   const playTimerRef = useRef(null);
-  const hasDismissedRef = useRef(false);
+  const hasDismissedRef = useRef(isLegalRoute);
 
   // Detect viewport dynamically (Mobile ratio <= 768px, Large screen > 768px)
   const isMobile = typeof window !== "undefined" ? window.innerWidth <= 768 : false;

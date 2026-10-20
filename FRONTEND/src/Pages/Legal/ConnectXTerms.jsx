@@ -48,13 +48,18 @@ const ConnectXTerms = () => {
         <section>
           <h2>5. Contact Information</h2>
           <p>
-            For questions regarding these Terms, please contact:
+            For questions or legal notices regarding these Terms, please contact our team:
+            <br /><br />
+            <strong>Developer & Lead Maintainer:</strong> Sudhanshu Ghosh
             <br />
-            <strong>Developer:</strong> Sudhanshu Ghosh
-            <br />
-            <strong>Contact Email:</strong>{" "}
+            <strong>Developer Contact Email:</strong>{" "}
             <a href="mailto:shudhanshukumar9713@gmail.com" style={{ color: "#38bdf8" }}>
               shudhanshukumar9713@gmail.com
+            </a>
+            <br />
+            <strong>User Support & Inquiries:</strong>{" "}
+            <a href="mailto:dearsubject@gmail.com" style={{ color: "#38bdf8" }}>
+              dearsubject@gmail.com
             </a>
           </p>
         </section>
