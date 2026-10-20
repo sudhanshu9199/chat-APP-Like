@@ -8,6 +8,7 @@ import bgImage from "../../assets/Gemini_Generated_Image_nalmg4nalmg4nalm.jpeg";
 import { useGoogleLogin } from "@react-oauth/google";
 import { googleAuthenticate } from "../../Redux/slices/authSlice";
 import { toast } from "react-toastify";
+import BrandLogo from "../../components/BrandLogo/BrandLogo";
 
 const LoginPage = () => {
   const {
@@ -60,6 +61,9 @@ const LoginPage = () => {
 
       <div className={style.contentSection}>
         <div className={style.header}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.85rem" }}>
+            <BrandLogo size="md" withLink={true} />
+          </div>
           <h1>Welcome Back</h1>
           <p className={style.subtitle}>Login to your account</p>
         </div>

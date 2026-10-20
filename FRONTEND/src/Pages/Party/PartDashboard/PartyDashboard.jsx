@@ -4,6 +4,7 @@ import styles from "./PartyDashboard.module.scss";
 import { Sparkles, Users, Video, Mic, Flame, ArrowRight } from "lucide-react";
 
 import { parsePartyRoomCode } from "../partyUtils";
+import BrandLogo from "../../../components/BrandLogo/BrandLogo";
 
 // Curated active community lounges for 1-tap entry
 const POPULAR_LOUNGES = [
@@ -39,10 +40,9 @@ const PartyDashboard = () => {
 
       {/* Hero Header */}
       <header className={styles.headerSection}>
-        <div className={styles.heroIconWrapper}>
-          🎉
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.2rem" }}>
+          <BrandLogo size="lg" withLink={false} suffix="Party" />
         </div>
-        <h1 className={styles.title}>Live Co-Experience</h1>
         <p className={styles.subtitle}>
           Drop in for group voice, watch YouTube or local movies in frame-accurate sync, and hang out with ₹0 lag.
         </p>

@@ -19,6 +19,7 @@ import Dropdown from "./Dropdown/Dropdown";
 import { logoutUser } from "../../Redux/slices/authSlice";
 import { useSocketContext } from "../../context/SocketContext";
 import { getAllConversations } from "../../services/chatDb";
+import BrandLogo from "../../components/BrandLogo/BrandLogo";
 
 const UserList = () => {
   const navigate = useNavigate();
@@ -260,16 +261,7 @@ const UserList = () => {
       <div className={style.mainContent}>
         {/* App Header */}
         <header className={style.header}>
-          <div className={style.brand}>
-            <div className={style.brandIconWrapper}>
-              <img
-                src="/icons/connectX_icon-384x384.png"
-                alt="ConnectX"
-                className={style.brandIcon}
-              />
-            </div>
-            <h1 className={style.brandTitle}>ConnectX</h1>
-          </div>
+          <BrandLogo size="md" withLink={false} />
 
           <div className={style.ownerActivity}>
             <div

@@ -7,6 +7,7 @@ import { useState } from "react";
 import pandaImg from "../../assets/panda_right.png";
 import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
+import BrandLogo from "../../components/BrandLogo/BrandLogo";
 
 const RegisterPage = () => {
   const {
@@ -88,6 +89,9 @@ const RegisterPage = () => {
         <Link to="/" className={style.backBtn} aria-label="Go back">
           <i className="ri-arrow-left-s-line"></i>
         </Link>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.5rem" }}>
+          <BrandLogo size="md" withLink={true} />
+        </div>
         <h1>Register</h1>
         <p className={style.subtitle}>Create your new account</p>
       </div>

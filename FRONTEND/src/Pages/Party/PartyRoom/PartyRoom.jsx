@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useSocketContext } from "../../../context/SocketContext";
 import { useCompanionPet } from "../../../components/CompanionPet/CompanionContext";
+import BrandLogo from "../../../components/BrandLogo/BrandLogo";
 import styles from "./PartyRoom.module.scss";
 import {
   parsePartyRoomCode,
@@ -1137,7 +1138,7 @@ const PartyRoom = () => {
             <ArrowLeft size={16} />
           </button>
           <div className={styles.titleGroup}>
-            <h1 className={styles.title}>ConnectX Party</h1>
+            <BrandLogo size="sm" withLink={false} suffix="Party" />
             <div className={styles.liveBadge}>
               <span className={styles.liveDot} />
               <span>LIVE CO-EXPERIENCE</span>

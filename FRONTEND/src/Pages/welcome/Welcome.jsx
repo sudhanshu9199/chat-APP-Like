@@ -10,6 +10,8 @@ import {
   ExternalLink
 } from "lucide-react";
 
+import BrandLogo from "../../components/BrandLogo/BrandLogo";
+
 const Welcome = () => {
   const navigate = useNavigate();
 
@@ -19,10 +21,7 @@ const Welcome = () => {
 
       {/* Navigation Bar */}
       <header className={style.navbar}>
-        <div className={style.brand}>
-          <div className={style.logoBadge}>X</div>
-          <span>ConnectX</span>
-        </div>
+        <BrandLogo size="md" withLink={false} />
         <nav className={style.navLinks}>
           <a href="#features">Features</a>
           <a href="#compliance">Security & Privacy</a>
@@ -139,8 +138,11 @@ const Welcome = () => {
       {/* Footer with Legal Links */}
       <footer className={style.footer}>
         <div className={style.footerContent}>
-          <div>
-            <strong>ConnectX</strong> &copy; {new Date().getFullYear()} — Engineered by Sudhanshu Ghosh
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+            <BrandLogo size="sm" withLink={false} />
+            <span style={{ color: "#64748b", fontSize: "0.85rem" }}>
+              &copy; {new Date().getFullYear()} — Engineered by Sudhanshu Ghosh
+            </span>
           </div>
 
           <div className={style.footerLinks}>

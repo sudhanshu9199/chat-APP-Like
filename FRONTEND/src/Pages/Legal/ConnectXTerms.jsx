@@ -1,6 +1,7 @@
 import style from "./Legal.module.scss";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import BrandLogo from "../../components/BrandLogo/BrandLogo";
 
 const ConnectXTerms = () => {
   const navigate = useNavigate();
@@ -8,9 +9,12 @@ const ConnectXTerms = () => {
   return (
     <div className={style.legalContainer}>
       <div className={style.legalCard}>
-        <button onClick={() => navigate(-1)} className={style.backLink}>
-          <ArrowLeft size={16} /> Back to ConnectX
-        </button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+          <BrandLogo size="md" withLink={true} />
+          <button onClick={() => navigate(-1)} className={style.backLink} style={{ margin: 0 }}>
+            <ArrowLeft size={16} /> Back to ConnectX
+          </button>
+        </div>
 
         <h1>Terms of Service</h1>
         <p className={style.lastUpdated}>Last Updated: October 20, 2026</p>
