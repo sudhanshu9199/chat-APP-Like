@@ -34,6 +34,7 @@
   - [5. Dual-Engine AI Assistance](#5-dual-engine-ai-assistance)
   - [6. Progressive Web App (PWA)](#6-progressive-web-app-pwa)
 - [Technologies & Libraries Used](#-technologies--libraries-used)
+- [Cloud Media Storage & Free Alternatives (2026)](#-cloud-media-storage--free-alternatives-2026)
 - [System Architecture & Flow](#-system-architecture--flow)
 - [Repository Structure](#-repository-structure)
 - [API Endpoints Reference](#-api-endpoints-reference)
@@ -142,6 +143,19 @@ Unlike traditional chat apps, ConnectX integrates **dual AI capabilities** direc
 | **Helmet (`helmet`)** | Sets security HTTP headers to protect against common web vulnerabilities |
 | **Express Rate Limit** | IP-based request throttling against brute force and DDoS |
 | **Cookie Parser & CORS** | Cookie extraction and Cross-Origin Resource Sharing control |
+
+---
+
+## ☁️ Cloud Media Storage & Free Alternatives (2026)
+
+ConnectX utilizes **ImageKit** for real-time asset delivery, video intro streaming, and avatar transformations. For deployments seeking **100% free / ₹0-cost** media hosting in 2026, the best drop-in alternatives are:
+
+| Provider | Free Tier Allowance | Key Highlights | Best For |
+| :--- | :--- | :--- | :--- |
+| **Cloudflare R2 + CDN** *(Recommended)* | **10 GB Storage**, **$0 Egress** (Unlimited Bandwidth) | Zero egress fees, global edge CDN caching, S3-compatible API | High-traffic video & static media hosting |
+| **Cloudinary** | 25 Credits/mo (~25 GB Bandwidth or Storage) | Direct ImageKit rival, automatic on-the-fly transcoding (`f_auto`, `q_auto`) | Dynamic image & video transformations |
+| **Supabase Storage** | 1 GB Storage, 5 GB/mo Bandwidth | Built on S3 with global CDN caching, native Postgres row-level security | Full-stack apps with unified database & auth |
+| **Firebase Storage** | 5 GB Storage, 1 GB/day Bandwidth | Google Cloud infrastructure with battle-tested client SDKs | Fast mobile-first prototyping |
 
 ---
 
