@@ -20,8 +20,8 @@ const PartyRoom = lazy(() => import("../Pages/Party/PartyRoom/PartyRoom"));
 const DesignPreview = lazy(
   () => import("../Pages/DesignPreview/DesignPreview"),
 );
-const PrivacyPolicy = lazy(() => import("../Pages/Legal/PrivacyPolicy"));
-const TermsOfService = lazy(() => import("../Pages/Legal/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("../Pages/Legal/ConnectXPrivacy"));
+const TermsOfService = lazy(() => import("../Pages/Legal/ConnectXTerms"));
 
 const MainRoute = () => {
   const { user } = useSelector((state) => state.auth);
