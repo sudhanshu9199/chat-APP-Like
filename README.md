@@ -1,26 +1,29 @@
 # ConnectX 💬⚡
 
-### Next-Generation Real-Time Messaging & WebRTC Video Calling Platform with On-Device AI Captions & Generative Assistants
+### Next-Generation Real-Time Messaging & WebRTC Video Calling Platform with Zero-Database Architecture, On-Device AI Captions & Bring-Your-Own-Drive (BYOD) Cloud Backup
 
 [![Live Demo](https://img.shields.io/badge/Demo-Live%20App-blue?style=for-the-badge&logo=netlify)](https://connectx-chat-with.netlify.app/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-Express%205-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://socket.io/)
 [![WebRTC](https://img.shields.io/badge/WebRTC-P2P%20Call-333333?style=for-the-badge&logo=webrtc&logoColor=white)](https://webrtc.org/)
+[![IndexedDB](https://img.shields.io/badge/Storage-IndexedDB%20Vault-orange?style=for-the-badge&logo=databricks&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 [![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
 
 ---
 
-## 🌐 Live Application
+## 🌐 Live Application & Compliance Links
 
-- **Working Application Link:** [https://connectx-chat-with.netlify.app/](https://connectx-chat-with.netlify.app/)
+- **Production Web Application:** [https://connectx-chat-with.netlify.app/](https://connectx-chat-with.netlify.app/)
+- **Privacy Policy:** [https://connectx-chat-with.netlify.app/privacy](https://connectx-chat-with.netlify.app/privacy) *(Static fallback: `/privacy.html`)*
+- **Terms of Service:** [https://connectx-chat-with.netlify.app/terms](https://connectx-chat-with.netlify.app/terms) *(Static fallback: `/terms.html`)*
 
 ---
 
 ## 📸 Screenshots
 
-|                                                           Mobile View - Conversations                                                           |                                                          Mobile View - Chat Room & AI                                                           |
-| :---------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------: |
+| Mobile View - Conversations | Mobile View - Chat Room & AI |
+| :---: | :---: |
 | <img width="397" height="821" alt="ConnectX Chat List" src="https://github.com/user-attachments/assets/8f7d6d52-5d3f-462e-a695-a47fa648ff0d" /> | <img width="403" height="808" alt="ConnectX Chat Room" src="https://github.com/user-attachments/assets/f96417f5-871d-4bc2-b63d-d952c73f2c51" /> |
 
 ---
@@ -30,12 +33,13 @@
 - [Project Overview](#-project-overview)
 - [Key Features](#-key-features)
 - [How the Application Works](#-how-the-application-works)
-  - [1. Authentication & Security](#1-authentication--security)
-  - [2. Real-Time Chat & Unread Tracking](#2-real-time-chat--unread-tracking)
+  - [1. Authentication & Google Identity](#1-authentication--google-identity)
+  - [2. The ₹0 Forever "WhatsApp Post Office" Architecture](#2-the-0-forever-whatsapp-post-office-architecture)
   - [3. WebRTC Audio & Video Calling](#3-webrtc-audio--video-calling)
   - [4. Real-Time On-Device Live Call Captions](#4-real-time-on-device-live-call-captions)
   - [5. Dual-Engine AI Assistance](#5-dual-engine-ai-assistance)
-  - [6. Progressive Web App (PWA)](#6-progressive-web-app-pwa)
+  - [6. Party Mode & Live Co-Experience](#6-party-mode--live-co-experience)
+  - [7. Privacy, Legal & Google Cloud Verification](#7-privacy-legal--google-cloud-verification)
 - [Technologies & Libraries Used](#-technologies--libraries-used)
 - [Cloud Media Storage & Free Alternatives (2026)](#-cloud-media-storage--free-alternatives-2026)
 - [System Architecture & Flow](#-system-architecture--flow)
@@ -44,81 +48,102 @@
 - [Socket.io Events Reference](#-socketio-events-reference)
 - [Environment Variables](#-environment-variables)
 - [Getting Started & Local Installation](#-getting-started--local-installation)
+- [Author & Support Contacts](#-author--support-contacts)
 
 ---
 
 ## 🚀 Project Overview
 
-**ConnectX** is a modern, responsive communication platform designed to provide seamless one-on-one text chatting, crystal-clear peer-to-peer audio and video calling, and cutting-edge artificial intelligence integrations.
+**ConnectX** is a cutting-edge real-time communication platform engineered with a **zero-database cost paradigm**. Built around modern WebRTC mesh networks and high-performance WebSockets, ConnectX treats the central backend server strictly as a transient post office:
 
-Unlike traditional chat apps, ConnectX integrates **dual AI capabilities** directly into conversations:
-
-1. **Ultra-fast Smart Reply Suggestions** via Groq Cloud (`LLaMA 3.1 8B Instant`).
-2. **Contextual Chat Summaries** powered by Google Gemini (`Gemini 3 Flash Preview`).
-3. **Live Closed Captions during WebRTC Video Calls**, rendered client-side using browser-native Speech Recognition with an on-device neural fallback (`@xenova/transformers` running OpenAI Whisper-Tiny in a Web Worker) streamed peer-to-peer over WebRTC DataChannels.
+1. **Zero-Database Permanent Storage:** Messages delivered to online peers stream directly peer-to-screen and are **never saved on central database servers** (0 bytes permanent MongoDB footprint).
+2. **On-Device Encrypted Vault:** Full chat history, media snippets, and conversation metadata reside in the user's private browser **IndexedDB Vault** with storage eviction mitigation.
+3. **Bring Your Own Drive (BYOD) Backup:** Users maintain full data sovereignty by syncing encrypted chat vault archives to their private **Google Drive AppData folder** (`drive.appdata` scope) or downloading standalone `.json` backups.
+4. **Crystal HD WebRTC Calling with On-Device AI Captions:** Sub-50ms peer-to-peer audio/video streaming featuring real-time closed captions via browser-native Web Speech API and an on-device neural fallback (`@xenova/transformers` running Whisper-Tiny in a Web Worker).
+5. **Dual-Engine AI Intelligence:** Context-aware quick reply chips powered by Groq (`LLaMA 3.1 8B Instant`) and multi-message conversation summarization powered by Google Gemini (`Gemini 3 Flash Preview`).
 
 ---
 
 ## ✨ Key Features
 
-- 🔐 **Dual Authentication:** Traditional email/password signup and login + One-click **Google OAuth 2.0** integration.
-- 💬 **Instant Real-Time Chat:** Low-latency bi-directional messaging with Socket.io and automatic read receipts (`seen` status).
-- 🟢 **Live Presence & Status:** Real-time online/offline indicators and exact `lastSeen` timestamps.
-- 🔔 **Global Incoming Call System:** Background incoming call ringtones, toast banners, browser notifications, and vibration feedback even when outside the chatroom.
-- 📹 **Peer-to-Peer Audio & Video Calling:** Native WebRTC implementation supporting camera toggle, microphone mute, in-call timers, and dynamic video resolution switching (`360p`, `480p`, `720p`).
-- 🎙️ **Live Call Captions & Transcriptions:** Real-time speech-to-text displayed over the peer's video stream, streamed directly peer-to-peer through WebRTC DataChannels.
-- ⚡ **AI Smart Replies:** Context-aware 3-choice quick replies generated in milliseconds.
-- 📝 **AI Conversation Summarizer:** 3-bullet executive summary of recent discussion topics, decisions made, and pending questions.
-- 🐾 **Stateful Living UI Companion ("Neko-Byte"):** 2026 micro-mascot with zero-foot-sliding root-motion walk kinematics, dynamic gaze pupil tracking, and reactive FSM connected to chat events, calls, and AI summarization.
+- 🛡️ **₹0 Store-and-Forward Post Office Engine:** Online messages stream live with zero cloud database writes. Offline messages are temporarily staged with a 14-day auto-purge TTL index and immediately deleted upon receipt.
+- 💾 **Client-Side IndexedDB Vault (`chatDb.js`):** High-speed native IndexedDB stores messages, conversations, and metadata. Protected from OS cleanup via `navigator.storage.persist()`.
+- ☁️ **Bring-Your-Own-Drive (BYOD) Cloud Backup:** User-controlled Google Drive AppData sync and 1-click JSON vault import/export.
+- 🔐 **Dual Authentication:** Email/password credentials + One-click **Google OAuth 2.0** login.
+- 🟢 **Live Presence & Read Receipts:** Instant online/offline statuses, `lastSeen` timestamps, and real-time `seen` acknowledgments.
+- 📹 **Peer-to-Peer Audio & Video Calling:** Native WebRTC with camera toggle, microphone mute, in-call timers, and dynamic resolution selection (`360p`, `480p`, `720p`).
+- 🎙️ **Live Call Captions & Transcriptions:** Real-time speech-to-text displayed over the peer's video stream, streamed directly peer-to-peer via WebRTC `RTCDataChannel`.
+- ⚡ **AI Smart Replies & Summaries:** Groq LLaMA 3.1 8B instant suggestions and Gemini 3 Flash executive summaries supplied with client-side conversation context.
+- 🎉 **Party Mode & Live Co-Experience:** Ephemeral synchronized watch parties supporting YouTube streams and local video playback with drop-in P2P voice channels.
+- 🐾 **Stateful Living UI Companion ("Neko-Byte"):** Interactive micro-mascot with root-motion kinematics, dynamic pupil tracking, and reactive behaviors tied to active events.
 - 📱 **Progressive Web App (PWA):** Installable on Android, iOS, and Desktop with offline caching and background service workers.
-- 🛡️ **Enterprise Security:** HTTP-Only JWT cookies, Bcrypt password hashing, Helmet HTTP protection, and express-rate-limit brute force prevention.
+- 🛡️ **Enterprise Security:** HTTP-Only JWT cookies, Bcrypt password hashing, Helmet HTTP headers (`same-origin-allow-popups`), and rate-limited brute force protection.
 
 ---
 
 ## 🔍 How the Application Works
 
-### 1. Authentication & Security
+### 1. Authentication & Google Identity
 
-- **Registration & Login:** Users register with their name, email, password, and optional avatar image. Avatars are processed via `multer` (memory storage) and uploaded to ImageKit CDN.
-- **Google OAuth 2.0:** Users can sign in with Google in a single tap via `@react-oauth/google`. The backend validates the Google access token with Google's UserInfo API, provisioning a user record or linking it automatically.
-- **Sessions & JWT:** A signed JSON Web Token (valid for 2 days) is issued and set in a hardened `httpOnly`, `sameSite`, and `secure` cookie, as well as returned in payload for authorization flexibility.
-- **Rate Limiting:** Authentication routes are protected with `express-rate-limit` (limiting brute force attacks to 5 attempts/hour).
+- **Email & Password Authentication:** Users register with credentials and an optional avatar image. Avatars are processed via `multer` in-memory and stored on ImageKit CDN.
+- **Google OAuth 2.0 Integration:** Authenticates users in a single tap via `@react-oauth/google`. The backend validates the Google access token with Google's UserInfo API, automatically provisioning or linking user profiles.
+- **Session Hardening:** Signed JWT tokens (valid for 2 days) are stored in `httpOnly`, `sameSite`, and `secure` cookies, accompanied by an `express-rate-limit` guard (5 attempts/hour).
 
-### 2. Real-Time Chat & The ₹0 Forever "WhatsApp Post Office" Architecture
+### 2. The ₹0 Forever "WhatsApp Post Office" Architecture
 
-ConnectX implements a high-performance **Store-and-Forward + Client-Side Browser Vault** model inspired by WhatsApp and Signal:
+ConnectX eliminates ongoing cloud database hosting expenses by decentralizing chat storage:
 
-- **Zero-Database Online Transmission:** When the recipient is online, the server streams the message straight to the recipient's screen through active WebSocket connection (`socket.service.js`). The server writes **0 bytes to MongoDB** (saving 100% on cloud database fees).
-- **Ephemeral Offline Queue (Store-and-Forward):** If the recipient is offline, the message is temporarily staged in MongoDB with `delivered: false` and a **14-day TTL auto-purge index** (`expireAt`). As soon as the recipient opens the app or reconnects, the server pushes the waiting batch via `sync:pending`, the client commits them to local storage, sends a `sync:ack` receipt, and the server **immediately purges them from MongoDB** forever.
-- **Client-Side IndexedDB Vault (`chatDb.js`):** Messages and conversation metadata reside securely in the user's browser device. Queries execute with 0ms network latency.
-- **Eviction Protection Mitigation:** Calls `navigator.storage.persist()` on client boot to prevent iOS Safari and Android Chromium from discarding local IndexedDB under storage pressure.
-- **Bring Your Own Drive (BYOD) Cloud Backup:** Users can back up and restore their entire encrypted chat vault to their personal **Google Drive hidden AppData folder** (`drive.appdata` scope) or download an instant offline `.json` vault backup file in one click via Profile & Vault Settings.
+```
+[ User A ] ───(Socket.io message)───▶ [ ConnectX Server ]
+                                             │
+                       ┌─────────────────────┴─────────────────────┐
+                       ▼                                           ▼
+             [ User B is ONLINE ]                        [ User B is OFFLINE ]
+                       │                                           │
+         Direct peer-to-screen push                      Temporary MongoDB Queue
+         (0 bytes written to MongoDB)                    (delivered: false, 14-day TTL)
+                       │                                           │
+         Committed to User B's Vault                     User B connects ➔ sync:pending
+                       │                                           │
+         msg:ack ➔ Server confirms delivery              sync:ack ➔ Server PURGES record
+```
+
+- **Zero-Database Online Transmission:** When the recipient is online, the server streams the message straight to the recipient's screen through active WebSocket connection (`socket.service.js`). The server writes **0 bytes to MongoDB**.
+- **Ephemeral Offline Queue (Store-and-Forward):** If the recipient is offline, the message is temporarily staged in MongoDB with `delivered: false` and a **14-day TTL auto-purge index** (`expireAt`). As soon as the recipient opens the app or reconnects, the server pushes the waiting batch via `sync:pending`, the client commits them to local storage, sends a `sync:ack` receipt, and the server **immediately purges them from MongoDB**.
+- **Client-Side IndexedDB Vault (`chatDb.js`):** Messages and conversation metadata reside securely in the user's browser device (`connectx_chat_vault`). Queries execute with 0ms network latency.
+- **Storage Eviction Protection:** Calls `navigator.storage.persist()` on client boot to prevent mobile operating systems from clearing browser IndexedDB data under storage pressure.
+- **Bring Your Own Drive (BYOD) Cloud Backup (`googleDriveBackup.js`):** Users can back up and restore their entire encrypted chat vault to their personal **Google Drive hidden AppData folder** (`drive.appdata` scope) or export an offline `.json` vault backup file in one click.
 - **AI Context Preservation:** When calling Groq Quick Replies or Gemini Chat Summarizer, the frontend supplies the recent message context from local IndexedDB in `req.body.messages`, preserving AI intelligence without keeping server-side logs.
 
 ### 3. WebRTC Audio & Video Calling
 
-- **Signaling via Socket.io:** When User A initiates a call, the frontend creates an `RTCPeerConnection` with public STUN servers (`stun:stun.l.google.com:19302`), captures media streams, creates an SDP offer, and sends it through `socket.emit("callUser")`.
-- **Global Call Handler:** If User B is browsing elsewhere on the platform, a persistent `GlobalCallHandler` intercepts the `incomingCall` event, plays ringtone audio, renders a top-level alert toast, and triggers system notifications.
-- **P2P Streaming:** Once accepted, an SDP answer and ICE candidates are exchanged. Audio and video tracks flow directly peer-to-peer between the browsers, bypassing the application server for minimal latency.
-- **In-Call Controls:** Users can mute audio, toggle camera on/off, monitor call duration, and select between 360p, 480p, or 720p constraints.
+- **Signaling via Socket.io:** Initiates calls via `socket.emit("callUser")` with SDP offers and candidate exchange over public Google STUN servers (`stun:stun.l.google.com:19302`).
+- **Global Call Alert:** If the recipient is browsing another page, `GlobalCallHandler` intercepts `incomingCall`, plays custom ringtones, displays an interactive toast banner, and triggers browser notifications.
+- **Direct P2P Media Streams:** Once accepted, media streams flow peer-to-peer between client browsers without touching the server, ensuring optimal bandwidth and privacy.
 
 ### 4. Real-Time On-Device Live Call Captions
 
-- During an active video call, speech is recognized in real time:
-  - **Primary Engine:** Browser Native Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`).
-  - **Offline/Universal Fallback Engine:** Hugging Face `@xenova/transformers` running the quantized `Xenova/whisper-tiny.en` model directly inside a background **Web Worker** (`whisper.worker.js`) via WebAssembly / ONNX Runtime.
-- Transcribed text chunks are tagged with a UUID and timestamp, and sent across a dedicated WebRTC `RTCDataChannel` named `live-captions`.
-- The remote client receives the caption payload and renders smooth, animated subtitles on top of the remote video stream via `CaptionOverlay`.
+- **Primary Engine:** Browser-native Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`).
+- **Offline/Universal Neural Fallback:** Hugging Face `@xenova/transformers` executing the quantized `Xenova/whisper-tiny.en` model directly inside a dedicated **Web Worker** (`whisper.worker.js`) via WebAssembly / ONNX Runtime.
+- **DataChannel Distribution:** Transcribed text chunks are sent across an `RTCDataChannel` named `live-captions` and rendered as animated subtitles over the remote video frame via `CaptionOverlay`.
 
 ### 5. Dual-Engine AI Assistance
 
-- **AI Smart Quick Replies (Groq Cloud):** Clicking the magic wand icon sends the recent conversation history to `/api/messages/suggest-replies/:id`. The backend queries Groq's high-speed inference engine running `llama-3.1-8b-instant` with strict temperature and formatting prompts, returning 3 natural, under-6-word replies rendered as clickable chips.
-- **AI Chat Summarization (Google Gemini):** Clicking the floating "Summarize Recent" pill calls `/api/messages/summarize/:id`. The backend leverages `@google/generative-ai` with a waterfall fallback mechanism (`gemini-3-flash-preview` ➔ `gemini-3.1-flash-lite-preview`). It synthesizes the last 15 messages into a concise 3-bullet summary focusing strictly on decisions and open questions.
+- **Groq LLaMA 3.1 8B Instant Suggestions:** Submits recent conversation context to `/api/messages/suggest-replies/:id`. Groq generates 3 natural quick-reply options returned in milliseconds.
+- **Google Gemini Chat Summaries:** Submits recent conversation context to `/api/messages/summarize/:id`. Google Gemini (`gemini-3-flash-preview` with waterfall fallback to `gemini-3.1-flash-lite-preview`) generates a 3-bullet executive summary covering key topics, decisions, and open items.
 
-### 6. Progressive Web App (PWA)
+### 6. Party Mode & Live Co-Experience
 
-- Powered by `vite-plugin-pwa` and Workbox, the application provides an installable native-like app experience with custom home-screen icons, standalone display mode, and service worker caching for offline asset delivery.
-- Uses `@vitejs/plugin-legacy` to maintain compatibility across older mobile operating systems and browsers.
+- **Synchronized Watch Parties:** Ephemeral rooms supporting synchronized YouTube playback and local media file streaming.
+- **P2P Audio Lounge:** Drop-in voice chat mesh with live audio meters and reactive speaking rings.
+- **Interactive Reactions:** Floating glassmorphic emoji bursts and live participant presence.
+
+### 7. Privacy, Legal & Google Cloud Verification
+
+ConnectX meets Google Cloud OAuth verification standards:
+- **Public 2026 Landing Page:** The home route (`/`) provides full public product disclosures, feature architecture explanations, and footer links without being behind a login wall.
+- **Dedicated Legal Pages:** Fully styled, responsive [Privacy Policy](/privacy) and [Terms of Service](/terms) with static HTML fallbacks (`public/privacy.html`, `public/terms.html`) for search engine and verification bots.
+- **Google API Scopes Disclosure:** Transparently documents Google Sign-In and Google Drive AppData (`drive.appdata`) scope usage. Chat backups remain strictly inside the user's private application data folder and are never inspected or sold.
 
 ---
 
@@ -126,52 +151,53 @@ ConnectX implements a high-performance **Store-and-Forward + Client-Side Browser
 
 ### Frontend Architecture
 
-| Technology / Library                                  | Purpose                                                                       |
-| :---------------------------------------------------- | :---------------------------------------------------------------------------- |
-| **React 19**                                          | Modern UI library with concurrent rendering and hooks                         |
-| **Vite (Rolldown-Vite)**                              | Next-gen blazing fast bundler and dev server                                  |
-| **Redux Toolkit (`@reduxjs/toolkit`, `react-redux`)** | Centralized global state management (auth state, online users)                |
-| **React Router v7**                                   | Client-side routing, protected routes, and page navigation                    |
-| **Socket.io Client**                                  | Real-time WebSocket connection for instant chat & call signaling              |
-| **Native WebRTC API**                                 | `RTCPeerConnection`, `RTCDataChannel`, and MediaStream for P2P calling        |
-| **@xenova/transformers**                              | Client-side machine learning; runs Whisper Tiny speech-to-text in Web Workers |
-| **Web Speech API**                                    | High-performance native speech recognition                                    |
-| **@react-oauth/google**                               | Google Identity Services OAuth 2.0 integration                                |
-| **Sass / SCSS Modules**                               | Modular, maintainable styles with scoped CSS classes                          |
-| **Lucide React**                                      | Clean, lightweight icon suite                                                 |
-| **React Hook Form**                                   | Performant form validation for login & registration                           |
-| **React Toastify**                                    | Interactive toast notifications for calls and alerts                          |
-| **Vite PWA & Workbox**                                | Service workers, web manifest, and offline asset caching                      |
+| Technology / Library | Purpose |
+| :--- | :--- |
+| **React 19** | Concurrent UI rendering with hooks and lazy-loading |
+| **Vite (Rolldown-Vite)** | Next-generation bundler and development server |
+| **IndexedDB API (`chatDb.js`)** | Client-side native high-performance message storage vault |
+| **Google Drive REST API v3** | Bring-Your-Own-Drive (BYOD) cloud backup via `drive.appdata` |
+| **Redux Toolkit (`@reduxjs/toolkit`)** | Centralized auth and presence state management |
+| **React Router v7** | Client routing with `RouteErrorBoundary` and lazy routes |
+| **Socket.io Client** | Real-time bi-directional messaging and call signaling |
+| **Native WebRTC API** | Direct peer-to-peer audio, video, and DataChannel streaming |
+| **@xenova/transformers** | Client-side Whisper-Tiny speech-to-text running in Web Workers |
+| **Web Speech API** | Native speech recognition engine |
+| **@react-oauth/google** | Google Identity Services OAuth 2.0 integration |
+| **Sass / SCSS Modules** | Scoped modular styling with 2026 cyber glassmorphism |
+| **Lucide React** | Clean, lightweight modern icons |
+| **React Hook Form** | Performant form validation |
+| **React Toastify** | Interactive toast notifications for calls and alerts |
+| **Vite PWA & Workbox** | Service workers, web manifest, and offline caching |
 
 ### Backend Architecture
 
-| Technology / Library                               | Purpose                                                                  |
-| :------------------------------------------------- | :----------------------------------------------------------------------- |
-| **Node.js & Express.js (v5)**                      | RESTful API backend runtime and web server framework                     |
-| **MongoDB Atlas & Mongoose (v9)**                  | Cloud NoSQL database with indexing for rapid chat query resolution       |
-| **Socket.io (v4)**                                 | Server-side WebSocket handling, room mapping, and signaling              |
-| **Groq SDK (`groq-sdk`)**                          | LLaMA 3.1 8B instant inference for smart quick replies                   |
-| **Google Generative AI (`@google/generative-ai`)** | Gemini Flash model integration for intelligent conversation summaries    |
-| **ImageKit SDK**                                   | Cloud storage and real-time CDN delivery for user profile avatars        |
-| **JSON Web Token (`jsonwebtoken`)**                | Cryptographically signed authentication tokens                           |
-| **Bcrypt (`bcrypt`)**                              | Salted hashing for user passwords                                        |
-| **Multer (`multer`)**                              | Multipart/form-data handler for avatar file uploads                      |
-| **Helmet (`helmet`)**                              | Sets security HTTP headers to protect against common web vulnerabilities |
-| **Express Rate Limit**                             | IP-based request throttling against brute force and DDoS                 |
-| **Cookie Parser & CORS**                           | Cookie extraction and Cross-Origin Resource Sharing control              |
+| Technology / Library | Purpose |
+| :--- | :--- |
+| **Node.js & Express.js (v5)** | RESTful API backend runtime and web server framework |
+| **MongoDB Atlas & Mongoose (v9)** | Cloud database with TTL auto-purge indexing for offline queue |
+| **Socket.io (v4)** | Server-side WebSocket handling, rooms, and signaling |
+| **Groq SDK (`groq-sdk`)** | LLaMA 3.1 8B instant inference for smart replies |
+| **Google Generative AI (`@google/generative-ai`)** | Gemini Flash model integration for chat summaries |
+| **ImageKit SDK** | Cloud storage and CDN optimization for profile avatars |
+| **JSON Web Token (`jsonwebtoken`)** | Signed session authentication tokens |
+| **Bcrypt (`bcrypt`)** | Password hashing with cryptographic salts |
+| **Multer (`multer`)** | In-memory multipart/form-data handler for uploads |
+| **Helmet (`helmet`)** | HTTP security headers with `same-origin-allow-popups` COOP |
+| **Express Rate Limit** | Request rate limiting against brute force attempts |
 
 ---
 
 ## ☁️ Cloud Media Storage & Free Alternatives (2026)
 
-ConnectX utilizes **ImageKit** for real-time asset delivery, video intro streaming, and avatar transformations. For deployments seeking **100% free / ₹0-cost** media hosting in 2026, the best drop-in alternatives are:
+ConnectX uses **ImageKit** for real-time asset delivery and avatar transformations. For deployments seeking **100% free / ₹0-cost** media hosting in 2026, the best drop-in alternatives are:
 
-| Provider                                | Free Tier Allowance                                    | Key Highlights                                                               | Best For                                     |
-| :-------------------------------------- | :----------------------------------------------------- | :--------------------------------------------------------------------------- | :------------------------------------------- |
-| **Cloudflare R2 + CDN** _(Recommended)_ | **10 GB Storage**, **$0 Egress** (Unlimited Bandwidth) | Zero egress fees, global edge CDN caching, S3-compatible API                 | High-traffic video & static media hosting    |
-| **Cloudinary**                          | 25 Credits/mo (~25 GB Bandwidth or Storage)            | Direct ImageKit rival, automatic on-the-fly transcoding (`f_auto`, `q_auto`) | Dynamic image & video transformations        |
-| **Supabase Storage**                    | 1 GB Storage, 5 GB/mo Bandwidth                        | Built on S3 with global CDN caching, native Postgres row-level security      | Full-stack apps with unified database & auth |
-| **Firebase Storage**                    | 5 GB Storage, 1 GB/day Bandwidth                       | Google Cloud infrastructure with battle-tested client SDKs                   | Fast mobile-first prototyping                |
+| Provider | Free Tier Allowance | Key Highlights | Best For |
+| :--- | :--- | :--- | :--- |
+| **Cloudflare R2 + CDN** *(Recommended)* | **10 GB Storage**, **$0 Egress** (Unlimited Bandwidth) | Zero egress fees, global edge CDN caching, S3-compatible API | High-traffic video & static media hosting |
+| **Cloudinary** | 25 Credits/mo (~25 GB Bandwidth or Storage) | Automatic transformations (`f_auto`, `q_auto`), direct ImageKit rival | Dynamic image & video transformations |
+| **Supabase Storage** | 1 GB Storage, 5 GB/mo Bandwidth | Built on S3 with global CDN caching, native Postgres RLS | Full-stack apps with unified database & auth |
+| **Firebase Storage** | 5 GB Storage, 1 GB/day Bandwidth | Google Cloud infrastructure with battle-tested client SDKs | Fast mobile-first prototyping |
 
 ---
 
@@ -181,6 +207,7 @@ ConnectX utilizes **ImageKit** for real-time asset delivery, video intro streami
 graph TD
     subgraph Client ["Frontend (React 19 + PWA)"]
         UI[User Interface & Chatroom]
+        IDB[(IndexedDB Chat Vault)]
         STT[Web Speech / Transformers.js Worker]
         RTC[WebRTC RTCPeerConnection]
         Redux[Redux Store & Sockets]
@@ -188,24 +215,27 @@ graph TD
 
     subgraph Server ["Backend (Node.js + Express 5)"]
         API[Express REST API]
-        Signaling[Socket.io Signaling Server]
+        Signaling[Socket.io Server & Store-and-Forward]
         RateLimit[Helmet & Rate Limiter]
+        TTLQueue[(MongoDB Ephemeral 14-Day TTL Queue)]
     end
 
     subgraph External ["Cloud & AI Services"]
-        Mongo[(MongoDB Atlas)]
+        Drive[(Google Drive AppData Folder)]
         Groq[Groq LLaMA 3.1 API]
         Gemini[Google Gemini API]
         ImageKit[ImageKit CDN]
         GoogleOAuth[Google OAuth 2.0]
     end
 
-    UI <-->|HTTP / REST API| RateLimit --> API
+    UI <--> IDB
+    IDB -.->|BYOD Encrypted Sync| Drive
+    UI <-->|REST API| RateLimit --> API
     UI <-->|WebSocket Events| Signaling
+    Signaling <-->|Offline Queue & Auto-Purge| TTLQueue
     RTC <-->|P2P Audio, Video & Live Captions| RTC
     STT -->|Transcribed Text| RTC
 
-    API <--> Mongo
     API <-->|Smart Reply Prompts| Groq
     API <-->|Chat Summaries| Gemini
     API <-->|Avatar Uploads| ImageKit
@@ -218,22 +248,22 @@ graph TD
 
 ```text
 ConnectX_P_9/
-├── README.md                      # Project documentation
+├── README.md                      # Comprehensive project documentation
 ├── BACKEND/                       # Server-side application
 │   ├── package.json
-│   ├── server.js                  # HTTP & Socket.io server entry point
+│   ├── server.js                  # Socket.io server, sync:pending, sync:ack, msg:ack
 │   ├── .env                       # Backend environment configuration
 │   └── src/
-│       ├── app.js                 # Express app initialization, middleware, rate-limiters
+│       ├── app.js                 # Express app, Helmet COOP headers, rate-limiters
 │       ├── db/
 │       │   └── db.js              # MongoDB Atlas connection handler
 │       ├── models/
-│       │   ├── user.model.js      # User schema (profile, credentials, status, lastSeen)
-│       │   └── message.model.js   # Message schema (sender, receiver, text, seen status)
+│       │   ├── user.model.js      # User schema (profile, status, lastSeen)
+│       │   └── message.model.js   # Ephemeral schema with 14-day auto-purge TTL
 │       ├── controller/
 │       │   ├── auth.controller.js # Register, login, Google OAuth, logout
-│       │   ├── user.controller.js # Participant listing with unread counts & profile edit
-│       │   └── message.controller.js # Send/get messages, AI reply suggestions & summary
+│       │   ├── user.controller.js # Participant directory with unread counts
+│       │   └── message.controller.js # Instant purge on delivery, AI context handlers
 │       ├── routes/
 │       │   ├── auth.routes.js     # /api/auth routes
 │       │   ├── user.routes.js     # /api/users routes
@@ -248,13 +278,18 @@ ConnectX_P_9/
 └── FRONTEND/                      # Client-side single page application
     ├── package.json
     ├── vite.config.js             # Vite, PWA, legacy device, and header configs
-    ├── index.html                 # App HTML skeleton and metadata
+    ├── index.html                 # Google site verification & font preconnects
     ├── .env                       # Frontend environment configuration
+    ├── public/
+    │   ├── privacy.html           # Standalone static Privacy Policy fallback
+    │   ├── terms.html             # Standalone static Terms of Service fallback
+    │   ├── _redirects             # Netlify SPA redirect rules
+    │   └── icons/                 # High-res brand icons (512x512, 384x384, 192x192)
     └── src/
-        ├── App.jsx                # Splash intro loader and route host
+        ├── App.jsx                # Splash intro loader with instant legal bypass
         ├── main.jsx               # React entry point with Redux & OAuth providers
         ├── router/
-        │   ├── MainRoute.jsx      # Route definitions & lazy-loaded pages
+        │   ├── MainRoute.jsx      # Static legal routes & RouteErrorBoundary
         │   └── ProtectedRoute.jsx # Route guard verifying authentication
         ├── Redux/
         │   ├── store.js           # Redux store configuration
@@ -262,26 +297,25 @@ ConnectX_P_9/
         │       ├── authSlice.js   # Auth actions (login, register, google, logout)
         │       └── socketSlice.js # Online users list state
         ├── context/
-        │   └── SocketContext.jsx  # Socket.io connection provider & user lifecycle
-        ├── hooks/
-        │   ├── useTranscription.js # Speech recognition & Whisper fallback hook
-        │   └── useIdleTimer.js    # UI idle timer for call overlays
-        ├── workers/
-        │   └── whisper.worker.js  # Web Worker executing Transformers.js Whisper-Tiny
+        │   └── SocketContext.jsx  # Socket lifecycle, sync:ack & msg:ack handlers
         ├── services/
-        │   └── api.js             # Axios base instance with credentials
+        │   ├── api.js             # Axios base instance with credentials
+        │   ├── chatDb.js          # Native IndexedDB Vault (connectx_chat_vault)
+        │   └── googleDriveBackup.js # Google Drive AppData sync & JSON vault export
         ├── components/
+        │   ├── BrandLogo/         # 2026 Brand Logo with cyber squircle & styled text
         │   ├── BottomNav/         # Floating bottom navigation bar
         │   ├── CaptionOverlay.jsx # Real-time subtitle display component
-        │   └── GlobalCallHandler/ # Persistent incoming call listener and toast alert
+        │   └── GlobalCallHandler/ # Persistent incoming call listener and alert toast
         └── Pages/
-            ├── welcome/           # Onboarding splash page
-            ├── Login/             # User sign-in with Google & email
-            ├── Register/          # User sign-up with avatar preview
-            ├── UserList/          # Conversations list, search, presence & unread badges
-            ├── ProfileUpdate/     # Profile avatar & info modification
-            ├── Party/             # Watch party & room features
-            └── ChatRoom/          # 1-on-1 Chatroom with AI tools, Voice & Video Call
+            ├── welcome/           # 2026 Public Landing page & Google compliance showcase
+            ├── Login/             # Sign-in with BrandLogo & Google OAuth
+            ├── Register/          # Sign-up with BrandLogo & avatar preview
+            ├── UserList/          # Conversations list merged with local IndexedDB
+            ├── ProfileUpdate/     # Profile settings, eviction status & Chat Vault controls
+            ├── Party/             # Synchronized watch parties & P2P voice lounges
+            ├── Legal/             # In-app Privacy Policy & Terms of Service
+            └── ChatRoom/          # 1-on-1 Chatroom with 0ms IndexedDB rendering & AI tools
 ```
 
 ---
@@ -290,46 +324,49 @@ ConnectX_P_9/
 
 ### Authentication (`/api/auth`)
 
-| Method | Endpoint             | Description                                       | Rate Limited |
-| :----- | :------------------- | :------------------------------------------------ | :----------: |
-| `POST` | `/api/auth/register` | Register new user with optional avatar image      |  Yes (5/hr)  |
-| `POST` | `/api/auth/login`    | Login with email and password                     |  Yes (5/hr)  |
-| `POST` | `/api/auth/google`   | Sign in or sign up with Google OAuth access token |  Yes (5/hr)  |
-| `POST` | `/api/auth/logout`   | Clears authentication cookie                      |      No      |
+| Method | Endpoint | Description | Rate Limited |
+| :--- | :--- | :--- | :---: |
+| `POST` | `/api/auth/register` | Register new user with optional avatar image | Yes (5/hr) |
+| `POST` | `/api/auth/login` | Login with email and password | Yes (5/hr) |
+| `POST` | `/api/auth/google` | Sign in or sign up with Google OAuth access token | Yes (5/hr) |
+| `POST` | `/api/auth/logout` | Clears authentication cookie | No |
 
 ### Users (`/api/users`)
 
-| Method | Endpoint                    | Description                                                       | Auth Required |
-| :----- | :-------------------------- | :---------------------------------------------------------------- | :-----------: |
-| `GET`  | `/api/users/participants`   | Fetch all chat contacts with unread counts & last message snippet |      Yes      |
-| `PUT`  | `/api/users/update-profile` | Update profile avatar (ImageKit upload)                           |      Yes      |
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/users/participants` | Fetch all chat contacts with unread counts & last message snippet | Yes |
+| `PUT` | `/api/users/update-profile` | Update profile avatar (ImageKit upload) | Yes |
 
 ### Messages & AI (`/api/messages`)
 
-| Method | Endpoint                            | Description                                                          | Auth Required |
-| :----- | :---------------------------------- | :------------------------------------------------------------------- | :-----------: |
-| `GET`  | `/api/messages/:id`                 | Get full chat history with a user and mark incoming messages as seen |      Yes      |
-| `POST` | `/api/messages/send/:id`            | Send a new message to a user (broadcasts via Socket.io)              |      Yes      |
-| `GET`  | `/api/messages/suggest-replies/:id` | Generate 3 contextual quick replies using Groq LLaMA 3.1             |      Yes      |
-| `GET`  | `/api/messages/summarize/:id`       | Generate a 3-bullet conversation summary using Google Gemini         |      Yes      |
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/api/messages/:id` | Fetch offline pending messages and purge from DB upon receipt | Yes |
+| `POST` | `/api/messages/send/:id` | Send message (delivered instantly peer-to-screen if online) | Yes |
+| `GET` / `POST` | `/api/messages/suggest-replies/:id` | Generate 3 contextual quick replies using Groq LLaMA 3.1 | Yes |
+| `GET` / `POST` | `/api/messages/summarize/:id` | Generate a 3-bullet conversation summary using Google Gemini | Yes |
 
 ---
 
 ## ⚡ Socket.io Events Reference
 
-| Event Name            | Direction       | Payload                                            | Description                                                |
-| :-------------------- | :-------------- | :------------------------------------------------- | :--------------------------------------------------------- |
-| `connection`          | Client ➔ Server | `query: { userId }`                                | Registers user's active socket ID and marks user as online |
-| `getOnlineUsers`      | Server ➔ Client | `string[]` (userIds)                               | Emitted whenever a user connects or disconnects            |
-| `newMessage`          | Server ➔ Client | `Message` object                                   | Delivers newly created message in real time                |
-| `callUser`            | Client ➔ Server | `{ userToCall, signalData, from, name, callType }` | Initiates WebRTC call request                              |
-| `incomingCall`        | Server ➔ Client | `{ signal, from, name, callType }`                 | Alerts the callee of an incoming call                      |
-| `answerCall`          | Client ➔ Server | `{ signal, to }`                                   | Callee sends back SDP answer                               |
-| `callAccepted`        | Server ➔ Client | `signalData`                                       | Caller receives accepted SDP answer                        |
-| `sendIceCandidate`    | Client ➔ Server | `{ to, candidate }`                                | Forwards candidate to peer                                 |
-| `receiveIceCandidate` | Server ➔ Client | `candidate`                                        | Receives peer's ICE candidate                              |
-| `endCall`             | Client ➔ Server | `{ to }`                                           | Notifies peer that call has terminated                     |
-| `callEnded`           | Server ➔ Client | -                                                  | Triggers stream cleanup and resets UI state                |
+| Event Name | Direction | Payload | Description |
+| :--- | :--- | :--- | :--- |
+| `connection` | Client ➔ Server | `query: { userId }` | Registers active socket ID and pushes any pending offline messages |
+| `sync:pending` | Server ➔ Client | `Message[]` | Pushes offline messages waiting in the temporary queue |
+| `sync:ack` | Client ➔ Server | `string[]` (messageIds) | Acknowledges batch commit into IndexedDB; server deletes records |
+| `newMessage` | Server ➔ Client | `Message` object | Delivers message in real time to the online recipient |
+| `msg:ack` | Client ➔ Server | `{ messageId, from }` | Confirms receipt of real-time message |
+| `getOnlineUsers` | Server ➔ Client | `string[]` (userIds) | Emitted whenever a user connects or disconnects |
+| `callUser` | Client ➔ Server | `{ userToCall, signalData, from, name, callType }` | Initiates WebRTC call request |
+| `incomingCall` | Server ➔ Client | `{ signal, from, name, callType }` | Alerts the callee of an incoming call |
+| `answerCall` | Client ➔ Server | `{ signal, to }` | Callee sends back SDP answer |
+| `callAccepted` | Server ➔ Client | `signalData` | Caller receives accepted SDP answer |
+| `sendIceCandidate` | Client ➔ Server | `{ to, candidate }` | Forwards ICE candidate to peer |
+| `receiveIceCandidate` | Server ➔ Client | `candidate` | Receives peer's ICE candidate |
+| `endCall` | Client ➔ Server | `{ to }` | Notifies peer that call has terminated |
+| `callEnded` | Server ➔ Client | - | Triggers stream cleanup and resets UI state |
 
 ---
 
@@ -393,7 +430,7 @@ npm install
 
 ```bash
 npm start
-# Server will run on port 3000 (or specified PORT)
+# Server runs on port 3000 (or specified PORT)
 ```
 
 ### 3. Frontend Setup
@@ -408,7 +445,7 @@ npm install
 
 ```bash
 npm run dev
-# App will run on http://localhost:5173
+# App runs on http://localhost:5173
 ```
 
 ### 4. Build for Production
@@ -420,7 +457,9 @@ npm run build
 
 ---
 
-## 👨‍💻 Author & Contributions
+## 👨‍💻 Author & Support Contacts
 
-Developed with ❤️ by **Sudhanshu Ghosh** ([@sudhanshu9199](https://github.com/sudhanshu9199)).  
-Contributions, feedback, and star ratings are welcome!
+- **Developer & Lead Maintainer:** Sudhanshu Ghosh ([@sudhanshu9199](https://github.com/sudhanshu9199))
+- **Developer Contact:** [shudhanshukumar9713@gmail.com](mailto:shudhanshukumar9713@gmail.com)
+- **Official App Support:** [dearsubject@gmail.com](mailto:dearsubject@gmail.com)
+- **Live Deployment:** [https://connectx-chat-with.netlify.app/](https://connectx-chat-with.netlify.app/)
