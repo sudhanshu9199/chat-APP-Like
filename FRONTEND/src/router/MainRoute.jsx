@@ -20,6 +20,8 @@ const PartyRoom = lazy(() => import("../Pages/Party/PartyRoom/PartyRoom"));
 const DesignPreview = lazy(
   () => import("../Pages/DesignPreview/DesignPreview"),
 );
+const PrivacyPolicy = lazy(() => import("../Pages/Legal/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("../Pages/Legal/TermsOfService"));
 
 const MainRoute = () => {
   const { user } = useSelector((state) => state.auth);
@@ -85,6 +87,8 @@ const MainRoute = () => {
         />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
         {/* Temporary Routes for 2026 UI Design Testing */}
         <Route path="/preview" element={<DesignPreview />} />
         <Route path="/test-ui" element={<DesignPreview />} />

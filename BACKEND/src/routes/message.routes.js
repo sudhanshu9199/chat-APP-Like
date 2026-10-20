@@ -12,7 +12,14 @@ const {
 router.get("/:id", authMiddleware, getMessages);
 router.post("/send/:id", authMiddleware, sendMessage);
 
-router.get("/suggest-replies/:id", authMiddleware, suggestReplies);
-router.get("/summarize/:id", authMiddleware, summarizeChat);
+router
+  .route("/suggest-replies/:id")
+  .get(authMiddleware, suggestReplies)
+  .post(authMiddleware, suggestReplies);
+
+router
+  .route("/summarize/:id")
+  .get(authMiddleware, summarizeChat)
+  .post(authMiddleware, summarizeChat);
 
 module.exports = router;

@@ -18,6 +18,7 @@ import { useNavigate } from "react-router";
 import Dropdown from "./Dropdown/Dropdown";
 import { logoutUser } from "../../Redux/slices/authSlice";
 import { useSocketContext } from "../../context/SocketContext";
+import { getAllConversations } from "../../services/chatDb";
 
 const UserList = () => {
   const navigate = useNavigate();
@@ -48,15 +49,49 @@ const UserList = () => {
     [onlineUserSet],
   );
 
-  // Fetch initial chat participants
+  // Fetch initial chat participants & merge with local IndexedDB conversation summaries
   useEffect(() => {
     let isMounted = true;
     const fetchUsers = async () => {
       try {
         setloading(true);
-        const response = await api.get("/users/participants");
+        const [response, localConvs] = await Promise.all([
+          api.get("/users/participants"),
+          getAllConversations().catch(() => ({})),
+        ]);
+
         if (isMounted) {
-          setusers(response.data.participants || []);
+          const serverParticipants = response.data.participants || [];
+
+          // Merge server directory with local browser IndexedDB summaries
+          const merged = serverParticipants.map((p) => {
+            const pId = String(getUserId(p));
+            const local = localConvs[pId];
+
+            if (local && local.lastMessageAt) {
+              const localDate = new Date(local.lastMessageAt).getTime();
+              const serverDate = p.lastMessageAt ? new Date(p.lastMessageAt).getTime() : 0;
+
+              if (localDate >= serverDate || p.lastMessage === "Start a conversation") {
+                return {
+                  ...p,
+                  lastMessage: local.lastMessage,
+                  lastMessageAt: local.lastMessageAt,
+                  unreadCount: local.unreadCount !== undefined ? local.unreadCount : p.unreadCount,
+                };
+              }
+            }
+            return p;
+          });
+
+          // Sort by latest message timestamp
+          merged.sort((a, b) => {
+            const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+            const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+            return timeB - timeA;
+          });
+
+          setusers(merged);
         }
       } catch (err) {
         console.error("Failed to fetch users:", err);
@@ -73,19 +108,19 @@ const UserList = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [getUserId]);
 
-  // Real-time socket message handler
+  // Real-time socket message handler (updates preview & unread badge)
   useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (newMessage) => {
       setusers((prevUsers) => {
-        return prevUsers.map((user) => {
-          const userId = getUserId(user);
+        const updated = prevUsers.map((user) => {
+          const userId = String(getUserId(user));
 
           // If incoming message from this user: update text, timestamp and increment unread badge
-          if (userId === newMessage.sender) {
+          if (userId === String(newMessage.sender)) {
             return {
               ...user,
               lastMessage: newMessage.text,
@@ -95,7 +130,7 @@ const UserList = () => {
           }
 
           // If current user sent message: update text and timestamp
-          if (userId === newMessage.receiver) {
+          if (userId === String(newMessage.receiver)) {
             return {
               ...user,
               lastMessage: newMessage.text,
@@ -104,6 +139,13 @@ const UserList = () => {
           }
 
           return user;
+        });
+
+        // Resort by most recent activity
+        return updated.sort((a, b) => {
+          const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+          const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+          return timeB - timeA;
         });
       });
     };

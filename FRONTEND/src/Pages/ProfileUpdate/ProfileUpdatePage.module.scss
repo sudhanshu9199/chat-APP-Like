@@ -141,6 +141,232 @@
         }
       }
     }
+
+    /* ─── 2026 CONNECTX CHAT VAULT & ZERO-COST STORAGE SECTION ─── */
+    .vaultSection {
+      margin-top: 30px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+      .vaultHeader {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+
+        .vaultIcon {
+          color: #06b6d4;
+        }
+
+        h3 {
+          font-size: 1.15rem;
+          font-weight: 700;
+          color: #1e293b;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+      }
+
+      .vaultSubtitle {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin-bottom: 16px;
+        line-height: 1.4;
+      }
+
+      .storageStatusCard {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+
+        .statusRow {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+
+          .label {
+            font-size: 0.8rem;
+            color: #475569;
+            font-weight: 500;
+          }
+
+          .protectedBadge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .warningBadge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(245, 158, 11, 0.12);
+            color: #d97706;
+            cursor: pointer;
+            border: 1px dashed #d97706;
+          }
+        }
+
+        .quotaRow {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.78rem;
+          color: #64748b;
+
+          span:last-child {
+            font-weight: 600;
+            color: #0f172a;
+          }
+        }
+      }
+
+      .vaultActionsGrid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .vaultBtn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px 14px;
+          border-radius: 8px;
+          font-size: 0.88rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: 1px solid transparent;
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+
+        .driveBtn {
+          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+          color: #ffffff;
+          box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+
+          &:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+          }
+        }
+
+        .driveRestoreBtn {
+          background: #ffffff;
+          color: #0284c7;
+          border: 1px solid #bae6fd;
+
+          &:hover:not(:disabled) {
+            background: #f0f9ff;
+          }
+        }
+
+        .localRow {
+          display: flex;
+          gap: 8px;
+          margin-top: 4px;
+
+          .exportBtn {
+            flex: 1;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+
+            &:hover:not(:disabled) {
+              background: #e2e8f0;
+            }
+          }
+
+          .importBtn {
+            flex: 1;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+
+            &:hover:not(:disabled) {
+              background: #e2e8f0;
+            }
+          }
+        }
+      }
+
+      .helpLink {
+        background: none;
+        border: none;
+        color: #0284c7;
+        font-size: 0.78rem;
+        cursor: pointer;
+        padding: 4px 0;
+        text-align: center;
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        text-decoration: underline;
+
+        &:hover {
+          color: #0369a1;
+        }
+      }
+
+      .googleGuideBox {
+        margin-top: 12px;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 0.78rem;
+        color: #0369a1;
+        line-height: 1.5;
+
+        h4 {
+          font-size: 0.84rem;
+          font-weight: 700;
+          color: #0c4a6e;
+          margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        ol {
+          margin: 6px 0 8px 16px;
+          padding: 0;
+
+          li {
+            margin-bottom: 4px;
+          }
+        }
+
+        a {
+          color: #0284c7;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+
+        .offlineHint {
+          margin-top: 8px;
+          padding-top: 6px;
+          border-top: 1px dashed #bae6fd;
+          color: #075985;
+          font-size: 0.74rem;
+        }
+      }
+    }
   }
 }
 
@@ -152,3 +378,4 @@
     transform: rotate(360deg);
   }
 }
+

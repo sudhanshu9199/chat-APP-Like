@@ -5,6 +5,7 @@ const connectDB = require("./src/db/db");
 const http = require("http");
 const { Server } = require("socket.io");
 const User = require('./src/models/user.model');
+const Message = require('./src/models/message.model');
 const { registerPartyHandlers } = require('./src/services/socket.service');
 
 const server = http.createServer(app);
@@ -33,10 +34,44 @@ io.on("connection", async (socket) => {
 
     try {
       await User.findByIdAndUpdate(userId, { isOnline: true });
+
+      // ─── WHATSAPP POST OFFICE: DELIVER QUEUED OFFLINE MESSAGES ───
+      const pendingMessages = await Message.find({
+        receiver: userId,
+      }).sort({ createdAt: 1 });
+
+      if (pendingMessages.length > 0) {
+        console.log(`[PostOffice] Delivering ${pendingMessages.length} pending queued messages to user ${userId}`);
+        socket.emit("sync:pending", pendingMessages);
+      }
     } catch (err) {
-      console.error("Error setting user online:", err);
+      console.error("Error setting user online or syncing messages:", err);
     }
   }
+
+  // ─── TWO-PHASE ACKNOWLEDGEMENT & ZERO-COST PURGE HANDLERS ───
+  // Client confirms pending messages committed to local IndexedDB -> Purge from MongoDB
+  socket.on("sync:ack", async ({ messageIds }) => {
+    if (Array.isArray(messageIds) && messageIds.length > 0) {
+      try {
+        const deleteRes = await Message.deleteMany({
+          _id: { $in: messageIds },
+          receiver: userId,
+        });
+        console.log(`[PostOffice] Purged ${deleteRes.deletedCount} delivered messages from MongoDB for ₹0 storage.`);
+      } catch (err) {
+        console.error("[PostOffice] Error purging acknowledged messages:", err);
+      }
+    }
+  });
+
+  // Client confirms real-time message received & stored locally -> Notify sender of delivery
+  socket.on("msg:ack", ({ messageId, senderId }) => {
+    const senderSocketId = io.userSocketMap[senderId];
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("msg:delivered", { messageId });
+    }
+  });
 
   io.emit("getOnlineUsers", Object.keys(io.userSocketMap));
 

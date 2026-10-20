@@ -23,6 +23,12 @@ import VideoCall from "./VideoCalling/VideoCall";
 import UserInfoPopup from "./UserInfo/UserInfoPopup";
 import callMusic from "../../assets/callMusic/Zupiter_&_Jery_Brahma.mp3";
 import { useCompanionPet } from "../../components/CompanionPet/CompanionContext";
+import {
+  getMessagesForChat,
+  saveMessage,
+  saveMessagesBatch,
+  markConversationAsRead,
+} from "../../services/chatDb";
 
 const isNewDay = (currentMsg, prevMsg) => {
   if (!prevMsg) return true;
@@ -93,51 +99,124 @@ const ChatRoomPage = () => {
     }
   }, []);
 
+  // ─── 1. REAL-TIME INCOMING MESSAGE LISTENER ───
   useEffect(() => {
-    socket?.on("newMessage", (newMessage) => {
-      // Only add if it belongs to this chat
-      if (newMessage.sender === receiverId) {
-        setmessages((prev) => [...prev, newMessage]);
+    const handleIncoming = (newMsg) => {
+      // Only process if it belongs to this active chat
+      if (newMsg.sender === receiverId) {
+        setmessages((prev) => {
+          const id = String(newMsg._id || newMsg.id || newMsg.clientMsgId);
+          if (prev.some((m) => String(m._id || m.id || m.clientMsgId) === id)) return prev;
+          return [...prev, newMsg];
+        });
+        markConversationAsRead(receiverId).catch(console.error);
         triggerPetState("IDLE", 3000, "New message! 🐾");
       }
-    });
+    };
 
-    return () => socket?.off("newMessage");
+    socket?.on("newMessage", handleIncoming);
+    return () => socket?.off("newMessage", handleIncoming);
   }, [socket, receiverId, triggerPetState]);
 
+  // ─── 2. INSTANT LOCAL INDEXEDDB LOAD (0ms) + SERVER QUEUE SYNC ───
   useEffect(() => {
-    const getMessages = async () => {
+    let isMounted = true;
+    const currentUserId = currentUser?.id || currentUser?._id;
+
+    const loadLocalAndSyncPending = async () => {
       setloading(true);
       try {
-        // You need to create this route in backend
+        // Step A: Load from local IndexedDB instantly with 0ms network latency
+        const localList = await getMessagesForChat(receiverId, currentUserId);
+        if (isMounted && localList.length > 0) {
+          setmessages(localList);
+          setloading(false);
+        }
+
+        // Mark as read in local storage
+        await markConversationAsRead(receiverId);
+
+        // Step B: Query server for any offline queued messages (purged upon fetch)
         const res = await api.get(`/messages/${receiverId}`);
-        setmessages(res.data);
+        const pending = res.data || [];
+
+        if (pending.length > 0) {
+          await saveMessagesBatch(pending, currentUserId);
+
+          if (isMounted) {
+            setmessages((prev) => {
+              const existingIds = new Set(
+                prev.map((m) => String(m._id || m.id || m.clientMsgId))
+              );
+              const newItems = pending.filter(
+                (m) => !existingIds.has(String(m._id || m.id))
+              );
+              return [...prev, ...newItems];
+            });
+          }
+        }
       } catch (error) {
-        console.error(error);
+        console.error("[ChatRoom] Error loading messages:", error);
       } finally {
-        setloading(false);
+        if (isMounted) setloading(false);
       }
     };
-    if (receiverId) getMessages();
-  }, [receiverId]);
+
+    if (receiverId) loadLocalAndSyncPending();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [receiverId, currentUser]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // ─── 3. STORE-AND-FORWARD SEND (OPTIMISTIC INDEXEDDB + ZERO-DB SERVER RELAY) ───
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
+    const currentUserId = currentUser.id || currentUser._id;
+    const textToSend = newMessage.trim();
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+
+    const optimisticMsg = {
+      _id: tempId,
+      id: tempId,
+      clientMsgId: tempId,
+      sender: currentUserId,
+      receiver: receiverId,
+      text: textToSend,
+      seen: false,
+      delivered: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // 1. Instant local optimistic UI & IndexedDB persistence
+    setmessages((prev) => [...prev, optimisticMsg]);
+    setnewMessage("");
+    await saveMessage(optimisticMsg, currentUserId);
+
     try {
-      // Optimistic UI update (optional)
+      // 2. Post Office server endpoint (0 MongoDB writes if recipient is online!)
       const res = await api.post(`/messages/send/${receiverId}`, {
-        text: newMessage,
+        text: textToSend,
+        clientMsgId: tempId,
       });
-      setmessages([...messages, res.data]);
-      setnewMessage("");
+
+      const confirmedMsg = res.data;
+      // 3. Update local state & IndexedDB with server-assigned ID & delivered flag
+      setmessages((prev) =>
+        prev.map((m) =>
+          m.clientMsgId === tempId || m._id === tempId ? confirmedMsg : m
+        )
+      );
+      await saveMessage(confirmedMsg, currentUserId);
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("[ChatRoom] Error sending message:", error);
     }
   };
 
@@ -379,12 +458,23 @@ const ChatRoomPage = () => {
     setisSuggesting(true);
     triggerPetState("AI_THINKING", 0, "Thinking replies... ⚡");
     try {
-      const res = await api.get(`/messages/suggest-replies/${receiverId}`);
+      // 2026 Client-Context AI: Send recent messages from local IndexedDB
+      const recentContext = messages.slice(-10);
+      const res = await api.post(`/messages/suggest-replies/${receiverId}`, {
+        messages: recentContext,
+      });
       setaiSuggestions(res.data);
       triggerPetState("IDLE", 3000, "3 replies ready! 🐾");
     } catch (err) {
-      console.error("Failed to fetch AI suggestions:", err);
-      triggerPetState("IDLE");
+      console.warn("POST AI suggestions failed, trying GET fallback:", err.message);
+      try {
+        const res = await api.get(`/messages/suggest-replies/${receiverId}`);
+        setaiSuggestions(res.data);
+        triggerPetState("IDLE", 3000, "3 replies ready! 🐾");
+      } catch (fallbackErr) {
+        console.error("Failed to fetch AI suggestions:", fallbackErr);
+        triggerPetState("IDLE");
+      }
     } finally {
       setisSuggesting(false);
     }
@@ -402,12 +492,23 @@ const ChatRoomPage = () => {
     setisSummarizing(true);
     triggerPetState("AI_THINKING", 0, "Analyzing chat... 🧠");
     try {
-      const res = await api.get(`/messages/summarize/${receiverId}`);
+      // 2026 Client-Context AI: Send recent messages from local IndexedDB
+      const recentContext = messages.slice(-20);
+      const res = await api.post(`/messages/summarize/${receiverId}`, {
+        messages: recentContext,
+      });
       setchatSummary(res.data.summary);
       triggerPetState("IDLE", 3000, "Summary ready! ✨");
     } catch (err) {
-      console.error("Failed to fetch AI summary:", err);
-      triggerPetState("IDLE");
+      console.warn("POST AI summary failed, trying GET fallback:", err.message);
+      try {
+        const res = await api.get(`/messages/summarize/${receiverId}`);
+        setchatSummary(res.data.summary);
+        triggerPetState("IDLE", 3000, "Summary ready! ✨");
+      } catch (fallbackErr) {
+        console.error("Failed to fetch AI summary:", fallbackErr);
+        triggerPetState("IDLE");
+      }
     } finally {
       setisSummarizing(false);
     }

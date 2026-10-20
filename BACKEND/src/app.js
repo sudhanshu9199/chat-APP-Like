@@ -12,8 +12,12 @@ const messageRoutes = require("./routes/message.routes");
 const app = express();
 
 app.set("trust proxy", 1);
-// 1. Helmet: Set secure HTTP headers
-app.use(helmet());
+// 1. Helmet: Set secure HTTP headers with Google OAuth popup compatibility
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+  }),
+);
 
 app.use(
   cors({
